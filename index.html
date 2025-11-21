@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Content Studio - Showcase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-text: #f5f5f7;
+            --secondary-text: #a1a1a6;
+            --accent-blue: #0071e3;
+            --accent-purple: #bf5af2;
+            --background: #000000;
+            --surface: #1d1d1f;
+            --border: #424245;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--background);
+            color: var(--primary-text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: saturate(180%) blur(20px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--secondary-text);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-text);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 6rem 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(0, 113, 227, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.5rem;
+            line-height: 1.05;
+            background: linear-gradient(135deg, #ffffff 0%, #a1a1a6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero .subtitle {
+            font-size: clamp(1.25rem, 3vw, 1.75rem);
+            color: var(--secondary-text);
+            margin-bottom: 3rem;
+            font-weight: 400;
+            animation: fadeInUp 1s ease-out 0.2s backwards;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: var(--accent-blue);
+            color: white;
+            text-decoration: none;
+            border-radius: 980px;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            animation: fadeInUp 1s ease-out 0.4s backwards;
+        }
+
+        .cta-button:hover {
+            background: #0077ed;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0, 113, 227, 0.3);
+        }
+
+        /* Section Styles */
+        section {
+            padding: 6rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .section-header p {
+            font-size: 1.25rem;
+            color: var(--secondary-text);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Workflow Grid */
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .workflow-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .workflow-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .workflow-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .workflow-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .workflow-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .workflow-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .workflow-card p {
+            color: var(--secondary-text);
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        /* Showcase Grid */
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .showcase-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .showcase-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .showcase-media {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .showcase-media img,
+        .showcase-media video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .placeholder {
+            color: var(--secondary-text);
+            font-size: 3rem;
+        }
+
+        .showcase-info {
+            padding: 1.5rem;
+        }
+
+        .showcase-info h4 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .showcase-info p {
+            color: var(--secondary-text);
+            font-size: 0.95rem;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(0, 113, 227, 0.2);
+            color: var(--accent-blue);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-top: 0.75rem;
+        }
+
+        /* Video Player Overlay */
+        .video-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(10px);
+        }
+
+        .video-overlay.active {
+            display: flex;
+        }
+
+        .video-player {
+            max-width: 90vw;
+            max-height: 90vh;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.8);
+        }
+
+        .video-player video {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .close-video {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            transition: transform 0.2s ease;
+        }
+
+        .close-video:hover {
+            transform: scale(1.1);
+        }
+
+        /* Features Section */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .feature {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature h4 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .feature p {
+            color: var(--secondary-text);
+            font-size: 0.95rem;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--secondary-text);
+            font-size: 0.875rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .workflow-grid,
+            .showcase-grid {
+                grid-template-columns: 1fr;
+            }
+
+            section {
+                padding: 4rem 1.5rem;
+            }
+        }
+
+        /* Play button for video thumbnails */
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .play-button::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 20px solid #000;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            margin-left: 4px;
+        }
+
+        .showcase-item:hover .play-button {
+            transform: translate(-50%, -50%) scale(1.1);
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo">AI Studio</div>
+            <ul class="nav-links">
+                <li><a href="#workflow">Workflow</a></li>
+                <li><a href="#showcase">Showcase</a></li>
+                <li><a href="#features">Features</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>AI-Powered<br>Creative Studio</h1>
+            <p class="subtitle">Transforming ideas into stunning visuals and videos with cutting-edge AI technology</p>
+            <a href="#workflow" class="cta-button">Explore the Workflow</a>
+        </div>
+    </section>
+
+    <!-- Workflow Section -->
+    <section id="workflow">
+        <div class="section-header">
+            <h2>The Workflow</h2>
+            <p>From concept to creation, experience the complete AI-powered content generation pipeline</p>
+        </div>
+
+        <div class="workflow-grid">
+            <div class="workflow-card">
+                <div class="workflow-icon">💭</div>
+                <h3>Concept</h3>
+                <p>Start with a creative vision. Define your artistic direction, style preferences, and narrative elements.</p>
+            </div>
+
+            <div class="workflow-card">
+                <div class="workflow-icon">🎨</div>
+                <h3>Image Generation</h3>
+                <p>Transform ideas into stunning visuals using state-of-the-art AI models. Fine-tune every detail until perfection.</p>
+            </div>
+
+            <div class="workflow-card">
+                <div class="workflow-icon">🎬</div>
+                <h3>Video Generation</h3>
+                <p>Bring static images to life with AI video generation. Add motion, transitions, and cinematic effects.</p>
+            </div>
+
+            <div class="workflow-card">
+                <div class="workflow-icon">✨</div>
+                <h3>Refinement</h3>
+                <p>Polish your creation with advanced editing tools. Adjust timing, enhance quality, and perfect the final output.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Image Generation Showcase -->
+    <section id="showcase">
+        <div class="section-header">
+            <h2>Image Generation</h2>
+            <p>AI-generated images showcasing the power of modern creative tools</p>
+        </div>
+
+        <div class="showcase-grid">
+            <div class="showcase-item">
+                <div class="showcase-media">
+                    <span class="placeholder">🖼️</span>
+                </div>
+                <div class="showcase-info">
+                    <h4>Futuristic Cityscape</h4>
+                    <p>A neon-lit cyberpunk metropolis at dusk</p>
+                    <span class="tag">Image</span>
+                </div>
+            </div>
+
+            <div class="showcase-item">
+                <div class="showcase-media">
+                    <span class="placeholder">🎨</span>
+                </div>
+                <div class="showcase-info">
+                    <h4>Abstract Portrait</h4>
+                    <p>Artistic interpretation with vibrant colors</p>
+                    <span class="tag">Image</span>
+                </div>
+            </div>
+
+            <div class="showcase-item">
+                <div class="showcase-media">
+                    <span class="placeholder">🌌</span>
+                </div>
+                <div class="showcase-info">
+                    <h4>Cosmic Landscape</h4>
+                    <p>Otherworldly terrain under alien skies</p>
+                    <span class="tag">Image</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Generation Showcase -->
+    <section>
+        <div class="section-header">
+            <h2>Video Generation</h2>
+            <p>Watch AI-generated videos come to life with fluid motion and stunning visuals</p>
+        </div>
+
+        <div class="showcase-grid">
+            <div class="showcase-item" onclick="openVideo('video1')">
+                <div class="showcase-media">
+                    <span class="placeholder">🎥</span>
+                    <div class="play-button"></div>
+                </div>
+                <div class="showcase-info">
+                    <h4>Ocean Waves</h4>
+                    <p>Serene coastal scene with gentle waves</p>
+                    <span class="tag">Video</span>
+                </div>
+            </div>
+
+            <div class="showcase-item" onclick="openVideo('video2')">
+                <div class="showcase-media">
+                    <span class="placeholder">🌠</span>
+                    <div class="play-button"></div>
+                </div>
+                <div class="showcase-info">
+                    <h4>Northern Lights</h4>
+                    <p>Dancing aurora borealis in the night sky</p>
+                    <span class="tag">Video</span>
+                </div>
+            </div>
+
+            <div class="showcase-item" onclick="openVideo('video3')">
+                <div class="showcase-media">
+                    <span class="placeholder">🔥</span>
+                    <div class="play-button"></div>
+                </div>
+                <div class="showcase-info">
+                    <h4>Fire Elements</h4>
+                    <p>Mesmerizing flames in slow motion</p>
+                    <span class="tag">Video</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features">
+        <div class="section-header">
+            <h2>Why Choose AI Studio</h2>
+            <p>Cutting-edge technology meets intuitive design</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h4>Lightning Fast</h4>
+                <p>Generate content in seconds with optimized AI models</p>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon">🎯</div>
+                <h4>Precision Control</h4>
+                <p>Fine-tune every aspect of your creations</p>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <h4>Secure & Private</h4>
+                <p>Your creations remain confidential</p>
+            </div>
+
+            <div class="feature">
+                <div class="feature-icon">📈</div>
+                <h4>Always Improving</h4>
+                <p>Regular updates with the latest AI advancements</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Video Overlay -->
+    <div class="video-overlay" id="videoOverlay" onclick="closeVideo(event)">
+        <div class="video-player">
+            <button class="close-video" onclick="closeVideo(event)">&times;</button>
+            <video id="mainVideo" controls>
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 AI Content Studio. Pushing the boundaries of creative technology.</p>
+    </footer>
+
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Video overlay functions
+        function openVideo(videoId) {
+            const overlay = document.getElementById('videoOverlay');
+            const video = document.getElementById('mainVideo');
+
+            // In a real implementation, you would set the actual video source here
+            // video.src = `videos/${videoId}.mp4`;
+
+            overlay.classList.add('active');
+            // video.play();
+        }
+
+        function closeVideo(event) {
+            if (event.target.id === 'videoOverlay' || event.target.classList.contains('close-video')) {
+                const overlay = document.getElementById('videoOverlay');
+                const video = document.getElementById('mainVideo');
+
+                overlay.classList.remove('active');
+                video.pause();
+                video.currentTime = 0;
+            }
+        }
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observe workflow cards and showcase items
+        document.querySelectorAll('.workflow-card, .showcase-item, .feature').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Add keyboard support for video overlay
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const overlay = document.getElementById('videoOverlay');
+                if (overlay.classList.contains('active')) {
+                    closeVideo({ target: overlay });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
