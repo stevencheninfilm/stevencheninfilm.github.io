@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Content Studio - Showcase</title>
+    <title>AI Content Studio - Creative AI Solutions</title>
     <style>
         * {
             margin: 0;
@@ -12,19 +12,23 @@
         }
 
         :root {
-            --primary-text: #f5f5f7;
-            --secondary-text: #a1a1a6;
-            --accent-blue: #0071e3;
-            --accent-purple: #bf5af2;
-            --background: #000000;
-            --surface: #1d1d1f;
-            --border: #424245;
+            --primary-bg: #000000;
+            --text-primary: #FFFFFF;
+            --text-secondary: #DEDEDE;
+            --accent-yellow: #F7FF9E;
+            --accent-yellow-hover: #E5ED8C;
+            --border-color: #2a2a2a;
+            --card-bg: #0a0a0a;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: var(--background);
-            color: var(--primary-text);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
             line-height: 1.6;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
@@ -37,44 +41,65 @@
             top: 0;
             width: 100%;
             background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: saturate(180%) blur(20px);
+            backdrop-filter: blur(20px);
             z-index: 1000;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            padding: 0.5rem 0;
+            background: rgba(0, 0, 0, 0.95);
         }
 
         .nav-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 1rem 2rem;
+            padding: 1.2rem 3rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .logo {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
         }
 
         .nav-links {
             display: flex;
-            gap: 2rem;
+            gap: 3rem;
+            align-items: center;
             list-style: none;
         }
 
         .nav-links a {
-            color: var(--secondary-text);
+            color: var(--text-secondary);
             text-decoration: none;
-            font-size: 0.875rem;
+            font-size: 0.9rem;
             transition: color 0.3s ease;
+            letter-spacing: 0.01em;
         }
 
         .nav-links a:hover {
-            color: var(--primary-text);
+            color: var(--text-primary);
+        }
+
+        .nav-cta {
+            padding: 0.6rem 1.5rem;
+            background: var(--accent-yellow);
+            color: var(--primary-bg);
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-cta:hover {
+            background: var(--accent-yellow-hover);
+            transform: translateY(-1px);
+            color: var(--primary-bg);
         }
 
         /* Hero Section */
@@ -84,72 +109,89 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 6rem 2rem 4rem;
+            padding: 8rem 2rem 4rem;
             position: relative;
             overflow: hidden;
         }
 
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, rgba(0, 113, 227, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
-            pointer-events: none;
-        }
-
         .hero-content {
-            max-width: 900px;
+            max-width: 1000px;
             position: relative;
             z-index: 1;
         }
 
         .hero h1 {
-            font-size: clamp(3rem, 8vw, 6rem);
+            font-size: clamp(3.5rem, 8vw, 7rem);
             font-weight: 700;
-            letter-spacing: -0.03em;
+            letter-spacing: -0.04em;
             margin-bottom: 1.5rem;
-            line-height: 1.05;
-            background: linear-gradient(135deg, #ffffff 0%, #a1a1a6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: fadeInUp 1s ease-out;
+            line-height: 1.1;
+            color: var(--text-primary);
+        }
+
+        .hero .highlight {
+            color: var(--accent-yellow);
         }
 
         .hero .subtitle {
-            font-size: clamp(1.25rem, 3vw, 1.75rem);
-            color: var(--secondary-text);
+            font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+            color: var(--text-secondary);
             margin-bottom: 3rem;
             font-weight: 400;
-            animation: fadeInUp 1s ease-out 0.2s backwards;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.5;
         }
 
-        .cta-button {
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
             display: inline-block;
             padding: 1rem 2.5rem;
-            background: var(--accent-blue);
-            color: white;
+            background: var(--accent-yellow);
+            color: var(--primary-bg);
             text-decoration: none;
-            border-radius: 980px;
+            border-radius: 6px;
             font-size: 1rem;
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.3s ease;
-            animation: fadeInUp 1s ease-out 0.4s backwards;
+            border: 2px solid var(--accent-yellow);
         }
 
-        .cta-button:hover {
-            background: #0077ed;
+        .btn-primary:hover {
+            background: var(--accent-yellow-hover);
             transform: translateY(-2px);
-            box-shadow: 0 10px 40px rgba(0, 113, 227, 0.3);
+            box-shadow: 0 10px 30px rgba(247, 255, 158, 0.3);
+        }
+
+        .btn-secondary {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: transparent;
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
         }
 
         /* Section Styles */
         section {
-            padding: 6rem 2rem;
+            padding: 6rem 3rem;
             max-width: 1400px;
             margin: 0 auto;
         }
@@ -159,114 +201,108 @@
             margin-bottom: 4rem;
         }
 
+        .section-label {
+            font-size: 0.875rem;
+            color: var(--accent-yellow);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+        }
+
         .section-header h2 {
             font-size: clamp(2.5rem, 5vw, 4rem);
             font-weight: 700;
-            margin-bottom: 1rem;
-            letter-spacing: -0.02em;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
         }
 
         .section-header p {
             font-size: 1.25rem;
-            color: var(--secondary-text);
+            color: var(--text-secondary);
             max-width: 700px;
             margin: 0 auto;
+            line-height: 1.6;
         }
 
         /* Workflow Grid */
         .workflow-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 4rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
         }
 
         .workflow-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            padding: 2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.5rem 2rem;
             transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
-        }
-
-        .workflow-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
         }
 
         .workflow-card:hover {
+            border-color: var(--accent-yellow);
             transform: translateY(-5px);
-            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
 
-        .workflow-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .workflow-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.75rem;
-            margin-bottom: 1.5rem;
+        .workflow-number {
+            font-size: 0.875rem;
+            color: var(--accent-yellow);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
         }
 
         .workflow-card h3 {
             font-size: 1.5rem;
             margin-bottom: 1rem;
             font-weight: 600;
+            color: var(--text-primary);
         }
 
         .workflow-card p {
-            color: var(--secondary-text);
-            line-height: 1.6;
+            color: var(--text-secondary);
+            line-height: 1.7;
             font-size: 1rem;
         }
 
         /* Showcase Grid */
         .showcase-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
             gap: 2rem;
-            margin-top: 4rem;
+            margin-top: 3rem;
         }
 
         .showcase-item {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 18px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
             overflow: hidden;
             transition: all 0.3s ease;
             cursor: pointer;
         }
 
         .showcase-item:hover {
+            border-color: var(--accent-yellow);
             transform: translateY(-5px);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
 
         .showcase-media {
             width: 100%;
             aspect-ratio: 16/9;
-            background: #0a0a0a;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             overflow: hidden;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .showcase-media img,
@@ -277,34 +313,82 @@
         }
 
         .placeholder {
-            color: var(--secondary-text);
+            color: var(--text-secondary);
             font-size: 3rem;
+            opacity: 0.5;
         }
 
         .showcase-info {
-            padding: 1.5rem;
+            padding: 1.75rem;
         }
 
         .showcase-info h4 {
             font-size: 1.25rem;
             margin-bottom: 0.5rem;
             font-weight: 600;
+            color: var(--text-primary);
         }
 
         .showcase-info p {
-            color: var(--secondary-text);
+            color: var(--text-secondary);
             font-size: 0.95rem;
+            line-height: 1.6;
         }
 
         .tag {
             display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background: rgba(0, 113, 227, 0.2);
-            color: var(--accent-blue);
+            padding: 0.375rem 0.875rem;
+            background: rgba(247, 255, 158, 0.1);
+            color: var(--accent-yellow);
             border-radius: 6px;
             font-size: 0.75rem;
-            font-weight: 500;
-            margin-top: 0.75rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            border: 1px solid rgba(247, 255, 158, 0.2);
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-top: 4rem;
+        }
+
+        .feature {
+            text-align: center;
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature:hover .feature-icon {
+            border-color: var(--accent-yellow);
+            transform: translateY(-5px);
+        }
+
+        .feature h4 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .feature p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
         }
 
         /* Video Player Overlay */
@@ -358,86 +442,15 @@
             transform: scale(1.1);
         }
 
-        /* Features Section */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-top: 4rem;
-        }
-
-        .feature {
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .feature h4 {
-            font-size: 1.25rem;
-            margin-bottom: 0.75rem;
-            font-weight: 600;
-        }
-
-        .feature p {
-            color: var(--secondary-text);
-            font-size: 0.95rem;
-        }
-
-        /* Footer */
-        footer {
-            border-top: 1px solid var(--border);
-            padding: 3rem 2rem;
-            text-align: center;
-            color: var(--secondary-text);
-            font-size: 0.875rem;
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in {
-            opacity: 0;
-            animation: fadeInUp 0.8s ease-out forwards;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav-links {
-                gap: 1rem;
-            }
-
-            .workflow-grid,
-            .showcase-grid {
-                grid-template-columns: 1fr;
-            }
-
-            section {
-                padding: 4rem 1.5rem;
-            }
-        }
-
-        /* Play button for video thumbnails */
+        /* Play button */
         .play-button {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.95);
+            width: 70px;
+            height: 70px;
+            background: var(--accent-yellow);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -449,27 +462,94 @@
             content: '';
             width: 0;
             height: 0;
-            border-left: 20px solid #000;
-            border-top: 12px solid transparent;
-            border-bottom: 12px solid transparent;
-            margin-left: 4px;
+            border-left: 18px solid var(--primary-bg);
+            border-top: 11px solid transparent;
+            border-bottom: 11px solid transparent;
+            margin-left: 3px;
         }
 
         .showcase-item:hover .play-button {
             transform: translate(-50%, -50%) scale(1.1);
-            background: white;
+            background: var(--accent-yellow-hover);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        footer a {
+            color: var(--accent-yellow);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: var(--accent-yellow-hover);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 1rem 1.5rem;
+            }
+
+            .nav-links {
+                gap: 1.5rem;
+            }
+
+            .nav-links li:not(:last-child) {
+                display: none;
+            }
+
+            section {
+                padding: 4rem 1.5rem;
+            }
+
+            .workflow-grid,
+            .showcase-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        /* Scroll animations */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
 <body>
     <!-- Navigation -->
-    <nav>
+    <nav id="navbar">
         <div class="nav-container">
             <div class="logo">AI Studio</div>
             <ul class="nav-links">
                 <li><a href="#workflow">Workflow</a></li>
                 <li><a href="#showcase">Showcase</a></li>
                 <li><a href="#features">Features</a></li>
+                <li><a href="#workflow" class="nav-cta">Start Now</a></li>
             </ul>
         </div>
     </nav>
@@ -477,40 +557,44 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <h1>AI-Powered<br>Creative Studio</h1>
-            <p class="subtitle">Transforming ideas into stunning visuals and videos with cutting-edge AI technology</p>
-            <a href="#workflow" class="cta-button">Explore the Workflow</a>
+            <h1>AI-Powered <span class="highlight">Creative Studio</span></h1>
+            <p class="subtitle">Transform your ideas into stunning visuals and videos with cutting-edge AI technology. From concept to creation in minutes.</p>
+            <div class="hero-buttons">
+                <a href="#workflow" class="btn-primary">Explore the Workflow</a>
+                <a href="#showcase" class="btn-secondary">View Showcase</a>
+            </div>
         </div>
     </section>
 
     <!-- Workflow Section -->
     <section id="workflow">
-        <div class="section-header">
+        <div class="section-header fade-up">
+            <div class="section-label">How It Works</div>
             <h2>The Workflow</h2>
             <p>From concept to creation, experience the complete AI-powered content generation pipeline</p>
         </div>
 
         <div class="workflow-grid">
-            <div class="workflow-card">
-                <div class="workflow-icon">💭</div>
+            <div class="workflow-card fade-up">
+                <div class="workflow-number">01</div>
                 <h3>Concept</h3>
                 <p>Start with a creative vision. Define your artistic direction, style preferences, and narrative elements.</p>
             </div>
 
-            <div class="workflow-card">
-                <div class="workflow-icon">🎨</div>
+            <div class="workflow-card fade-up">
+                <div class="workflow-number">02</div>
                 <h3>Image Generation</h3>
                 <p>Transform ideas into stunning visuals using state-of-the-art AI models. Fine-tune every detail until perfection.</p>
             </div>
 
-            <div class="workflow-card">
-                <div class="workflow-icon">🎬</div>
+            <div class="workflow-card fade-up">
+                <div class="workflow-number">03</div>
                 <h3>Video Generation</h3>
                 <p>Bring static images to life with AI video generation. Add motion, transitions, and cinematic effects.</p>
             </div>
 
-            <div class="workflow-card">
-                <div class="workflow-icon">✨</div>
+            <div class="workflow-card fade-up">
+                <div class="workflow-number">04</div>
                 <h3>Refinement</h3>
                 <p>Polish your creation with advanced editing tools. Adjust timing, enhance quality, and perfect the final output.</p>
             </div>
@@ -519,13 +603,14 @@
 
     <!-- Image Generation Showcase -->
     <section id="showcase">
-        <div class="section-header">
-            <h2>Image Generation</h2>
-            <p>AI-generated images showcasing the power of modern creative tools</p>
+        <div class="section-header fade-up">
+            <div class="section-label">Image Generation</div>
+            <h2>AI-Generated Imagery</h2>
+            <p>Showcasing the power of modern creative AI tools</p>
         </div>
 
         <div class="showcase-grid">
-            <div class="showcase-item">
+            <div class="showcase-item fade-up">
                 <div class="showcase-media">
                     <span class="placeholder">🖼️</span>
                 </div>
@@ -536,7 +621,7 @@
                 </div>
             </div>
 
-            <div class="showcase-item">
+            <div class="showcase-item fade-up">
                 <div class="showcase-media">
                     <span class="placeholder">🎨</span>
                 </div>
@@ -547,7 +632,7 @@
                 </div>
             </div>
 
-            <div class="showcase-item">
+            <div class="showcase-item fade-up">
                 <div class="showcase-media">
                     <span class="placeholder">🌌</span>
                 </div>
@@ -562,13 +647,14 @@
 
     <!-- Video Generation Showcase -->
     <section>
-        <div class="section-header">
-            <h2>Video Generation</h2>
+        <div class="section-header fade-up">
+            <div class="section-label">Video Generation</div>
+            <h2>Motion & Animation</h2>
             <p>Watch AI-generated videos come to life with fluid motion and stunning visuals</p>
         </div>
 
         <div class="showcase-grid">
-            <div class="showcase-item" onclick="openVideo('video1')">
+            <div class="showcase-item fade-up" onclick="openVideo('video1')">
                 <div class="showcase-media">
                     <span class="placeholder">🎥</span>
                     <div class="play-button"></div>
@@ -580,7 +666,7 @@
                 </div>
             </div>
 
-            <div class="showcase-item" onclick="openVideo('video2')">
+            <div class="showcase-item fade-up" onclick="openVideo('video2')">
                 <div class="showcase-media">
                     <span class="placeholder">🌠</span>
                     <div class="play-button"></div>
@@ -592,7 +678,7 @@
                 </div>
             </div>
 
-            <div class="showcase-item" onclick="openVideo('video3')">
+            <div class="showcase-item fade-up" onclick="openVideo('video3')">
                 <div class="showcase-media">
                     <span class="placeholder">🔥</span>
                     <div class="play-button"></div>
@@ -608,31 +694,32 @@
 
     <!-- Features Section -->
     <section id="features">
-        <div class="section-header">
+        <div class="section-header fade-up">
+            <div class="section-label">Features</div>
             <h2>Why Choose AI Studio</h2>
             <p>Cutting-edge technology meets intuitive design</p>
         </div>
 
         <div class="features-grid">
-            <div class="feature">
+            <div class="feature fade-up">
                 <div class="feature-icon">⚡</div>
                 <h4>Lightning Fast</h4>
                 <p>Generate content in seconds with optimized AI models</p>
             </div>
 
-            <div class="feature">
+            <div class="feature fade-up">
                 <div class="feature-icon">🎯</div>
                 <h4>Precision Control</h4>
                 <p>Fine-tune every aspect of your creations</p>
             </div>
 
-            <div class="feature">
+            <div class="feature fade-up">
                 <div class="feature-icon">🔒</div>
                 <h4>Secure & Private</h4>
                 <p>Your creations remain confidential</p>
             </div>
 
-            <div class="feature">
+            <div class="feature fade-up">
                 <div class="feature-icon">📈</div>
                 <h4>Always Improving</h4>
                 <p>Regular updates with the latest AI advancements</p>
@@ -657,6 +744,16 @@
     </footer>
 
     <script>
+        // Navbar scroll effect
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
         // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -675,19 +772,13 @@
         function openVideo(videoId) {
             const overlay = document.getElementById('videoOverlay');
             const video = document.getElementById('mainVideo');
-
-            // In a real implementation, you would set the actual video source here
-            // video.src = `videos/${videoId}.mp4`;
-
             overlay.classList.add('active');
-            // video.play();
         }
 
         function closeVideo(event) {
             if (event.target.id === 'videoOverlay' || event.target.classList.contains('close-video')) {
                 const overlay = document.getElementById('videoOverlay');
                 const video = document.getElementById('mainVideo');
-
                 overlay.classList.remove('active');
                 video.pause();
                 video.currentTime = 0;
@@ -697,24 +788,22 @@
         // Intersection Observer for fade-in animations
         const observerOptions = {
             threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
+            rootMargin: '0px 0px -50px 0px'
         };
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('fade-in');
-                    observer.unobserve(entry.target);
+                    entry.target.classList.add('visible');
                 }
             });
         }, observerOptions);
 
-        // Observe workflow cards and showcase items
-        document.querySelectorAll('.workflow-card, .showcase-item, .feature').forEach(el => {
+        document.querySelectorAll('.fade-up').forEach(el => {
             observer.observe(el);
         });
 
-        // Add keyboard support for video overlay
+        // Keyboard support for video overlay
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 const overlay = document.getElementById('videoOverlay');
