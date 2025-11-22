@@ -254,6 +254,74 @@
             z-index: 10 !important;
         }
 
+        /* Draggable Prompt Card */
+        .draggable-card {
+            position: absolute;
+            cursor: grab;
+            z-index: 5;
+        }
+
+        .draggable-card:active {
+            cursor: grabbing;
+        }
+
+        .prompt-card {
+            top: 40%;
+            left: 1%;
+            max-width: 262px;
+            width: 18.75%;
+        }
+
+        .card-image {
+            width: 100%;
+            height: auto;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s ease;
+        }
+
+        .draggable-card:hover .card-image {
+            transform: scale(1.02);
+        }
+
+        /* Typing Overlay */
+        .typing-overlay {
+            position: absolute;
+            top: 30%;
+            left: 8%;
+            width: 83%;
+            padding: 0;
+            pointer-events: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: clamp(0.5rem, 1vw, 0.7rem);
+            line-height: 1.5;
+            font-weight: 700;
+            text-align: left;
+            letter-spacing: -0.01em;
+            word-spacing: 0;
+        }
+
+        .cursor {
+            animation: blink 1s infinite;
+            color: rgba(139, 95, 255, 0.8);
+            font-weight: 900;
+            font-size: 1.5em;
+            margin-left: 2px;
+            display: inline-block;
+            width: 0.15em;
+            transition: opacity 0.5s ease;
+        }
+
+        .cursor.hide {
+            animation: none;
+            opacity: 0;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
         /* Models Section */
         .section_models {
             padding: 8rem 4vw;
@@ -580,10 +648,14 @@
                 </div>
             </div>
 
-            <!-- Draggable Cards Placeholder -->
+            <!-- Draggable Cards -->
             <div class="hero-draggbles-comp">
-                <!-- Add your draggable cards here with node-connect classes -->
-                <!-- Example structure from Weavy - you'll need to add images/content -->
+                <div id="prompt-card" class="draggable-card prompt-card">
+                    <img src="prompt-card.png?v=3" alt="Prompt Card" class="card-image"/>
+                    <div class="typing-overlay">
+                        <span id="typed-text"></span><span class="cursor">|</span>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -870,6 +942,49 @@
                 nav.style.background = 'rgba(0, 0, 0, 0.8)';
             }
         });
+
+        // Make Prompt Card Draggable
+        const promptCard = document.getElementById('prompt-card');
+        if (promptCard) {
+            gsap.set(promptCard, { x: 0, y: 0 });
+
+            Draggable.create(promptCard, {
+                type: 'x,y',
+                bounds: '.section-hero',
+                inertia: true,
+                onPress() {
+                    gsap.to(promptCard, { scale: 1.05, duration: 0.2 });
+                },
+                onRelease() {
+                    gsap.to(promptCard, { scale: 1, duration: 0.2 });
+                }
+            });
+        }
+
+        // Typing Animation
+        const typedTextElement = document.getElementById('typed-text');
+        const cursor = document.querySelector('.cursor');
+        const textToType = "Low-angle ground-level cinematic shot of a Cybertruck entering the frame from the right side at high speed and charging directly toward the camera.";
+        let charIndex = 0;
+        let fullText = '';
+
+        function typeText() {
+            if (charIndex < textToType.length) {
+                fullText += textToType.charAt(charIndex);
+                typedTextElement.innerHTML = fullText;
+                charIndex++;
+                setTimeout(typeText, 30);
+            } else {
+                setTimeout(() => {
+                    typedTextElement.innerHTML = fullText + '<br>';
+                    setTimeout(() => {
+                        cursor.classList.add('hide');
+                    }, 3000);
+                }, 100);
+            }
+        }
+
+        setTimeout(typeText, 1000);
     </script>
 </body>
 </html>
