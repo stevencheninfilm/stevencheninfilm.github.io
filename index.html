@@ -3,37 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Content Studio - Creative AI Solutions</title>
+    <title>Steven AI Studio - Creative Intelligence Platform</title>
+
+    <!-- GSAP & Plugins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/Draggable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leader-line/1.0.3/leader-line.min.js"></script>
+
+    <!-- Lenis Smooth Scroll -->
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.19/bundled/lenis.min.js"></script>
+
+    <!-- Splide Slider -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@3.2.2/dist/css/splide-core.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@3.2.2/dist/js/splide.min.js"></script>
+
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         :root {
-            --primary-bg: #000000;
-            --text-primary: #FFFFFF;
-            --text-secondary: #DEDEDE;
-            --accent-blue: #4A6FFF;
-            --accent-purple: #8B5FFF;
-            --accent-blue-hover: #5A7FFF;
-            --border-color: #2a2a2a;
-            --card-bg: #0a0a0a;
+            font-size: 1vw;
         }
 
-        html {
-            scroll-behavior: smooth;
+        @media (min-width: 1440px) {
+            :root {
+                font-size: 14.4px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            :root {
+                font-size: 1.8vw;
+            }
+        }
+
+        html, body {
+            overscroll-behavior-y: none;
+        }
+
+        html.lenis {
+            height: auto !important;
+        }
+
+        body.lenis {
+            height: auto !important;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-            background: var(--primary-bg);
-            color: var(--text-primary);
-            line-height: 1.6;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            line-height: 1.5;
             overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
         /* Navigation */
@@ -43,30 +70,27 @@
             width: 100%;
             background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             z-index: 1000;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid #DEDEDE;
             transition: all 0.3s ease;
-        }
-
-        nav.scrolled {
-            padding: 0.5rem 0;
-            background: rgba(0, 0, 0, 0.95);
+            mix-blend-mode: normal;
         }
 
         .nav-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 1.2rem 3rem;
+            max-width: 100%;
+            padding: 1.5rem 4vw;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 2rem;
         }
 
-        .logo {
-            font-size: 1.25rem;
-            font-weight: 600;
+        .nav-logo {
+            font-size: 1.2rem;
+            font-weight: 700;
             letter-spacing: -0.02em;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            background: linear-gradient(135deg, #4A6FFF, #8B5FFF);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -74,760 +98,776 @@
 
         .nav-links {
             display: flex;
-            gap: 3rem;
+            gap: 2rem;
             align-items: center;
             list-style: none;
         }
 
-        .nav-links a {
-            color: var(--text-secondary);
+        .nav-link-text-block-large {
+            color: #ffffff;
             text-decoration: none;
-            font-size: 0.9rem;
-            transition: color 0.3s ease;
-            letter-spacing: 0.01em;
-        }
-
-        .nav-links a:hover {
-            color: var(--text-primary);
-        }
-
-        .nav-cta {
-            padding: 0.6rem 1.5rem;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            color: var(--text-primary);
-            border-radius: 6px;
+            font-size: 12px;
             font-weight: 500;
-            transition: all 0.3s ease;
+            letter-spacing: 0.15px;
+            text-transform: uppercase;
+            transition: opacity 0.15s ease;
         }
 
-        .nav-cta:hover {
-            background: linear-gradient(135deg, var(--accent-blue-hover), var(--accent-purple));
-            transform: translateY(-1px);
-            color: var(--text-primary);
+        .nav-link-text-block-large:hover {
+            opacity: 0.7;
+        }
+
+        .nav-button-spacer {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-cta-button {
+            padding: 0.75em 2em;
+            background: #F7FF9E;
+            color: #000000;
+            border: none;
+            border-radius: 0.75em;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+            display: inline-block;
+            mix-blend-mode: normal !important;
+        }
+
+        .nav-cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(247, 255, 158, 0.4);
+        }
+
+        .nav-secondary-button {
+            padding: 0.75em 2em;
+            background: transparent;
+            color: #ffffff;
+            border: 1px solid #DEDEDE;
+            border-radius: 0.75em;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-secondary-button:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
 
         /* Hero Section */
-        .hero {
+        .section-hero {
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 8rem 2rem 4rem;
+            padding: 8rem 4vw 4rem;
             position: relative;
             overflow: hidden;
         }
 
-        .hero-content {
-            max-width: 1000px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero h1 {
-            font-size: clamp(3.5rem, 8vw, 7rem);
-            font-weight: 700;
-            letter-spacing: -0.04em;
-            margin-bottom: 1.5rem;
-            line-height: 1.1;
-            color: var(--text-primary);
-        }
-
-        .hero .highlight {
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero .subtitle {
-            font-size: clamp(1.25rem, 2.5vw, 1.5rem);
-            color: var(--text-secondary);
-            margin-bottom: 3rem;
-            font-weight: 400;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-            line-height: 1.5;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn-primary {
-            display: inline-block;
-            padding: 1rem 2.5rem;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            color: var(--text-primary);
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .btn-primary:hover {
-            background: linear-gradient(135deg, var(--accent-blue-hover), var(--accent-purple));
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(74, 111, 255, 0.4);
-        }
-
-        .btn-secondary {
-            display: inline-block;
-            padding: 1rem 2.5rem;
-            background: transparent;
-            color: var(--text-primary);
-            text-decoration: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: 2px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--text-secondary);
-            background: rgba(255, 255, 255, 0.05);
-            transform: translateY(-2px);
-        }
-
-        /* Section Styles */
-        section {
-            padding: 6rem 3rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 4rem;
-        }
-
-        .section-label {
-            font-size: 0.875rem;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 1rem;
-        }
-
-        .section-header h2 {
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            letter-spacing: -0.03em;
-            line-height: 1.2;
-        }
-
-        .section-header p {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            max-width: 700px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        /* Workflow Grid */
-        .workflow-grid {
+        .grid-container.is-hero {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 3rem;
-        }
-
-        .workflow-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 2.5rem 2rem;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .workflow-card:hover {
-            border-color: var(--accent-blue);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(74, 111, 255, 0.2);
-        }
-
-        .workflow-number {
-            font-size: 0.875rem;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            letter-spacing: 0.05em;
-        }
-
-        .workflow-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .workflow-card p {
-            color: var(--text-secondary);
-            line-height: 1.7;
-            font-size: 1rem;
-        }
-
-        /* Showcase Grid */
-        .showcase-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .showcase-item {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .showcase-item:hover {
-            border-color: var(--accent-blue);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(74, 111, 255, 0.2);
-        }
-
-        .showcase-media {
-            width: 100%;
-            aspect-ratio: 16/9;
-            background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
             position: relative;
-            overflow: hidden;
-            border-bottom: 1px solid var(--border-color);
+            min-height: 80vh;
         }
 
-        .showcase-media img,
-        .showcase-media video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .h1-wrapper {
+            text-align: center;
+            position: relative;
+            z-index: 2;
         }
 
-        .placeholder {
-            color: var(--text-secondary);
-            font-size: 3rem;
-            opacity: 0.5;
+        .heading_h1-hero {
+            font-size: clamp(4rem, 10vw, 10rem);
+            font-weight: 800;
+            line-height: 0.95;
+            letter-spacing: -0.05em;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, #4A6FFF, #8B5FFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0;
         }
 
-        .showcase-info {
-            padding: 1.75rem;
-        }
-
-        .showcase-info h4 {
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .showcase-info p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        .tag {
-            display: inline-block;
-            padding: 0.375rem 0.875rem;
-            background: rgba(74, 111, 255, 0.1);
-            color: var(--accent-blue);
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-top: 1rem;
-            border: 1px solid rgba(74, 111, 255, 0.3);
-        }
-
-        /* Features Grid */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 3rem;
-            margin-top: 4rem;
-        }
-
-        .feature {
+        .vertical-wrapp {
+            grid-column: 1 / -1;
             text-align: center;
         }
 
-        .feature-icon {
-            width: 70px;
-            height: 70px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin: 0 auto 1.5rem;
-            transition: all 0.3s ease;
+        .paragraph-wrapper {
+            max-width: 900px;
+            margin: 0 auto 3rem;
         }
 
-        .feature:hover .feature-icon {
-            border-color: var(--accent-blue);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(74, 111, 255, 0.2);
+        .text-size-large {
+            font-size: clamp(1.2rem, 2vw, 1.5rem);
+            color: #DEDEDE;
+            line-height: 1.5;
+            opacity: 0;
         }
 
-        .feature h4 {
-            font-size: 1.25rem;
-            margin-bottom: 0.75rem;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .feature p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        /* Video Player Overlay */
-        .video-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.95);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            backdrop-filter: blur(10px);
-        }
-
-        .video-overlay.active {
-            display: flex;
-        }
-
-        .video-player {
-            max-width: 90vw;
-            max-height: 90vh;
-            position: relative;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.8);
-        }
-
-        .video-player video {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .close-video {
-            position: absolute;
-            top: -50px;
-            right: 0;
-            color: white;
-            font-size: 2rem;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 0.5rem;
-            transition: transform 0.2s ease;
-        }
-
-        .close-video:hover {
-            transform: scale(1.1);
-        }
-
-        /* Play button */
-        .play-button {
+        /* Hero Draggable Cards */
+        .hero-draggbles-comp {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            max-width: 1400px;
+            pointer-events: all;
+            z-index: 1;
+        }
+
+        .node-connect {
+            position: absolute;
+            cursor: grab;
+        }
+
+        .node-connect:active {
+            cursor: grabbing;
+        }
+
+        .line-anchor {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+        }
+
+        .line-anchor.start {
+            top: 50%;
+            right: 0;
+        }
+
+        .line-anchor.end {
+            top: 50%;
+            left: 0;
+        }
+
+        .leader-line {
+            z-index: 10 !important;
+        }
+
+        /* Models Section */
+        .section_models {
+            padding: 8rem 4vw;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .models_content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 4rem;
+            margin-bottom: 4rem;
+        }
+
+        .heading-style-xl {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .models_item-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .models_item {
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #DEDEDE;
+            border-radius: 0.75em;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            color: #ffffff;
+        }
+
+        .models_item:hover,
+        .models_item.is-active {
+            color: #F7FF9E;
+            background: rgba(247, 255, 158, 0.1);
+            border-color: #F7FF9E;
+            transform: translateY(-4px);
+        }
+
+        .models_bg-image-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .models_bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.05s ease;
+            z-index: 0;
+        }
+
+        .models_bg-image.active {
+            opacity: 1;
+            z-index: 1;
+        }
+
+        /* Trust Section */
+        .section-logo-marquee {
+            padding: 6rem 4vw;
+            border-top: 1px solid #DEDEDE;
+            border-bottom: 1px solid #DEDEDE;
+            overflow: hidden;
+        }
+
+        .logos_header-wrapp {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .heading-style-medium-36 {
+            font-size: 2.25rem;
+        }
+
+        .marquee-element {
             display: flex;
-            align-items: center;
+            gap: 4vw;
+            animation: marquee 60s linear infinite;
+        }
+
+        .marquee-content {
+            display: flex;
+            gap: 4vw;
+            flex-shrink: 0;
+        }
+
+        .iamge-carousel_logo {
+            height: 2.5rem;
+            opacity: 0.5;
+            transition: opacity 0.15s ease;
+        }
+
+        .iamge-carousel_logo:hover {
+            opacity: 1;
+        }
+
+        @keyframes marquee {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* Professional Tools */
+        .section_prof-tools {
+            padding: 8rem 4vw;
+        }
+
+        .tools-header-wrapper {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .prof_center-image-wrapp {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto 3rem;
+            aspect-ratio: 16/10;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .image-tools-inner {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+
+        .image-tools-inner.is-default {
+            opacity: 1;
+        }
+
+        .prof-tools-chips-comp {
+            display: flex;
+            flex-wrap: wrap;
             justify-content: center;
+            gap: 1rem;
+        }
+
+        .tool_chip {
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #DEDEDE;
+            border-radius: 2em;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-transform: capitalize;
+        }
+
+        .tool_chip:hover {
+            background: rgba(247, 255, 158, 0.1);
+            border-color: #F7FF9E;
+            color: #F7FF9E;
+        }
+
+        /* Workflow Slider */
+        .splide {
+            padding: 2rem 0;
+        }
+
+        .splide__track {
+            overflow: visible;
+        }
+
+        .splide__slide {
+            opacity: 0.4;
             transition: all 0.3s ease;
         }
 
-        .play-button::after {
-            content: '';
-            width: 0;
-            height: 0;
-            border-left: 18px solid var(--text-primary);
-            border-top: 11px solid transparent;
-            border-bottom: 11px solid transparent;
-            margin-left: 3px;
+        .splide__slide.is-active {
+            opacity: 1;
+            transform: scale(1.05);
         }
 
-        .showcase-item:hover .play-button {
-            transform: translate(-50%, -50%) scale(1.1);
-            background: linear-gradient(135deg, var(--accent-blue-hover), var(--accent-purple));
-            box-shadow: 0 10px 30px rgba(74, 111, 255, 0.4);
+        /* CTA Section */
+        .cta-section {
+            padding: 10rem 4vw;
+            text-align: center;
+            position: relative;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(247, 255, 158, 0.1) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         /* Footer */
         footer {
-            border-top: 1px solid var(--border-color);
-            padding: 3rem 2rem;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.875rem;
+            border-top: 1px solid #DEDEDE;
+            padding: 5rem 4vw 3rem;
         }
 
-        footer a {
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            margin-bottom: 4rem;
+        }
+
+        .footer-section h4 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 1.5rem;
+            color: #F7FF9E;
+            font-weight: 700;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-section a {
+            color: #DEDEDE;
             text-decoration: none;
-            transition: opacity 0.3s ease;
+            transition: color 0.15s ease;
         }
 
-        footer a:hover {
-            opacity: 0.8;
+        .footer-section a:hover {
+            color: #ffffff;
+        }
+
+        .footer-bottom {
+            padding-top: 3rem;
+            border-top: 1px solid #DEDEDE;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #DEDEDE;
+            font-size: 0.9rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-tagline {
+            font-style: italic;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .nav-container {
-                padding: 1rem 1.5rem;
-            }
-
-            .nav-links {
-                gap: 1.5rem;
-            }
-
-            .nav-links li:not(:last-child) {
+            .nav-links li:nth-child(1),
+            .nav-links li:nth-child(2),
+            .nav-links li:nth-child(3) {
                 display: none;
             }
 
-            section {
-                padding: 4rem 1.5rem;
-            }
-
-            .workflow-grid,
-            .showcase-grid {
+            .models_content {
                 grid-template-columns: 1fr;
             }
 
-            .hero-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .btn-primary,
-            .btn-secondary {
-                width: 100%;
-                max-width: 300px;
+            .models_item-list {
+                grid-template-columns: repeat(auto-fit, minmin(140px, 1fr));
             }
         }
 
-        /* Scroll animations */
-        .fade-up {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .fade-up.visible {
-            opacity: 1;
-            transform: translateY(0);
+        /* Pointer Events */
+        .pointer-events-none {
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
     <!-- Navigation -->
-    <nav id="navbar">
+    <nav>
         <div class="nav-container">
-            <div class="logo">AI Studio</div>
+            <div class="nav-logo">Steven AI Studio</div>
             <ul class="nav-links">
-                <li><a href="#workflow">Workflow</a></li>
-                <li><a href="#showcase">Showcase</a></li>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#workflow" class="nav-cta">Start Now</a></li>
+                <li><a href="#" class="nav-link-text-block-large">Collective</a></li>
+                <li><a href="#" class="nav-link-text-block-large">Enterprise</a></li>
+                <li><a href="#" class="nav-link-text-block-large">Pricing</a></li>
+                <li class="nav-button-spacer">
+                    <a href="#" class="nav-secondary-button">Sign In</a>
+                    <a href="#" class="nav-cta-button">Start Now</a>
+                </li>
             </ul>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1>AI-Powered <span class="highlight">Creative Studio</span></h1>
-            <p class="subtitle">Transform your ideas into stunning visuals and videos with cutting-edge AI technology. From concept to creation in minutes.</p>
-            <div class="hero-buttons">
-                <a href="#workflow" class="btn-primary">Explore the Workflow</a>
-                <a href="#showcase" class="btn-secondary">View Showcase</a>
+    <section class="section-hero">
+        <div class="grid-container is-hero">
+            <div class="vertical-wrapp">
+                <div class="h1-wrapper">
+                    <h1 class="heading_h1-hero">Artistic Intelligence</h1>
+                </div>
+                <div class="paragraph-wrapper">
+                    <p class="text-size-large">Turn your creative vision into scalable workflows. Access all AI models and professional editing tools in one node based platform.</p>
+                </div>
+            </div>
+
+            <!-- Draggable Cards Placeholder -->
+            <div class="hero-draggbles-comp">
+                <!-- Add your draggable cards here with node-connect classes -->
+                <!-- Example structure from Weavy - you'll need to add images/content -->
             </div>
         </div>
     </section>
 
-    <!-- Workflow Section -->
-    <section id="workflow">
-        <div class="section-header fade-up">
-            <div class="section-label">How It Works</div>
-            <h2>The Workflow</h2>
-            <p>From concept to creation, experience the complete AI-powered content generation pipeline</p>
+    <!-- AI Models Section -->
+    <section class="section_models text-color-white">
+        <div class="padding-global">
+            <div class="container-large">
+                <div class="padding-section-large">
+                    <div class="models_content">
+                        <div class="models_content-left">
+                            <h2 class="heading-style-xl">Use all AI models, together at last</h2>
+                            <p class="text-size-large">AI models and professional editing tools in one node-based platform.</p>
+                        </div>
+                        <div class="models_content-right">
+                            <div class="models_item-list">
+                                <div class="models_item is-active">
+                                    <h3 class="pointer-events-none">GPT img 1</h3>
+                                </div>
+                                <div class="models_item">
+                                    <h3 class="pointer-events-none">Wan</h3>
+                                </div>
+                                <div class="models_item">
+                                    <h3 class="pointer-events-none">SD 3.5</h3>
+                                </div>
+                                <div class="models_item">
+                                    <h3 class="pointer-events-none">Runway Gen-4</h3>
+                                </div>
+                                <div class="models_item">
+                                    <h3 class="pointer-events-none">Imagen 3</h3>
+                                </div>
+                                <div class="models_item">
+                                    <h3 class="pointer-events-none">Flux Pro 1.1</h3>
+                                </div>
+                                <div class="models_item">
+                                    <h3 class="pointer-events-none">Minimax</h3>
+                                </div>
+                                <div class="models_item">
+                                    <h3 class="pointer-events-none">Luma ray 2</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="workflow-grid">
-            <div class="workflow-card fade-up">
-                <div class="workflow-number">01</div>
-                <h3>Concept</h3>
-                <p>Start with a creative vision. Define your artistic direction, style preferences, and narrative elements.</p>
-            </div>
+        <!-- Background Images Layer -->
+        <div class="models_bg-image-layer">
+            <img src="[YOUR-IMAGE-1.jpg]" alt="" class="models_bg-image active"/>
+            <img src="[YOUR-IMAGE-2.jpg]" alt="" class="models_bg-image"/>
+            <img src="[YOUR-IMAGE-3.jpg]" alt="" class="models_bg-image"/>
+            <img src="[YOUR-IMAGE-4.jpg]" alt="" class="models_bg-image"/>
+            <img src="[YOUR-IMAGE-5.jpg]" alt="" class="models_bg-image"/>
+            <img src="[YOUR-IMAGE-6.jpg]" alt="" class="models_bg-image"/>
+            <img src="[YOUR-IMAGE-7.jpg]" alt="" class="models_bg-image"/>
+            <img src="[YOUR-IMAGE-8.jpg]" alt="" class="models_bg-image"/>
+        </div>
+    </section>
 
-            <div class="workflow-card fade-up">
-                <div class="workflow-number">02</div>
-                <h3>Image Generation</h3>
-                <p>Transform ideas into stunning visuals using state-of-the-art AI models. Fine-tune every detail until perfection.</p>
+    <!-- Trust/Logo Marquee Section -->
+    <section class="section-logo-marquee">
+        <div class="logos_header-wrapp">
+            <h2 class="heading-style-xl heading-style-medium-36">Trusted By</h2>
+        </div>
+        <div class="marquee-element">
+            <div class="marquee-content">
+                <img src="[YOUR-LOGO-1.svg]" alt="" class="iamge-carousel_logo"/>
+                <img src="[YOUR-LOGO-2.svg]" alt="" class="iamge-carousel_logo"/>
+                <img src="[YOUR-LOGO-3.svg]" alt="" class="iamge-carousel_logo"/>
+                <img src="[YOUR-LOGO-4.svg]" alt="" class="iamge-carousel_logo"/>
+                <img src="[YOUR-LOGO-5.svg]" alt="" class="iamge-carousel_logo"/>
+                <img src="[YOUR-LOGO-6.svg]" alt="" class="iamge-carousel_logo"/>
             </div>
-
-            <div class="workflow-card fade-up">
-                <div class="workflow-number">03</div>
-                <h3>Video Generation</h3>
-                <p>Bring static images to life with AI video generation. Add motion, transitions, and cinematic effects.</p>
-            </div>
-
-            <div class="workflow-card fade-up">
-                <div class="workflow-number">04</div>
-                <h3>Refinement</h3>
-                <p>Polish your creation with advanced editing tools. Adjust timing, enhance quality, and perfect the final output.</p>
+            <!-- Duplicate for seamless loop -->
+            <div class="marquee-content">
+                <img src="[YOUR-LOGO-1.svg]" alt="" class="iamge-carousel_logo"/>
+                <img src="[YOUR-LOGO-2.svg]" alt="" class="iamge-carousel_logo"/>
+                <img src="[YOUR-LOGO-3.svg]" alt="" class="iamge-carousel_logo"/>
+                <img src="[YOUR-LOGO-4.svg]" alt="" class="iamge-carousel_logo"/>
+                <img src="[YOUR-LOGO-5.svg]" alt="" class="iamge-carousel_logo"/>
+                <img src="[YOUR-LOGO-6.svg]" alt="" class="iamge-carousel_logo"/>
             </div>
         </div>
     </section>
 
-    <!-- Image Generation Showcase -->
-    <section id="showcase">
-        <div class="section-header fade-up">
-            <div class="section-label">Image Generation</div>
-            <h2>AI-Generated Imagery</h2>
-            <p>Showcasing the power of modern creative AI tools</p>
+    <!-- Professional Tools Section -->
+    <section class="section_prof-tools">
+        <div class="tools-header-wrapper">
+            <h2 class="heading-style-xl">With all the professional tools you rely on</h2>
+            <p class="text-size-large">In one seamless workflow</p>
         </div>
 
-        <div class="showcase-grid">
-            <div class="showcase-item fade-up">
-                <div class="showcase-media">
-                    <span class="placeholder">🖼️</span>
-                </div>
-                <div class="showcase-info">
-                    <h4>Futuristic Cityscape</h4>
-                    <p>A neon-lit cyberpunk metropolis at dusk</p>
-                    <span class="tag">Image</span>
-                </div>
-            </div>
+        <div class="prof_center-image-wrapp">
+            <img src="[YOUR-TOOL-IMAGE-DEFAULT.jpg]" alt="" class="image-tools-inner is-default"/>
+            <img src="[YOUR-TOOL-IMAGE-BLUR.jpg]" alt="" class="image-tools-inner is-blur"/>
+            <img src="[YOUR-TOOL-IMAGE-INVERT.jpg]" alt="" class="image-tools-inner is-invert"/>
+            <img src="[YOUR-TOOL-IMAGE-CROP.jpg]" alt="" class="image-tools-inner is-crop"/>
+            <img src="[YOUR-TOOL-IMAGE-MASK.jpg]" alt="" class="image-tools-inner is-mask-extractor"/>
+            <img src="[YOUR-TOOL-IMAGE-INPAINT.jpg]" alt="" class="image-tools-inner is-inpaint"/>
+            <img src="[YOUR-TOOL-IMAGE-UPSCALE.jpg]" alt="" class="image-tools-inner is-upscale"/>
+        </div>
 
-            <div class="showcase-item fade-up">
-                <div class="showcase-media">
-                    <span class="placeholder">🎨</span>
-                </div>
-                <div class="showcase-info">
-                    <h4>Abstract Portrait</h4>
-                    <p>Artistic interpretation with vibrant colors</p>
-                    <span class="tag">Image</span>
-                </div>
-            </div>
-
-            <div class="showcase-item fade-up">
-                <div class="showcase-media">
-                    <span class="placeholder">🌌</span>
-                </div>
-                <div class="showcase-info">
-                    <h4>Cosmic Landscape</h4>
-                    <p>Otherworldly terrain under alien skies</p>
-                    <span class="tag">Image</span>
-                </div>
-            </div>
+        <div class="prof-tools-chips-comp">
+            <div class="tool_chip is-blur"><div class="pointer-events-none">Blur</div></div>
+            <div class="tool_chip is-invert"><div class="pointer-events-none">Invert</div></div>
+            <div class="tool_chip is-crop"><div class="pointer-events-none">Crop</div></div>
+            <div class="tool_chip is-mask-extractor"><div class="pointer-events-none">Mask</div></div>
+            <div class="tool_chip is-inpaint"><div class="pointer-events-none">Inpaint</div></div>
+            <div class="tool_chip is-upscale"><div class="pointer-events-none">Upscale</div></div>
         </div>
     </section>
 
-    <!-- Video Generation Showcase -->
-    <section>
-        <div class="section-header fade-up">
-            <div class="section-label">Video Generation</div>
-            <h2>Motion & Animation</h2>
-            <p>Watch AI-generated videos come to life with fluid motion and stunning visuals</p>
-        </div>
-
-        <div class="showcase-grid">
-            <div class="showcase-item fade-up" onclick="openVideo('video1')">
-                <div class="showcase-media">
-                    <span class="placeholder">🎥</span>
-                    <div class="play-button"></div>
-                </div>
-                <div class="showcase-info">
-                    <h4>Ocean Waves</h4>
-                    <p>Serene coastal scene with gentle waves</p>
-                    <span class="tag">Video</span>
-                </div>
-            </div>
-
-            <div class="showcase-item fade-up" onclick="openVideo('video2')">
-                <div class="showcase-media">
-                    <span class="placeholder">🌠</span>
-                    <div class="play-button"></div>
-                </div>
-                <div class="showcase-info">
-                    <h4>Northern Lights</h4>
-                    <p>Dancing aurora borealis in the night sky</p>
-                    <span class="tag">Video</span>
-                </div>
-            </div>
-
-            <div class="showcase-item fade-up" onclick="openVideo('video3')">
-                <div class="showcase-media">
-                    <span class="placeholder">🔥</span>
-                    <div class="play-button"></div>
-                </div>
-                <div class="showcase-info">
-                    <h4>Fire Elements</h4>
-                    <p>Mesmerizing flames in slow motion</p>
-                    <span class="tag">Video</span>
-                </div>
-            </div>
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2 class="heading-style-xl">Ready to Start?</h2>
+        <p class="text-size-large">Join thousands of creators worldwide</p>
+        <div style="margin-top: 2rem;">
+            <a href="#" class="nav-cta-button" style="padding: 1.5em 3em; font-size: 1.1rem;">Start Creating Now</a>
         </div>
     </section>
-
-    <!-- Features Section -->
-    <section id="features">
-        <div class="section-header fade-up">
-            <div class="section-label">Features</div>
-            <h2>Why Choose AI Studio</h2>
-            <p>Cutting-edge technology meets intuitive design</p>
-        </div>
-
-        <div class="features-grid">
-            <div class="feature fade-up">
-                <div class="feature-icon">⚡</div>
-                <h4>Lightning Fast</h4>
-                <p>Generate content in seconds with optimized AI models</p>
-            </div>
-
-            <div class="feature fade-up">
-                <div class="feature-icon">🎯</div>
-                <h4>Precision Control</h4>
-                <p>Fine-tune every aspect of your creations</p>
-            </div>
-
-            <div class="feature fade-up">
-                <div class="feature-icon">🔒</div>
-                <h4>Secure & Private</h4>
-                <p>Your creations remain confidential</p>
-            </div>
-
-            <div class="feature fade-up">
-                <div class="feature-icon">📈</div>
-                <h4>Always Improving</h4>
-                <p>Regular updates with the latest AI advancements</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Video Overlay -->
-    <div class="video-overlay" id="videoOverlay" onclick="closeVideo(event)">
-        <div class="video-player">
-            <button class="close-video" onclick="closeVideo(event)">&times;</button>
-            <video id="mainVideo" controls>
-                <source src="" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-        </div>
-    </div>
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2024 AI Content Studio. Pushing the boundaries of creative technology.</p>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Get Started</h4>
+                <ul>
+                    <li><a href="#">Sign Up</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Documentation</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Blog</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">Community</a></li>
+                    <li><a href="#">Support</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Connect</h4>
+                <ul>
+                    <li><a href="#">LinkedIn</a></li>
+                    <li><a href="#">Twitter</a></li>
+                    <li><a href="#">Discord</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="footer-tagline">Bridging the gap between AI capabilities and human creativity</div>
+            <div>Steven AI Studio © 2024</div>
+        </div>
     </footer>
 
     <script>
-        // Navbar scroll effect
-        const navbar = document.getElementById('navbar');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 100) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
+        // Lenis Smooth Scroll
+        const lenis = new Lenis({
+            lerp: 0.1,
+            wheelMultiplier: 0.9,
+            smoothWheel: true
         });
 
-        // Smooth scrolling
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // GSAP Setup
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Hero Animations
+        gsap.to('.heading_h1-hero', {
+            opacity: 1,
+            duration: 0.8,
+            delay: 0.4,
+            ease: 'power2.out'
+        });
+
+        gsap.to('.text-size-large', {
+            opacity: 1,
+            duration: 0.8,
+            delay: 0.6,
+            ease: 'power2.out'
+        });
+
+        // Models Section - Background Image Swapping
+        const modelItems = document.querySelectorAll('.models_item');
+        const bgImages = document.querySelectorAll('.models_bg-image');
+
+        modelItems.forEach((item, index) => {
+            item.addEventListener('mouseenter', () => {
+                // Remove active from all
+                modelItems.forEach(el => el.classList.remove('is-active'));
+                bgImages.forEach(el => el.classList.remove('active'));
+
+                // Add active to current
+                item.classList.add('is-active');
+                if (bgImages[index]) {
+                    bgImages[index].classList.add('active');
+                }
+            });
+
+            // Scroll trigger for mobile
+            ScrollTrigger.create({
+                trigger: item,
+                start: 'top 40%',
+                end: 'bottom center',
+                onEnter: () => {
+                    modelItems.forEach(el => el.classList.remove('is-active'));
+                    bgImages.forEach(el => el.classList.remove('active'));
+                    item.classList.add('is-active');
+                    if (bgImages[index]) bgImages[index].classList.add('active');
+                },
+                onEnterBack: () => {
+                    modelItems.forEach(el => el.classList.remove('is-active'));
+                    bgImages.forEach(el => el.classList.remove('active'));
+                    item.classList.add('is-active');
+                    if (bgImages[index]) bgImages[index].classList.add('active');
+                }
+            });
+        });
+
+        // Professional Tools - Image Swapping
+        const toolChips = document.querySelectorAll('.prof-tools-chips-comp > div');
+        const toolImages = document.querySelectorAll('.prof_center-image-wrapp > img');
+        const defaultImage = document.querySelector('.image-tools-inner.is-default');
+
+        function showDefaultImage() {
+            toolImages.forEach(img => {
+                gsap.to(img, {
+                    opacity: img === defaultImage ? 1 : 0,
+                    duration: 0.15
+                });
+            });
+            toolChips.forEach(chip => {
+                gsap.to(chip, { opacity: 1, duration: 0.075 });
+            });
+        }
+
+        toolChips.forEach(chip => {
+            chip.addEventListener('mouseenter', () => {
+                const matchClass = Array.from(chip.classList).find(cls => cls.startsWith('is-'));
+                if (!matchClass) return;
+
+                // Dim other chips
+                toolChips.forEach(other => {
+                    if (other !== chip) {
+                        gsap.to(other, { opacity: 0.67, duration: 0.075 });
+                    }
+                });
+
+                // Show matching image
+                toolImages.forEach(img => {
+                    const isMatch = img.classList.contains(matchClass);
+                    gsap.to(img, {
+                        opacity: isMatch ? 1 : 0,
+                        duration: 0.15
                     });
-                }
+                });
+            });
+
+            chip.addEventListener('mouseleave', () => {
+                setTimeout(showDefaultImage, 100);
             });
         });
 
-        // Video overlay functions
-        function openVideo(videoId) {
-            const overlay = document.getElementById('videoOverlay');
-            const video = document.getElementById('mainVideo');
-            overlay.classList.add('active');
-        }
-
-        function closeVideo(event) {
-            if (event.target.id === 'videoOverlay' || event.target.classList.contains('close-video')) {
-                const overlay = document.getElementById('videoOverlay');
-                const video = document.getElementById('mainVideo');
-                overlay.classList.remove('active');
-                video.pause();
-                video.currentTime = 0;
-            }
-        }
-
-        // Intersection Observer for fade-in animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.fade-up').forEach(el => {
-            observer.observe(el);
-        });
-
-        // Keyboard support for video overlay
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                const overlay = document.getElementById('videoOverlay');
-                if (overlay.classList.contains('active')) {
-                    closeVideo({ target: overlay });
-                }
+        // Navigation Scroll Effect
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('nav');
+            if (window.pageYOffset > 100) {
+                nav.style.background = 'rgba(0, 0, 0, 0.95)';
+            } else {
+                nav.style.background = 'rgba(0, 0, 0, 0.8)';
             }
         });
     </script>
