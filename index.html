@@ -272,6 +272,13 @@
             width: 18.75%;
         }
 
+        .gemini-card {
+            top: 50%;
+            left: 25%;
+            max-width: 262px;
+            width: 18.75%;
+        }
+
         .card-image {
             width: 100%;
             height: auto;
@@ -320,6 +327,24 @@
         @keyframes blink {
             0%, 50% { opacity: 1; }
             51%, 100% { opacity: 0; }
+        }
+
+        /* Bezier Curve SVG */
+        .bezier-curve-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .bezier-curve {
+            fill: none;
+            stroke: #FF69B4;
+            stroke-width: 2;
+            opacity: 0.8;
         }
 
         /* Models Section */
@@ -650,11 +675,19 @@
 
             <!-- Draggable Cards -->
             <div class="hero-draggbles-comp">
+                <!-- Bezier Curve SVG -->
+                <svg class="bezier-curve-container" id="curve-svg">
+                    <path id="bezier-path" class="bezier-curve" d=""></path>
+                </svg>
+
                 <div id="prompt-card" class="draggable-card prompt-card">
                     <img src="prompt-card.png?v=3" alt="Prompt Card" class="card-image"/>
                     <div class="typing-overlay">
                         <span id="typed-text"></span><span class="cursor">|</span>
                     </div>
+                </div>
+                <div id="gemini-card" class="draggable-card gemini-card">
+                    <img src="gemini-card.png" alt="Gemini Card" class="card-image"/>
                 </div>
             </div>
         </div>
@@ -985,6 +1018,76 @@
         }
 
         setTimeout(typeText, 1000);
+
+        // Make Gemini Card Draggable
+        const geminiCard = document.getElementById('gemini-card');
+        if (geminiCard) {
+            gsap.set(geminiCard, { x: 0, y: 0 });
+
+            Draggable.create(geminiCard, {
+                type: 'x,y',
+                bounds: '.section-hero',
+                inertia: true,
+                onPress() {
+                    gsap.to(geminiCard, { scale: 1.05, duration: 0.2 });
+                },
+                onRelease() {
+                    gsap.to(geminiCard, { scale: 1, duration: 0.2 });
+                }
+            });
+        }
+
+        // Draw Bezier Curve between cards
+        function updateBezierCurve() {
+            const promptCard = document.getElementById('prompt-card');
+            const geminiCard = document.getElementById('gemini-card');
+            const bezierPath = document.getElementById('bezier-path');
+
+            if (!promptCard || !geminiCard || !bezierPath) return;
+
+            // Get card positions and dimensions
+            const promptRect = promptCard.getBoundingClientRect();
+            const geminiRect = geminiCard.getBoundingClientRect();
+            const heroSection = document.querySelector('.section-hero');
+            const heroRect = heroSection.getBoundingClientRect();
+
+            // Calculate anchor points
+            // Anchor 1: top -32%, right 28% of prompt card
+            const x1 = promptRect.right - (promptRect.width * 0.28) - heroRect.left;
+            const y1 = promptRect.top + (promptRect.height * -0.32) - heroRect.top;
+
+            // Anchor 2: top -23%, left -30% of gemini card
+            const x2 = geminiRect.left + (geminiRect.width * -0.30) - heroRect.left;
+            const y2 = geminiRect.top + (geminiRect.height * -0.23) - heroRect.top;
+
+            // Calculate control points for smooth curve
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+
+            // Control point 1: to the right of start point
+            const cp1x = x1 + dx * 0.5;
+            const cp1y = y1 - dy * 0.3;
+
+            // Control point 2: to the left of end point
+            const cp2x = x2 - dx * 0.5;
+            const cp2y = y2 + dy * 0.3;
+
+            // Create cubic Bezier path
+            const pathData = `M ${x1} ${y1} C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x2} ${y2}`;
+            bezierPath.setAttribute('d', pathData);
+        }
+
+        // Update curve on load and when cards move
+        updateBezierCurve();
+        window.addEventListener('resize', updateBezierCurve);
+
+        // Update curve when dragging
+        if (promptCard) {
+            Draggable.get(promptCard).addEventListener('drag', updateBezierCurve);
+        }
+        if (geminiCard) {
+            Draggable.get(geminiCard).addEventListener('drag', updateBezierCurve);
+        }
     </script>
 </body>
 </html>
