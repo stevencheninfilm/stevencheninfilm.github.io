@@ -295,11 +295,19 @@
             height: auto;
             border-radius: 1.5rem;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, filter 0.3s ease, box-shadow 0.3s ease;
         }
 
         .draggable-card:hover .card-image {
             transform: scale(1.02);
+            filter: brightness(1.2) sepia(100%) hue-rotate(180deg) saturate(400%);
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.6), 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Animation glow states */
+        .draggable-card.glow-orange .card-image {
+            box-shadow: 0 0 40px rgba(245, 158, 11, 0.6), 0 20px 60px rgba(0, 0, 0, 0.5);
+            filter: brightness(1.2);
         }
 
         /* Typing Overlay */
@@ -1197,6 +1205,49 @@
         if (geminiCard) {
             Draggable.get(geminiCard).addEventListener('drag', updateBezierCurve);
         }
+
+        // Sequential Orange Glow Animation
+        function animateCardGlow() {
+            const cards = [promptCard, geminiCard];
+            // Text animation: 133 chars * 30ms = 3990ms, + 1000ms initial delay + 100ms after = ~5090ms total
+            const textAnimationEnd = 5090;
+            const glowDuration = 1500; // Duration each card glows in milliseconds
+            let currentCardIndex = 0;
+
+            function glowNextCard() {
+                // Remove glow from all cards first
+                cards.forEach(card => {
+                    if (card) card.classList.remove('glow-orange');
+                });
+
+                // Add glow to current card
+                if (cards[currentCardIndex]) {
+                    cards[currentCardIndex].classList.add('glow-orange');
+                }
+
+                // For first card, wait until text animation completes before moving to next
+                const waitTime = (currentCardIndex === 0) ? textAnimationEnd : glowDuration;
+
+                // Schedule removal and next card
+                setTimeout(() => {
+                    if (cards[currentCardIndex]) {
+                        cards[currentCardIndex].classList.remove('glow-orange');
+                    }
+
+                    // Move to next card (loop back to start)
+                    currentCardIndex = (currentCardIndex + 1) % cards.length;
+
+                    // Immediately start next card
+                    glowNextCard();
+                }, waitTime);
+            }
+
+            // Start the animation with first card immediately
+            setTimeout(glowNextCard, 1000);
+        }
+
+        // Start the sequential glow animation
+        animateCardGlow();
     </script>
 </body>
 </html>
