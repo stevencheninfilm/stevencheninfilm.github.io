@@ -1052,13 +1052,13 @@
             const heroRect = heroSection.getBoundingClientRect();
 
             // Calculate anchor points
-            // Anchor 1: top -32%, right 28% of prompt card
+            // Anchor 1: top -28%, right 35% of prompt card
             const x1 = promptRect.right - (promptRect.width * 0.28) - heroRect.left;
-            const y1 = promptRect.top + (promptRect.height * -0.32) - heroRect.top;
+            const y1 = promptRect.top + (promptRect.height * -0.35) - heroRect.top;
 
-            // Anchor 2: top -23%, left -30% of gemini card
-            const x2 = geminiRect.left + (geminiRect.width * -0.30) - heroRect.left;
-            const y2 = geminiRect.top + (geminiRect.height * -0.23) - heroRect.top;
+            // Anchor 2: top -19%, left -20% of gemini card
+            const x2 = geminiRect.left + (geminiRect.width * -0.19) - heroRect.left;
+            const y2 = geminiRect.top + (geminiRect.height * -0.20) - heroRect.top;
 
             // Calculate control points for smooth curve
             const dx = x2 - x1;
