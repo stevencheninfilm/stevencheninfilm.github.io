@@ -272,13 +272,6 @@
             width: 18.75%;
         }
 
-        .gemini-card {
-            top: 50%;
-            left: 25%;
-            max-width: 262px;
-            width: 18.75%;
-        }
-
         .card-image {
             width: 100%;
             height: auto;
@@ -686,9 +679,6 @@
                         <span id="typed-text"></span><span class="cursor">|</span>
                     </div>
                 </div>
-                <div id="gemini-card" class="draggable-card gemini-card">
-                    <img src="gemini-card.png" alt="Gemini Card" class="card-image"/>
-                </div>
             </div>
         </div>
     </section>
@@ -990,24 +980,6 @@
                 },
                 onRelease() {
                     gsap.to(promptCard, { scale: 1, duration: 0.2 });
-                }
-            });
-        }
-
-        // Make Gemini Card Draggable
-        const geminiCard = document.getElementById('gemini-card');
-        if (geminiCard) {
-            gsap.set(geminiCard, { x: 0, y: 0 });
-
-            Draggable.create(geminiCard, {
-                type: 'x,y',
-                bounds: '.section-hero',
-                inertia: true,
-                onPress() {
-                    gsap.to(geminiCard, { scale: 1.05, duration: 0.2 });
-                },
-                onRelease() {
-                    gsap.to(geminiCard, { scale: 1, duration: 0.2 });
                 }
             });
         }
