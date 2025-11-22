@@ -366,18 +366,16 @@
             opacity: 0.8;
         }
 
-        /* Models Section */
-        .section_models {
-            padding: 8rem 4vw;
+        /* Showcase Window Section - Museum Style */
+        .section-showcase-window {
+            padding: 10rem 4vw;
             position: relative;
             min-height: 100vh;
         }
 
-        .models_content {
-            display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 4rem;
-            margin-bottom: 4rem;
+        .showcase-header {
+            text-align: center;
+            margin-bottom: 6rem;
         }
 
         .heading-style-xl {
@@ -388,55 +386,308 @@
             margin-bottom: 1.5rem;
         }
 
-        .models_item-list {
+        .exhibit-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        .models_item {
-            padding: 2rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid #DEDEDE;
-            border-radius: 0.75em;
+        .exhibit-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 2px solid rgba(222, 222, 222, 0.2);
+            border-radius: 1.5rem;
+            padding: 3rem 2rem;
             text-align: center;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .exhibit-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(138, 95, 255, 0.1), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .exhibit-card:hover {
+            transform: translateY(-8px);
+            border-color: #8B5FFF;
+            box-shadow: 0 20px 60px rgba(138, 95, 255, 0.3);
+        }
+
+        .exhibit-card:hover::before {
+            opacity: 1;
+        }
+
+        .exhibit-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4A6FFF, #8B5FFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .exhibit-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
             color: #ffffff;
         }
 
-        .models_item:hover,
-        .models_item.is-active {
+        .exhibit-description {
+            font-size: 1rem;
+            color: #DEDEDE;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .exhibit-link {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: rgba(138, 95, 255, 0.1);
+            border: 1px solid #8B5FFF;
+            border-radius: 2rem;
+            color: #8B5FFF;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .exhibit-link:hover {
+            background: #8B5FFF;
+            color: #000000;
+        }
+
+        /* AI Image Showcase Section */
+        .section-image-showcase {
+            padding: 10rem 4vw;
+            position: relative;
+        }
+
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            max-width: 1600px;
+            margin: 4rem auto;
+        }
+
+        .showcase-item {
+            aspect-ratio: 16/9;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(222, 222, 222, 0.2);
+            border-radius: 1rem;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .showcase-item:hover {
+            transform: scale(1.02);
+            border-color: #F7FF9E;
+            box-shadow: 0 10px 40px rgba(247, 255, 158, 0.2);
+        }
+
+        .showcase-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .showcase-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+            padding: 2rem;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .showcase-item:hover .showcase-overlay {
+            transform: translateY(0);
+        }
+
+        .showcase-category {
+            font-size: 0.85rem;
             color: #F7FF9E;
-            background: rgba(247, 255, 158, 0.1);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .showcase-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        /* AI Video Showcase Section */
+        .section-video-showcase {
+            padding: 10rem 4vw;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(74, 111, 255, 0.05) 100%);
+        }
+
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 3rem;
+            max-width: 1600px;
+            margin: 4rem auto;
+        }
+
+        .video-item {
+            aspect-ratio: 16/9;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(74, 111, 255, 0.3);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.4s ease;
+        }
+
+        .video-item:hover {
+            border-color: #4A6FFF;
+            box-shadow: 0 20px 60px rgba(74, 111, 255, 0.4);
+            transform: translateY(-4px);
+        }
+
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(74, 111, 255, 0.1), rgba(138, 95, 255, 0.1));
+            font-size: 1.2rem;
+            color: #DEDEDE;
+        }
+
+        .video-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent);
+        }
+
+        .video-model {
+            font-size: 0.9rem;
+            color: #4A6FFF;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .video-description {
+            font-size: 1.1rem;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* AI Tools Section */
+        .section-ai-tools {
+            padding: 10rem 4vw;
+            position: relative;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 4rem auto;
+        }
+
+        .tool-card {
+            padding: 2.5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(222, 222, 222, 0.2);
+            border-radius: 1.25rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .tool-card:hover {
+            background: rgba(247, 255, 158, 0.05);
             border-color: #F7FF9E;
             transform: translateY(-4px);
         }
 
-        .models_bg-image-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
+        .tool-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4A6FFF, #8B5FFF);
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
         }
 
-        .models_bg-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0;
-            transition: opacity 0.05s ease;
-            z-index: 0;
+        .tool-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: #ffffff;
         }
 
-        .models_bg-image.active {
-            opacity: 1;
-            z-index: 1;
+        .tool-description {
+            font-size: 0.95rem;
+            color: #DEDEDE;
+            line-height: 1.5;
+        }
+
+        /* Workflow Stats Section */
+        .section-stats {
+            padding: 8rem 4vw;
+            background: rgba(247, 255, 158, 0.03);
+            border-top: 1px solid rgba(247, 255, 158, 0.2);
+            border-bottom: 1px solid rgba(247, 255, 158, 0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 2rem;
+        }
+
+        .stat-number {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            background: linear-gradient(135deg, #F7FF9E, #4A6FFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: #DEDEDE;
+            font-weight: 500;
         }
 
         /* Trust Section */
@@ -648,12 +899,31 @@
                 display: none;
             }
 
-            .models_content {
+            .exhibit-grid {
                 grid-template-columns: 1fr;
             }
 
-            .models_item-list {
-                grid-template-columns: repeat(auto-fit, minmin(140px, 1fr));
+            .showcase-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .section-showcase-window,
+            .section-image-showcase,
+            .section-video-showcase,
+            .section-ai-tools {
+                padding: 6rem 4vw;
             }
         }
 
@@ -670,14 +940,14 @@
     <!-- Navigation -->
     <nav>
         <div class="nav-container">
-            <div class="nav-logo">Steven AI Studio</div>
+            <div class="nav-logo">AIGC Video Studio</div>
             <ul class="nav-links">
-                <li><a href="#" class="nav-link-text-block-large">Collective</a></li>
-                <li><a href="#" class="nav-link-text-block-large">Enterprise</a></li>
-                <li><a href="#" class="nav-link-text-block-large">Pricing</a></li>
+                <li><a href="#" class="nav-link-text-block-large">Showcase</a></li>
+                <li><a href="#" class="nav-link-text-block-large">Tools</a></li>
+                <li><a href="#" class="nav-link-text-block-large">Learn</a></li>
                 <li class="nav-button-spacer">
                     <a href="#" class="nav-secondary-button">Sign In</a>
-                    <a href="#" class="nav-cta-button">Start Now</a>
+                    <a href="#" class="nav-cta-button">Get Started</a>
                 </li>
             </ul>
         </div>
@@ -715,121 +985,202 @@
         </div>
     </section>
 
-    <!-- AI Models Section -->
-    <section class="section_models text-color-white">
-        <div class="padding-global">
-            <div class="container-large">
-                <div class="padding-section-large">
-                    <div class="models_content">
-                        <div class="models_content-left">
-                            <h2 class="heading-style-xl">Use all AI models, together at last</h2>
-                            <p class="text-size-large">AI models and professional editing tools in one node-based platform.</p>
-                        </div>
-                        <div class="models_content-right">
-                            <div class="models_item-list">
-                                <div class="models_item is-active">
-                                    <h3 class="pointer-events-none">GPT img 1</h3>
-                                </div>
-                                <div class="models_item">
-                                    <h3 class="pointer-events-none">Wan</h3>
-                                </div>
-                                <div class="models_item">
-                                    <h3 class="pointer-events-none">SD 3.5</h3>
-                                </div>
-                                <div class="models_item">
-                                    <h3 class="pointer-events-none">Runway Gen-4</h3>
-                                </div>
-                                <div class="models_item">
-                                    <h3 class="pointer-events-none">Imagen 3</h3>
-                                </div>
-                                <div class="models_item">
-                                    <h3 class="pointer-events-none">Flux Pro 1.1</h3>
-                                </div>
-                                <div class="models_item">
-                                    <h3 class="pointer-events-none">Minimax</h3>
-                                </div>
-                                <div class="models_item">
-                                    <h3 class="pointer-events-none">Luma ray 2</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Showcase Window Section - Museum Style -->
+    <section class="section-showcase-window">
+        <div class="showcase-header">
+            <h2 class="heading-style-xl">Showcase Window</h2>
+            <p class="text-size-large">Step into our digital museum of AI-powered creations</p>
+        </div>
+        <div class="exhibit-grid">
+            <div class="exhibit-card">
+                <div class="exhibit-number">01</div>
+                <h3 class="exhibit-title">Cinematic Storytelling</h3>
+                <p class="exhibit-description">Explore the intersection of AI and narrative filmmaking. Witness how machine learning transforms scripts into visual poetry.</p>
+                <a href="#" class="exhibit-link">Enter Exhibit</a>
+            </div>
+            <div class="exhibit-card">
+                <div class="exhibit-number">02</div>
+                <h3 class="exhibit-title">Motion Design Lab</h3>
+                <p class="exhibit-description">Discover the future of motion graphics. AI-driven animations that blend creativity with computational precision.</p>
+                <a href="#" class="exhibit-link">Enter Exhibit</a>
+            </div>
+            <div class="exhibit-card">
+                <div class="exhibit-number">03</div>
+                <h3 class="exhibit-title">Visual Effects Studio</h3>
+                <p class="exhibit-description">Dive into cutting-edge VFX workflows. See how AI accelerates complex compositing and scene generation.</p>
+                <a href="#" class="exhibit-link">Enter Exhibit</a>
+            </div>
+            <div class="exhibit-card">
+                <div class="exhibit-number">04</div>
+                <h3 class="exhibit-title">Experimental Cinema</h3>
+                <p class="exhibit-description">Push the boundaries of video art. Experience avant-garde techniques powered by generative models.</p>
+                <a href="#" class="exhibit-link">Enter Exhibit</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Image Showcase Section -->
+    <section class="section-image-showcase">
+        <div class="showcase-header">
+            <h2 class="heading-style-xl">AI-Generated Imagery</h2>
+            <p class="text-size-large">Every frame tells a story crafted by artificial intelligence</p>
+        </div>
+        <div class="showcase-grid">
+            <div class="showcase-item">
+                <div class="showcase-overlay">
+                    <div class="showcase-category">Stable Diffusion XL</div>
+                    <div class="showcase-title">Cyberpunk Cityscape at Dawn</div>
+                </div>
+            </div>
+            <div class="showcase-item">
+                <div class="showcase-overlay">
+                    <div class="showcase-category">Midjourney V6</div>
+                    <div class="showcase-title">Portrait in Ethereal Light</div>
+                </div>
+            </div>
+            <div class="showcase-item">
+                <div class="showcase-overlay">
+                    <div class="showcase-category">DALL-E 3</div>
+                    <div class="showcase-title">Abstract Digital Dreamscape</div>
+                </div>
+            </div>
+            <div class="showcase-item">
+                <div class="showcase-overlay">
+                    <div class="showcase-category">Flux Pro 1.1</div>
+                    <div class="showcase-title">Hyperrealistic Product Shot</div>
+                </div>
+            </div>
+            <div class="showcase-item">
+                <div class="showcase-overlay">
+                    <div class="showcase-category">Imagen 3</div>
+                    <div class="showcase-title">Surreal Landscape Composition</div>
+                </div>
+            </div>
+            <div class="showcase-item">
+                <div class="showcase-overlay">
+                    <div class="showcase-category">Stable Diffusion 3.5</div>
+                    <div class="showcase-title">Cinematic Character Design</div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- Background Images Layer -->
-        <div class="models_bg-image-layer">
-            <img src="[YOUR-IMAGE-1.jpg]" alt="" class="models_bg-image active"/>
-            <img src="[YOUR-IMAGE-2.jpg]" alt="" class="models_bg-image"/>
-            <img src="[YOUR-IMAGE-3.jpg]" alt="" class="models_bg-image"/>
-            <img src="[YOUR-IMAGE-4.jpg]" alt="" class="models_bg-image"/>
-            <img src="[YOUR-IMAGE-5.jpg]" alt="" class="models_bg-image"/>
-            <img src="[YOUR-IMAGE-6.jpg]" alt="" class="models_bg-image"/>
-            <img src="[YOUR-IMAGE-7.jpg]" alt="" class="models_bg-image"/>
-            <img src="[YOUR-IMAGE-8.jpg]" alt="" class="models_bg-image"/>
+    <!-- AI Video Showcase Section -->
+    <section class="section-video-showcase">
+        <div class="showcase-header">
+            <h2 class="heading-style-xl">AI-Generated Video Gallery</h2>
+            <p class="text-size-large">Motion brought to life through neural networks</p>
+        </div>
+        <div class="video-grid">
+            <div class="video-item">
+                <div class="video-placeholder">Video Preview</div>
+                <div class="video-info">
+                    <div class="video-model">Runway Gen-3 Alpha</div>
+                    <div class="video-description">Time-lapse of a digital metropolis emerging from circuits</div>
+                </div>
+            </div>
+            <div class="video-item">
+                <div class="video-placeholder">Video Preview</div>
+                <div class="video-info">
+                    <div class="video-model">Pika Labs 1.0</div>
+                    <div class="video-description">Morphing geometric patterns in fluid motion</div>
+                </div>
+            </div>
+            <div class="video-item">
+                <div class="video-placeholder">Video Preview</div>
+                <div class="video-info">
+                    <div class="video-model">Stable Video Diffusion</div>
+                    <div class="video-description">Camera push through neon-lit alleyways</div>
+                </div>
+            </div>
+            <div class="video-item">
+                <div class="video-placeholder">Video Preview</div>
+                <div class="video-info">
+                    <div class="video-model">Luma Dream Machine</div>
+                    <div class="video-description">Cinematic drone shot over alien terrain</div>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- Trust/Logo Marquee Section -->
-    <section class="section-logo-marquee">
-        <div class="logos_header-wrapp">
-            <h2 class="heading-style-xl heading-style-medium-36">Trusted By</h2>
+    <!-- AI Tools Section -->
+    <section class="section-ai-tools">
+        <div class="showcase-header">
+            <h2 class="heading-style-xl">Essential AI Tools for Video Production</h2>
+            <p class="text-size-large">Your complete toolkit for next-generation workflows</p>
         </div>
-        <div class="marquee-element">
-            <div class="marquee-content">
-                <img src="[YOUR-LOGO-1.svg]" alt="" class="iamge-carousel_logo"/>
-                <img src="[YOUR-LOGO-2.svg]" alt="" class="iamge-carousel_logo"/>
-                <img src="[YOUR-LOGO-3.svg]" alt="" class="iamge-carousel_logo"/>
-                <img src="[YOUR-LOGO-4.svg]" alt="" class="iamge-carousel_logo"/>
-                <img src="[YOUR-LOGO-5.svg]" alt="" class="iamge-carousel_logo"/>
-                <img src="[YOUR-LOGO-6.svg]" alt="" class="iamge-carousel_logo"/>
+        <div class="tools-grid">
+            <div class="tool-card">
+                <div class="tool-icon">🎬</div>
+                <h3 class="tool-name">Text-to-Video</h3>
+                <p class="tool-description">Transform written descriptions into cinematic sequences using Runway, Pika, and Stable Video Diffusion.</p>
             </div>
-            <!-- Duplicate for seamless loop -->
-            <div class="marquee-content">
-                <img src="[YOUR-LOGO-1.svg]" alt="" class="iamge-carousel_logo"/>
-                <img src="[YOUR-LOGO-2.svg]" alt="" class="iamge-carousel_logo"/>
-                <img src="[YOUR-LOGO-3.svg]" alt="" class="iamge-carousel_logo"/>
-                <img src="[YOUR-LOGO-4.svg]" alt="" class="iamge-carousel_logo"/>
-                <img src="[YOUR-LOGO-5.svg]" alt="" class="iamge-carousel_logo"/>
-                <img src="[YOUR-LOGO-6.svg]" alt="" class="iamge-carousel_logo"/>
+            <div class="tool-card">
+                <div class="tool-icon">✂️</div>
+                <h3 class="tool-name">AI Video Editing</h3>
+                <p class="tool-description">Automated cutting, color grading, and scene detection powered by machine learning algorithms.</p>
+            </div>
+            <div class="tool-card">
+                <div class="tool-icon">🎨</div>
+                <div class="tool-name">Style Transfer</div>
+                <p class="tool-description">Apply artistic styles to footage in real-time. Turn any video into Van Gogh or Miyazaki-inspired art.</p>
+            </div>
+            <div class="tool-card">
+                <div class="tool-icon">🔊</div>
+                <h3 class="tool-name">AI Audio Sync</h3>
+                <p class="tool-description">Generate soundscapes and music that perfectly match your visual rhythm and emotional tone.</p>
+            </div>
+            <div class="tool-card">
+                <div class="tool-icon">📐</div>
+                <h3 class="tool-name">Frame Interpolation</h3>
+                <p class="tool-description">Smooth slow-motion effects and increase frame rates with neural frame generation.</p>
+            </div>
+            <div class="tool-card">
+                <div class="tool-icon">🌟</div>
+                <h3 class="tool-name">Enhancement & Upscaling</h3>
+                <p class="tool-description">Restore old footage and upscale to 4K/8K resolution while preserving fine details.</p>
+            </div>
+            <div class="tool-card">
+                <div class="tool-icon">🎭</div>
+                <h3 class="tool-name">Character Animation</h3>
+                <p class="tool-description">Animate 3D models and digital humans with AI-powered motion capture and facial rigging.</p>
+            </div>
+            <div class="tool-card">
+                <div class="tool-icon">🔮</div>
+                <h3 class="tool-name">Scene Generation</h3>
+                <p class="tool-description">Create photorealistic environments and sets without physical production costs.</p>
             </div>
         </div>
     </section>
 
-    <!-- Professional Tools Section -->
-    <section class="section_prof-tools">
-        <div class="tools-header-wrapper">
-            <h2 class="heading-style-xl">With all the professional tools you rely on</h2>
-            <p class="text-size-large">In one seamless workflow</p>
-        </div>
-
-        <div class="prof_center-image-wrapp">
-            <img src="[YOUR-TOOL-IMAGE-DEFAULT.jpg]" alt="" class="image-tools-inner is-default"/>
-            <img src="[YOUR-TOOL-IMAGE-BLUR.jpg]" alt="" class="image-tools-inner is-blur"/>
-            <img src="[YOUR-TOOL-IMAGE-INVERT.jpg]" alt="" class="image-tools-inner is-invert"/>
-            <img src="[YOUR-TOOL-IMAGE-CROP.jpg]" alt="" class="image-tools-inner is-crop"/>
-            <img src="[YOUR-TOOL-IMAGE-MASK.jpg]" alt="" class="image-tools-inner is-mask-extractor"/>
-            <img src="[YOUR-TOOL-IMAGE-INPAINT.jpg]" alt="" class="image-tools-inner is-inpaint"/>
-            <img src="[YOUR-TOOL-IMAGE-UPSCALE.jpg]" alt="" class="image-tools-inner is-upscale"/>
-        </div>
-
-        <div class="prof-tools-chips-comp">
-            <div class="tool_chip is-blur"><div class="pointer-events-none">Blur</div></div>
-            <div class="tool_chip is-invert"><div class="pointer-events-none">Invert</div></div>
-            <div class="tool_chip is-crop"><div class="pointer-events-none">Crop</div></div>
-            <div class="tool_chip is-mask-extractor"><div class="pointer-events-none">Mask</div></div>
-            <div class="tool_chip is-inpaint"><div class="pointer-events-none">Inpaint</div></div>
-            <div class="tool_chip is-upscale"><div class="pointer-events-none">Upscale</div></div>
+    <!-- Stats Section -->
+    <section class="section-stats">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">10x</div>
+                <div class="stat-label">Faster Production</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">AI Models Integrated</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">100K+</div>
+                <div class="stat-label">Videos Created</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">24/7</div>
+                <div class="stat-label">Cloud Rendering</div>
+            </div>
         </div>
     </section>
 
     <!-- CTA Section -->
     <section class="cta-section">
-        <h2 class="heading-style-xl">Ready to Start?</h2>
-        <p class="text-size-large">Join thousands of creators worldwide</p>
+        <h2 class="heading-style-xl">Ready to Transform Your Video Production?</h2>
+        <p class="text-size-large">Join the future of cinematic storytelling with AI-powered workflows</p>
         <div style="margin-top: 2rem;">
-            <a href="#" class="nav-cta-button" style="padding: 1.5em 3em; font-size: 1.1rem;">Start Creating Now</a>
+            <a href="#" class="nav-cta-button" style="padding: 1.5em 3em; font-size: 1.1rem;">Start Your Journey</a>
         </div>
     </section>
 
@@ -837,41 +1188,45 @@
     <footer>
         <div class="footer-content">
             <div class="footer-section">
-                <h4>Get Started</h4>
+                <h4>Platform</h4>
                 <ul>
-                    <li><a href="#">Sign Up</a></li>
-                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Video Generation</a></li>
+                    <li><a href="#">Image Synthesis</a></li>
+                    <li><a href="#">Audio Production</a></li>
+                    <li><a href="#">Node Editor</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Learn</h4>
+                <ul>
                     <li><a href="#">Documentation</a></li>
+                    <li><a href="#">Video Tutorials</a></li>
+                    <li><a href="#">Workflow Templates</a></li>
+                    <li><a href="#">Case Studies</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Community</h4>
+                <ul>
+                    <li><a href="#">Discord Server</a></li>
+                    <li><a href="#">Showcase Gallery</a></li>
+                    <li><a href="#">Creator Forum</a></li>
+                    <li><a href="#">Events & Workshops</a></li>
                 </ul>
             </div>
             <div class="footer-section">
                 <h4>Company</h4>
                 <ul>
-                    <li><a href="#">About</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Blog & Research</a></li>
                     <li><a href="#">Careers</a></li>
-                    <li><a href="#">Blog</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Resources</h4>
-                <ul>
-                    <li><a href="#">Tutorials</a></li>
-                    <li><a href="#">Community</a></li>
-                    <li><a href="#">Support</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Connect</h4>
-                <ul>
-                    <li><a href="#">LinkedIn</a></li>
-                    <li><a href="#">Twitter</a></li>
-                    <li><a href="#">Discord</a></li>
+                    <li><a href="#">Contact</a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
-            <div class="footer-tagline">Bridging the gap between AI capabilities and human creativity</div>
-            <div>Steven AI Studio © 2024</div>
+            <div class="footer-tagline">Empowering creators at the intersection of artificial intelligence and cinematic vision</div>
+            <div>AIGC Video Studio © 2024 - AI-Powered Video Production Platform</div>
         </div>
     </footer>
 
@@ -907,84 +1262,19 @@
             ease: 'power2.out'
         });
 
-        // Models Section - Background Image Swapping
-        const modelItems = document.querySelectorAll('.models_item');
-        const bgImages = document.querySelectorAll('.models_bg-image');
-
-        modelItems.forEach((item, index) => {
-            item.addEventListener('mouseenter', () => {
-                // Remove active from all
-                modelItems.forEach(el => el.classList.remove('is-active'));
-                bgImages.forEach(el => el.classList.remove('active'));
-
-                // Add active to current
-                item.classList.add('is-active');
-                if (bgImages[index]) {
-                    bgImages[index].classList.add('active');
-                }
-            });
-
-            // Scroll trigger for mobile
-            ScrollTrigger.create({
-                trigger: item,
-                start: 'top 40%',
-                end: 'bottom center',
-                onEnter: () => {
-                    modelItems.forEach(el => el.classList.remove('is-active'));
-                    bgImages.forEach(el => el.classList.remove('active'));
-                    item.classList.add('is-active');
-                    if (bgImages[index]) bgImages[index].classList.add('active');
+        // Showcase Cards Animation
+        gsap.utils.toArray('.exhibit-card').forEach((card, index) => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse'
                 },
-                onEnterBack: () => {
-                    modelItems.forEach(el => el.classList.remove('is-active'));
-                    bgImages.forEach(el => el.classList.remove('active'));
-                    item.classList.add('is-active');
-                    if (bgImages[index]) bgImages[index].classList.add('active');
-                }
-            });
-        });
-
-        // Professional Tools - Image Swapping
-        const toolChips = document.querySelectorAll('.prof-tools-chips-comp > div');
-        const toolImages = document.querySelectorAll('.prof_center-image-wrapp > img');
-        const defaultImage = document.querySelector('.image-tools-inner.is-default');
-
-        function showDefaultImage() {
-            toolImages.forEach(img => {
-                gsap.to(img, {
-                    opacity: img === defaultImage ? 1 : 0,
-                    duration: 0.15
-                });
-            });
-            toolChips.forEach(chip => {
-                gsap.to(chip, { opacity: 1, duration: 0.075 });
-            });
-        }
-
-        toolChips.forEach(chip => {
-            chip.addEventListener('mouseenter', () => {
-                const matchClass = Array.from(chip.classList).find(cls => cls.startsWith('is-'));
-                if (!matchClass) return;
-
-                // Dim other chips
-                toolChips.forEach(other => {
-                    if (other !== chip) {
-                        gsap.to(other, { opacity: 0.67, duration: 0.075 });
-                    }
-                });
-
-                // Show matching image
-                toolImages.forEach(img => {
-                    const isMatch = img.classList.contains(matchClass);
-                    gsap.to(img, {
-                        opacity: isMatch ? 1 : 0,
-                        duration: 0.15
-                    });
-                });
-            });
-
-            chip.addEventListener('mouseleave', () => {
-                setTimeout(showDefaultImage, 100);
+                y: 60,
+                opacity: 0,
+                duration: 0.8,
+                delay: index * 0.1,
+                ease: 'power2.out'
             });
         });
 
