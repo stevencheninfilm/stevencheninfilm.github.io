@@ -978,9 +978,33 @@
             font-size: 0.7rem;
             letter-spacing: 2px;
             text-align: center;
-            pointer-events: none;
             z-index: 1000;
             backdrop-filter: blur(5px);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .video-backup-link {
+            color: #00f3ff;
+            text-decoration: none;
+            pointer-events: auto;
+            padding: 4px 12px;
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-size: 0.65rem;
+        }
+
+        .video-backup-link:hover {
+            background: rgba(0, 243, 255, 0.2);
+            border-color: #00f3ff;
+            color: #fff;
+        }
+
+        .video-hint-separator {
+            color: rgba(255, 255, 255, 0.3);
+            pointer-events: none;
         }
 
         .exhibit-grid {
@@ -1787,12 +1811,12 @@
 
             <!-- Video Thumbnails (shown only for 3D LEGO World) -->
             <div class="video-thumbnails" id="videoThumbnails" style="display: none;">
-                <div class="video-thumb" onclick="openVideoModal('https://www.instagram.com/reel/DQs8pwjESBU/')">
+                <div class="video-thumb" onclick="openVideoModal('https://www.instagram.com/reel/DQs8pwjESBU/', 'https://www.instagram.com/p/DQs8pwjESBU/')">
                     <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=400" class="video-thumb-img" alt="Instagram Video">
                     <div class="video-thumb-play"></div>
                     <div class="video-thumb-label">Instagram Showcase</div>
                 </div>
-                <div class="video-thumb" onclick="openVideoModal('https://player.xinpianchang.com/?aid=13531246&mid=NK0mw6jEWqAwW1na')">
+                <div class="video-thumb" onclick="openVideoModal('https://player.xinpianchang.com/?aid=13531246&mid=NK0mw6jEWqAwW1na', 'https://www.xinpianchang.com/a13531246')">
                     <img src="https://images.unsplash.com/photo-1536240478700-b869070f9279?q=80&w=400" class="video-thumb-img" alt="Xinpianchang Video">
                     <div class="video-thumb-play"></div>
                     <div class="video-thumb-label">Xinpianchang Demo</div>
@@ -2662,7 +2686,9 @@
         videoModal.innerHTML = `
             <div class="video-modal-content" id="videoModalContent">
                 <button class="video-modal-close" onclick="closeVideoModal()">&times;</button>
-                <div class="video-modal-hint">CLICK X TO CLOSE &bull; ESC KEY &bull; CLICK OUTSIDE</div>
+                <div class="video-modal-hint" id="videoModalHint">
+                    <span class="video-hint-separator">CLOSE: X &bull; ESC &bull; CLICK OUTSIDE</span>
+                </div>
                 <div id="videoContainer"></div>
             </div>
         `;
@@ -2674,9 +2700,21 @@
         instagramScript.async = true;
         document.body.appendChild(instagramScript);
 
-        function openVideoModal(url) {
+        function openVideoModal(url, backupUrl) {
             const modal = document.getElementById('videoModal');
             const container = document.getElementById('videoContainer');
+            const hintElement = document.getElementById('videoModalHint');
+
+            // Update hint with backup link if provided
+            if (backupUrl) {
+                hintElement.innerHTML = `
+                    <span class="video-hint-separator">CLOSE: X &bull; ESC &bull; CLICK OUTSIDE</span>
+                    <span class="video-hint-separator">&bull;</span>
+                    <a href="${backupUrl}" target="_blank" class="video-backup-link">OPEN IN NEW PAGE</a>
+                `;
+            } else {
+                hintElement.innerHTML = `<span class="video-hint-separator">CLOSE: X &bull; ESC &bull; CLICK OUTSIDE</span>`;
+            }
 
             // Check if it's an Instagram URL
             if (url.includes('instagram.com')) {
