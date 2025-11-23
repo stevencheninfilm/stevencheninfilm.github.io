@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LEGO World: Living AI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body {
+            margin: 0; background-color: #111; overflow: hidden;
+            font-family: 'Press Start 2P', cursive; user-select: none; color: white;
+        }
+
+        /* CANVAS & FX */
+        #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+
+        .vignette {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 60%, rgba(0,0,0,0.5) 100%);
+            pointer-events: none; z-index: 5;
+        }
+        .scanlines {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(to bottom, transparent 0px, transparent 2px, rgba(0,0,0,0.1) 3px);
+            pointer-events: none; z-index: 6;
+        }
+        #flash-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; opacity: 0; pointer-events: none; z-index: 20; transition: opacity 0.1s;
+        }
+
+        /* SIDEBAR GUIDE (DEFAULT OPEN) */
+        #sidebar {
+            position: absolute; top: 0; right: 0; bottom: 0; width: 300px;
+            background: rgba(0, 10, 20, 0.95); border-left: 4px solid #fff;
+            transform: translateX(0); /* OPEN BY DEFAULT */
+            transition: transform 0.3s ease-in-out;
+            pointer-events: auto; padding: 20px; box-sizing: border-box;
+            display: flex; flex-direction: column; gap: 15px;
+            z-index: 50; overflow-y: auto;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+        }
+        #sidebar.closed { transform: translateX(100%); }
+
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #555; padding-bottom: 10px; margin-bottom: 10px; }
+        .sidebar-toggle {
+            pointer-events: auto; cursor: pointer;
+            background: #000; border: 2px solid #fff; color: #fff;
+            padding: 5px 10px; font-size: 0.8rem;
+        }
+        .sidebar-toggle:hover { background: #fff; color: #000; }
+
+        h2 { color: #ffcc00; font-size: 0.9rem; margin: 0; }
+        p { font-size: 0.6rem; line-height: 1.6; color: #ccc; margin: 0; }
+        .key { color: #00f3ff; }
+
+        /* UI LAYOUT */
+        #ui-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 30;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+
+        .top-bar {
+            padding: 20px; display: flex; justify-content: space-between; align-items: flex-start;
+        }
+
+        .hotbar-container {
+            pointer-events: auto; display: flex; justify-content: center;
+            padding-bottom: 20px; gap: 8px;
+        }
+        .slot {
+            width: 48px; height: 48px; background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #555; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; transition: transform 0.1s; position: relative;
+        }
+        .slot.active { border-color: #ffcc00; background: rgba(255, 204, 0, 0.2); transform: translateY(-6px); }
+        .slot-key { position: absolute; top: 2px; left: 4px; font-size: 0.5rem; color: #aaa; }
+
+        /* ICONS */
+        .icon { width: 24px; height: 24px; box-shadow: 2px 2px 0 rgba(0,0,0,0.5); }
+        .i-grass { background: #44aa44; } .i-stone { background: #888; }
+        .i-water { background: #44aaff; opacity: 0.8; } .i-lava { background: #ff4400; }
+        .i-char { background: #ffcc00; border-radius: 50%; }
+        .i-pet { background: #d2691e; border-radius: 4px; border: 2px solid #fff; }
+        .i-tnt { background: repeating-linear-gradient(45deg, #cc0000, #cc0000 5px, #ffffff 5px, #ffffff 10px); border: 1px solid #000; }
+        .i-meteor { background: radial-gradient(circle, #fff, #ff4400); border-radius: 50%; box-shadow: 0 0 5px #ff0000; }
+
+        #start-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 100;
+            display: flex; justify-content: center; align-items: center; flex-direction: column;
+            color: white; cursor: pointer; pointer-events: auto;
+            backdrop-filter: blur(4px);
+        }
+        .blink { animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        #crosshair {
+            position: absolute; top: 50%; left: 50%; width: 20px; height: 20px;
+            transform: translate(-50%, -50%); pointer-events: none; z-index: 20;
+        }
+        #crosshair::before, #crosshair::after { content: ''; position: absolute; background: rgba(255,255,255,0.8); }
+        #crosshair::before { top: 9px; left: 0; width: 20px; height: 2px; }
+        #crosshair::after { top: 0; left: 9px; width: 2px; height: 20px; }
+
+        #seed-display {
+            font-size: 0.6rem; color: #555; margin-top: 5px;
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #fff;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.7rem;
+            cursor: pointer;
+            z-index: 60;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: #fff;
+            color: #000;
+        }
+
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <a href="index.html" class="back-button">← BACK TO STUDIO</a>
+
+    <!-- Added onclick directly here for robustness -->
+    <div id="start-overlay" onclick="initApp()">
+        <h1 style="color:#ffcc00; margin-bottom: 20px; text-shadow: 4px 4px 0 #000;">LIVING WORLD</h1>
+        <div class="blink" style="background:black; padding:10px;">[ CLICK TO INITIALIZE ]</div>
+    </div>
+
+    <div id="flash-overlay"></div>
+    <div class="vignette"></div>
+    <div class="scanlines"></div>
+    <div id="crosshair"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="sidebar-header">
+            <h2>MANUAL</h2>
+            <div class="sidebar-toggle" onclick="toggleSidebar()">CLOSE &gt;</div>
+        </div>
+
+        <div>
+            <p style="color:#fff; margin-bottom:5px;">CONTROLS</p>
+            <p><span class="key">L-CLICK</span> :: Destroy / Interact</p>
+            <p><span class="key">R-CLICK</span> :: Place / Spawn</p>
+            <p><span class="key">1-8</span> :: Select Tool</p>
+            <div id="seed-display">SEED: <span id="seed-val">...</span></div>
+        </div>
+
+        <hr style="border-color:#333; width:100%;">
+
+        <div>
+            <p style="color:#fff; margin-bottom:5px;">AI AGENTS</p>
+            <p>Characters and Pets placed in the world have <b>Autonomy</b>.</p>
+            <br>
+            <p>They will wander and jump up blocks.</p>
+            <p style="color:#f88;">Safe-Walk Enabled: They will not walk off cliffs.</p>
+        </div>
+
+        <div>
+            <p style="color:#fff; margin-bottom:5px;">TOOLS</p>
+            <p>🧱 <b>BLOCKS (1-4)</b><br>Grass, Stone, Water, Lava.</p>
+            <br>
+            <p>🤖 <b>NPCs (5)</b><br>Living LEGO citizens.</p>
+            <br>
+            <p>🐶 <b>PETS (6)</b><br>Cats & Dogs.</p>
+            <br>
+            <p>🧨 <b>TNT (7)</b><br>Ignite with L-Click.</p>
+            <br>
+            <p>☄️ <b>METEOR (8)</b><br>Mass destruction.</p>
+        </div>
+    </div>
+
+    <!-- UI Layer -->
+    <div id="ui-layer">
+        <div class="top-bar">
+            <div>
+                <h1 style="margin:0; color: #fff; font-size: 1rem;">VOXEL ENGINE</h1>
+                <div style="font-size: 0.6rem; color: #888; margin-top: 5px;" id="audio-status">AUDIO READY</div>
+            </div>
+            <div style="display:flex; gap: 15px; align-items:center;">
+                <div id="time-display">12:00 PM</div>
+                <div class="sidebar-toggle" onclick="toggleSidebar()">☰ MENU</div>
+            </div>
+        </div>
+
+        <div class="hotbar-container">
+            <div class="slot active" onclick="selectSlot(0)"><span class="slot-key">1</span><div class="icon i-grass"></div></div>
+            <div class="slot" onclick="selectSlot(1)"><span class="slot-key">2</span><div class="icon i-stone"></div></div>
+            <div class="slot" onclick="selectSlot(2)"><span class="slot-key">3</span><div class="icon i-water"></div></div>
+            <div class="slot" onclick="selectSlot(3)"><span class="slot-key">4</span><div class="icon i-lava"></div></div>
+            <div class="slot" onclick="selectSlot(4)"><span class="slot-key">5</span><div class="icon i-char"></div></div>
+            <div class="slot" onclick="selectSlot(5)"><span class="slot-key">6</span><div class="icon i-pet"></div></div>
+            <div class="slot" onclick="selectSlot(6)"><span class="slot-key">7</span><div class="icon i-tnt"></div></div>
+            <div class="slot" onclick="selectSlot(7)"><span class="slot-key">8</span><div class="icon i-meteor"></div></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- RANDOM SEED GENERATOR ---
+        const SEED = Math.floor(Math.random() * 999999);
+        document.getElementById('seed-val').innerText = SEED;
+
+        function mulberry32(a) {
+            return function() {
+              var t = a += 0x6D2B79F5;
+              t = Math.imul(t ^ t >>> 15, t | 1);
+              t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+              return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            }
+        }
+        const rand = mulberry32(SEED);
+
+        // --- AUDIO SYSTEM ---
+        const AudioSys = {
+            ctx: null,
+            init: function() {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                if(this.ctx.state === 'suspended') this.ctx.resume();
+                document.getElementById('audio-status').innerText = "AUDIO ACTIVE";
+            },
+            tone: function(freq, type, dur, vol=0.1) {
+                if(!this.ctx) return;
+                const o = this.ctx.createOscillator(); o.type = type;
+                const g = this.ctx.createGain();
+                o.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                g.gain.setValueAtTime(vol, this.ctx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime+dur);
+                o.connect(g); g.connect(this.ctx.destination);
+                o.start(); o.stop(this.ctx.currentTime+dur);
+            },
+            noise: function() {
+                if(!this.ctx) return;
+                const b = this.ctx.createBuffer(1, this.ctx.sampleRate, this.ctx.sampleRate);
+                const d = b.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1;
+                const s = this.ctx.createBufferSource(); s.buffer = b;
+                const g = this.ctx.createGain(); g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime+1);
+                s.connect(g); g.connect(this.ctx.destination); s.start();
+            },
+            fx: {
+                break: () => AudioSys.tone(100, 'sawtooth', 0.1, 0.1),
+                place: () => AudioSys.tone(400, 'square', 0.05, 0.05),
+                step: () => AudioSys.tone(150, 'triangle', 0.05, 0.02),
+                explode: () => AudioSys.noise(),
+                fuse: () => AudioSys.tone(800, 'sine', 0.1, 0.02)
+            }
+        };
+
+        // --- GLOBAL HANDLERS ---
+        window.initApp = () => {
+            AudioSys.init();
+            document.getElementById('start-overlay').style.display = 'none';
+        };
+
+        window.toggleSidebar = () => {
+            document.getElementById('sidebar').classList.toggle('closed');
+        };
+
+        // --- STATE ---
+        const CONFIG = { pixelScale: 3 };
+        const state = { tool: 0, time: 0.4, voxels: {}, entities: [], meteors: [] };
+
+        // --- THREEJS ---
+        const scene = new THREE.Scene(); scene.background = new THREE.Color(0x87CEEB);
+        scene.fog = new THREE.Fog(0x87CEEB, 20, 60);
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera.position.set(25, 25, 25);
+        const renderer = new THREE.WebGLRenderer({ antialias: false });
+        renderer.setSize(window.innerWidth/CONFIG.pixelScale, window.innerHeight/CONFIG.pixelScale, false);
+        renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.SoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+        renderer.domElement.style.width = "100%"; renderer.domElement.style.height = "100%";
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; controls.maxDistance = 80;
+
+        // --- LIGHTS ---
+        const ambLight = new THREE.AmbientLight(0xffffff, 0.4); scene.add(ambLight);
+        const sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        sunLight.position.set(20, 50, 10); sunLight.castShadow = true; sunLight.shadow.mapSize.set(1024,1024);
+        scene.add(sunLight);
+        const flashLight = new THREE.PointLight(0xffffff, 0, 15); scene.add(flashLight);
+
+        // --- MATERIALS ---
+        const geoBox = new THREE.BoxGeometry(1, 1, 1);
+        const matCache = {};
+        function getMat(color, transparent=false) {
+            const k = color+(transparent?'T':'F');
+            if(!matCache[k]) matCache[k] = new THREE.MeshStandardMaterial({ color, roughness: 0.5, flatShading: true, transparent, opacity: transparent?0.7:1 });
+            return matCache[k];
+        }
+
+        // --- ENTITY AI ---
+        class Entity {
+            constructor(grp, type, head) {
+                this.grp = grp;
+                this.type = type;
+                this.head = head;
+                this.state = 'IDLE';
+                this.timer = Math.random() * 2;
+                this.targetPos = grp.position.clone();
+            }
+
+            update(dt) {
+                if(this.type === 'TNT') return;
+
+                if (this.state === 'IDLE') {
+                    // Gravity check: Fall if floating
+                    const cx = Math.round(this.grp.position.x);
+                    const cy = Math.round(this.grp.position.y);
+                    const cz = Math.round(this.grp.position.z);
+
+                    if (!state.voxels[`${cx},${cy-1},${cz}`]) {
+                        this.targetPos.set(cx, cy-1, cz);
+                        this.state = 'MOVING';
+                    } else {
+                        this.timer -= dt;
+                        if(this.timer <= 0) this.pickNewTarget();
+                    }
+                } else if (this.state === 'MOVING') {
+                    const dir = new THREE.Vector3().subVectors(this.targetPos, this.grp.position);
+                    const dist = dir.length();
+                    const speed = 2.0 * dt;
+
+                    if (dist < speed) {
+                        this.grp.position.copy(this.targetPos);
+                        this.state = 'IDLE';
+                        this.timer = 1 + Math.random() * 3;
+                    } else {
+                        dir.normalize();
+                        this.grp.position.add(dir.multiplyScalar(speed));
+                        this.grp.lookAt(this.targetPos.x, this.grp.position.y, this.targetPos.z);
+
+                        // Hop animation
+                        // We animate children[0] which is now the "visuals" container
+                        if(this.targetPos.y >= this.grp.position.y) {
+                            this.grp.children[0].position.y = Math.abs(Math.sin(Date.now()*0.015)) * 0.2;
+                        }
+                    }
+                }
+            }
+
+            pickNewTarget() {
+                const dirs = [[0,1], [0,-1], [1,0], [-1,0]];
+                const d = dirs[Math.floor(Math.random()*dirs.length)];
+
+                const curr = this.grp.position;
+                const tx = Math.round(curr.x + d[0]);
+                const tz = Math.round(curr.z + d[1]);
+                let ty = Math.round(curr.y);
+
+                const targetIsEmpty = !state.voxels[`${tx},${ty},${tz}`];
+                const groundBelowTarget = state.voxels[`${tx},${ty-1},${tz}`];
+
+                // Safe walking logic: Only move if target is empty AND there is ground below it
+                if (targetIsEmpty) {
+                    if (groundBelowTarget) {
+                        this.targetPos.set(tx, ty, tz);
+                        this.state = 'MOVING';
+                    }
+                    // Else: Cliff edge, do not move.
+                } else {
+                    // Wall ahead. Can we jump up?
+                    const aboveTargetIsEmpty = !state.voxels[`${tx},${ty+1},${tz}`];
+                    if (aboveTargetIsEmpty) {
+                        this.targetPos.set(tx, ty+1, tz);
+                        this.state = 'MOVING';
+                    }
+                }
+            }
+        }
+
+        // --- OBJECT CREATION ---
+        function addVoxel(x, y, z, type) {
+            const k = `${x},${y},${z}`; if(state.voxels[k]) return;
+            let col=0x888888, isLiq=false;
+            if(type==='grass') col=0x44aa44; else if(type==='dirt') col=0x8B4513;
+            else if(type==='stone') col=0x777777; else if(type==='water'){col=0x44aaff; isLiq=true;}
+            else if(type==='lava'){col=0xff3300; isLiq=true;} else if(type==='tnt') col=0xcc0000;
+
+            const grp = new THREE.Group(); grp.position.set(x,y,z);
+            const box = new THREE.Mesh(geoBox, getMat(col, isLiq));
+            box.castShadow = !isLiq; box.receiveShadow = true;
+            box.userData = { parent: grp, type, x, y, z, isVoxel: true };
+            grp.add(box);
+
+            if(!isLiq) {
+                if(type==='tnt') {
+                    const s = new THREE.Mesh(new THREE.BoxGeometry(1.01, 0.2, 1.01), getMat(0xffffff)); grp.add(s);
+                } else {
+                    const s = new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.3,0.2,8), getMat(col)); s.position.y=0.6; grp.add(s);
+                }
+            } else { box.scale.set(0.9,0.8,0.9); box.position.y=-0.1; }
+
+            scene.add(grp); state.voxels[k] = grp;
+            return grp;
+        }
+
+        function createEntity(x, y, z, type) {
+            const grp = new THREE.Group(); grp.position.set(x,y,z);
+            const visuals = new THREE.Group(); // Container for animation
+            grp.add(visuals); // Index 0
+
+            let headMesh;
+
+            if(type === 'CHAR') {
+                // LEGO CITIZEN (Minifig style)
+                // Random shirt color
+                const shirtCols = [0xff0000, 0x0055cc, 0x00bb00, 0xffffff, 0x333333];
+                const shirtCol = shirtCols[Math.floor(Math.random()*shirtCols.length)];
+
+                // Legs (Dark Blue/Black)
+                const legs = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.3), getMat(0x222222));
+                legs.position.y = 0.2;
+                legs.castShadow = true;
+
+                // Torso (Random Color)
+                const torso = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.3), getMat(shirtCol));
+                torso.position.y = 0.6;
+                torso.castShadow = true;
+
+                // Head (Yellow)
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), getMat(0xffcc00));
+                head.position.y = 0.95;
+                head.castShadow = true;
+
+                visuals.add(legs, torso, head);
+                headMesh = head;
+
+            } else {
+                // PETS (Cat/Dog)
+                let matMain, matSec;
+                if(type==='CAT') { matMain=getMat(0xffaa00); matSec=getMat(0xffffff); }
+                else { matMain=getMat(0x8B4513); matSec=getMat(0xffffff); } // Dog
+
+                const body = new THREE.Mesh(new THREE.BoxGeometry(0.5,0.5,0.8), matMain);
+                body.position.y=0.5; body.castShadow = true;
+
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.5,0.5,0.5), matMain);
+                head.position.set(0,1,0.5); head.castShadow = true;
+
+                visuals.add(body, head);
+                headMesh = head;
+            }
+
+            // Hitbox (Invisible)
+            const hit = new THREE.Mesh(new THREE.BoxGeometry(0.8,1.5,0.8), new THREE.MeshBasicMaterial({visible:false}));
+            hit.position.y=0.75; hit.userData={parent:grp, isEntity:true};
+            grp.add(hit); // Index 1
+
+            scene.add(grp);
+            const ent = new Entity(grp, type, headMesh);
+            hit.userData.ref = ent;
+            state.entities.push(ent);
+            spawnParticles(grp.position, 0xffffff);
+        }
+
+        // --- FX ---
+        const particles = []; const partGeo = new THREE.BoxGeometry(0.2,0.2,0.2);
+        function spawnParticles(pos, col, count=5) {
+            const mat = getMat(col);
+            for(let i=0;i<count;i++) {
+                const m = new THREE.Mesh(partGeo, mat);
+                m.position.copy(pos).addScalar((Math.random()-0.5)*0.5); scene.add(m);
+                particles.push({mesh:m, vel: new THREE.Vector3((Math.random()-0.5)*0.2, Math.random()*0.2, (Math.random()-0.5)*0.2), life: 60});
+            }
+        }
+        let shake=0; function shakeCamera(amt){shake=amt;}
+        function flashScreen(){const f=document.getElementById('flash-overlay');f.style.opacity=1;setTimeout(()=>f.style.opacity=0,100);}
+
+        // --- INPUT ---
+        const raycaster = new THREE.Raycaster(); const mouse = new THREE.Vector2();
+        const hlMesh = new THREE.Mesh(new THREE.BoxGeometry(1.1,1.1,1.1), new THREE.MeshBasicMaterial({color:0xffffff, wireframe:true, opacity:0.5, transparent:true})); scene.add(hlMesh);
+
+        window.addEventListener('mousemove',e=>{mouse.x=(e.clientX/window.innerWidth)*2-1;mouse.y=-(e.clientY/window.innerHeight)*2+1;});
+        window.addEventListener('mousedown',e=>{
+            if(e.target.closest('.hotbar-container') || e.target.closest('#sidebar') || e.target.closest('#start-overlay') || e.target.closest('.top-bar') || e.target.closest('.back-button')) return;
+
+            raycaster.setFromCamera(mouse,camera);
+            const objs=[]; scene.traverse(o=>{if(o.userData.parent)objs.push(o)});
+            const intersects = raycaster.intersectObjects(objs);
+
+            if(intersects.length>0) {
+                const hit = intersects[0];
+                const grp = hit.object.userData.parent;
+
+                if(state.tool===7 && e.button===0) { // Meteor
+                    state.meteors.push({pos:grp.position.clone().add(new THREE.Vector3(5,20,5)), target:grp.position.clone(), mesh:new THREE.Mesh(new THREE.DodecahedronGeometry(1.5), getMat(0x330000))});
+                    scene.add(state.meteors[state.meteors.length-1].mesh);
+                    return;
+                }
+
+                if(e.button===0) { // L-Click
+                    if(hit.object.userData.type==='tnt') {
+                        let t = state.entities.find(en=>en.grp===grp);
+                        grp.userData.ignited = true; grp.userData.timer = 100;
+                        AudioSys.fx.fuse();
+                    } else {
+                        scene.remove(grp);
+                        if(hit.object.userData.isVoxel) delete state.voxels[`${grp.position.x},${grp.position.y},${grp.position.z}`];
+                        else state.entities = state.entities.filter(en=>en.grp!==grp);
+                        AudioSys.fx.break(); spawnParticles(grp.position, hit.object.material.color);
+                    }
+                } else if(e.button===2) { // R-Click
+                    const pos = grp.position.clone().add(hit.face.normal);
+                    const tools = ['grass','stone','water','lava','char','pet','tnt'];
+                    const t = tools[state.tool];
+                    if(t) {
+                        AudioSys.fx.place();
+                        if(t==='pet') createEntity(pos.x, pos.y, pos.z, rand()>0.5?'CAT':'DOG');
+                        else if(t==='char') createEntity(pos.x, pos.y, pos.z, 'CHAR');
+                        else addVoxel(pos.x, pos.y, pos.z, t);
+                    }
+                }
+            }
+        });
+
+        window.addEventListener('keydown',e=>{if(e.key>'0'&&e.key<'9') selectSlot(parseInt(e.key)-1);});
+        window.selectSlot = (i) => {
+            state.tool = i;
+            document.querySelectorAll('.slot').forEach((s,idx)=>s.classList.toggle('active',idx===i));
+        };
+
+        // --- RANDOM WORLD GEN ---
+        for(let x=-7;x<=7;x++) for(let z=-7;z<=7;z++) {
+            let h = Math.floor(Math.sin(x*0.3 + rand())*2 + Math.cos(z*0.3 + rand())*2);
+            for(let y=-3;y<=h;y++) addVoxel(x, y, z, y===h?'grass':(y>h-2?'dirt':'stone'));
+            if(h<0) for(let y=h+1;y<=-1;y++) addVoxel(x, y, z, 'water');
+        }
+
+        // --- LOOP ---
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const dt = clock.getDelta();
+
+            // Time & Sky
+            state.time += 0.0005; if(state.time>1) state.time=0;
+            const t = state.time;
+            let r=0.5, g=0.7, b=1; if(t<0.25 || t>0.75){r=0.05;g=0.05;b=0.1;}
+            scene.background.setRGB(r,g,b); scene.fog.color.setRGB(r,g,b);
+            sunLight.position.set(Math.sin((t-0.5)*Math.PI)*50, Math.cos((t-0.5)*Math.PI)*50, 10);
+            flashLight.intensity = (t<0.25||t>0.75)?1.5:0;
+
+            // Flashlight Logic
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(scene.children, true);
+            if(intersects.length>0) {
+                flashLight.position.copy(intersects[0].point).add(new THREE.Vector3(0,2,0));
+                const grp = intersects[0].object.userData.parent;
+                if(grp) {
+                    hlMesh.position.copy(grp.position); hlMesh.visible=true;
+                    if(intersects[0].object.userData.isEntity) { hlMesh.scale.set(1,1.2,1); hlMesh.position.y+=0.1; }
+                    else hlMesh.scale.set(1.1,1.1,1.1);
+                }
+            } else hlMesh.visible=false;
+
+            // Entities
+            state.entities.forEach(en => {
+                if(en.update) en.update(dt);
+            });
+
+            // TNT
+            for(let k in state.voxels) {
+                const v = state.voxels[k];
+                if(v.children[0].userData.type === 'tnt' && v.userData.ignited) {
+                    v.userData.timer--;
+                    v.children[0].material = getMat(v.userData.timer%10>5?0xffffff:0xcc0000);
+                    if(v.userData.timer<=0) {
+                        AudioSys.fx.explode(); flashScreen(); shakeCamera(1.0);
+                        spawnParticles(v.position, 0xffaa00, 20);
+                        Object.keys(state.voxels).forEach(key=>{
+                             const v2=state.voxels[key];
+                             if(v2.position.distanceTo(v.position)<4) {
+                                 delete state.voxels[key]; scene.remove(v2);
+                                 spawnParticles(v2.position, v2.children[0].material.color, 2);
+                             }
+                        });
+                    }
+                }
+            }
+
+            // Meteors
+            for(let i=state.meteors.length-1; i>=0; i--) {
+                const m = state.meteors[i];
+                m.pos.add(new THREE.Vector3().subVectors(m.target, m.pos).normalize().multiplyScalar(0.8));
+                m.mesh.position.copy(m.pos); m.mesh.rotation.x+=0.1;
+                if(m.pos.y <= m.target.y) {
+                    AudioSys.fx.explode(); flashScreen(); shakeCamera(2.0);
+                    spawnParticles(m.target, 0xff4400, 50);
+                    scene.remove(m.mesh); state.meteors.splice(i,1);
+                    Object.keys(state.voxels).forEach(k=>{
+                             const v=state.voxels[k];
+                             if(v.position.distanceTo(m.target)<5) {
+                                 delete state.voxels[k]; scene.remove(v);
+                             }
+                        });
+                }
+            }
+
+            // Particles
+            for(let i=particles.length-1; i>=0; i--) {
+                const p=particles[i]; p.vel.y-=0.02; p.mesh.position.add(p.vel);
+                if(p.mesh.position.y < 0 && p.vel.y<0) p.vel.y *= -0.5;
+                p.life--; if(p.life<=0){scene.remove(p.mesh); particles.splice(i,1);}
+            }
+
+            if(shake>0) { camera.position.addScalar((Math.random()-0.5)*shake); shake*=0.9; }
+            const hrs = Math.floor(t*24); const min = Math.floor((t*24-hrs)*60);
+            document.getElementById('time-display').innerText = `${hrs%12||12}:${min.toString().padStart(2,'0')} ${hrs>=12?'PM':'AM'}`;
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth / CONFIG.pixelScale, window.innerHeight / CONFIG.pixelScale, false);
+        });
+
+    </script>
+</body>
+</html>
