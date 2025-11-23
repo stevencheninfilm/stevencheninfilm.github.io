@@ -368,30 +368,185 @@
 
         /* Showcase Window Section - Museum Style */
         .section-showcase-window {
-            padding: 10rem 4vw;
+            padding: 0;
             position: relative;
             min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
+            background: #020305;
+            perspective: 2000px;
+            perspective-origin: 50% 15%;
         }
 
         .showcase-header {
+            position: absolute;
+            top: 80px;
+            left: 0;
+            width: 100%;
             text-align: center;
-            margin-bottom: 6rem;
+            z-index: 20;
+            transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.8s;
+            pointer-events: none;
+        }
+
+        .section-showcase-window.warp-active .showcase-header {
+            transform: translateY(-150px);
+            opacity: 0;
         }
 
         .heading-style-xl {
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            font-weight: 800;
-            letter-spacing: -0.03em;
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 900;
+            letter-spacing: 10px;
             line-height: 1.1;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to bottom, #fff, #00f3ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 30px rgba(0, 243, 255, 0.3));
+        }
+
+        /* 3D Gallery Canvas */
+        #gallery-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .gallery-vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 30%, #000 130%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .gallery-stage {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transform: translateY(180px) rotateX(25deg);
+            z-index: 10;
+            transition: transform 2s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 1s, filter 1s;
+        }
+
+        .section-showcase-window.warp-active .gallery-stage {
+            transform: translateY(180px) rotateX(25deg) translateZ(-8000px) scale(0.1);
+            opacity: 0;
+            filter: blur(40px);
+            pointer-events: none;
+        }
+
+        .gallery-grid {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5000px;
+            height: 5000px;
+            transform: translate(-50%, -50%) rotateX(90deg);
+            background: linear-gradient(rgba(0, 243, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.04) 1px, transparent 1px);
+            background-size: 250px 250px;
+            mask-image: radial-gradient(circle, black 0%, transparent 60%);
+            -webkit-mask-image: radial-gradient(circle, black 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .gallery-carousel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-style: preserve-3d;
+        }
+
+        .gallery-card {
+            position: absolute;
+            width: 180px;
+            height: 280px;
+            margin-left: -90px;
+            margin-top: -140px;
+            background: rgba(10, 20, 30, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: border-color 0.5s, box-shadow 0.5s;
+            overflow: hidden;
+        }
+
+        .gallery-card.active {
+            border: 2px solid #00f3ff;
+            box-shadow: 0 0 80px rgba(0, 243, 255, 0.2);
+            z-index: 1000;
+        }
+
+        .gallery-card-img {
+            width: 100%;
+            height: 80%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.6;
+            transition: opacity 0.5s, transform 0.5s;
+            filter: grayscale(80%) sepia(20%);
+            background: linear-gradient(135deg, rgba(74, 111, 255, 0.2), rgba(188, 19, 254, 0.2));
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+        }
+
+        .gallery-card.active .gallery-card-img {
+            opacity: 1;
+            transform: scale(1.05);
+            filter: grayscale(0%);
+        }
+
+        .gallery-card-info {
+            height: 20%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.8);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            letter-spacing: 1px;
+            color: #00f3ff;
+            padding: 0 0.5rem;
+            text-align: center;
+        }
+
+        .gallery-hint {
+            position: absolute;
+            bottom: 40px;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            transition: opacity 0.5s;
+            pointer-events: none;
+            z-index: 15;
+        }
+
+        .section-showcase-window.warp-active .gallery-hint {
+            opacity: 0;
         }
 
         .exhibit-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 3rem;
-            max-width: 1400px;
-            margin: 0 auto;
+            display: none;
         }
 
         .exhibit-card {
@@ -1196,40 +1351,24 @@
         </div>
     </section>
 
-    <!-- Showcase Window Section - Museum Style -->
+    <!-- Showcase Gallery - 3D Interactive -->
     <section class="section-showcase-window" id="showcase">
+        <canvas id="gallery-canvas"></canvas>
+        <div class="gallery-vignette"></div>
+
         <div class="showcase-header">
-            <h2 class="heading-style-xl">Showcase Gallery</h2>
-            <p class="text-size-large">Step into our digital museum of AI-powered creations</p>
-            <a href="showcase-gallery.html" style="display: inline-block; margin-top: 1.5rem; padding: 1rem 2.5rem; background: linear-gradient(135deg, #4A6FFF, #8B5FFF); color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 30px rgba(74, 111, 255, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">Enter 3D Gallery →</a>
+            <h2 class="heading-style-xl">SHOWCASE GALLERY</h2>
+            <p class="text-size-large" style="letter-spacing: 6px; color: #bc13fe; text-transform: uppercase; opacity: 0.8; margin-top: 10px;">Interactive Digital Museum</p>
         </div>
-        <div class="exhibit-grid">
-            <div class="exhibit-card" onclick="openVersionModal()">
-                <div class="exhibit-number">01</div>
-                <h3 class="exhibit-title">3D LEGO Living World</h3>
-                <p class="exhibit-description">An interactive voxel sandbox powered by AI agents. Build worlds, spawn autonomous characters, and watch them come alive with procedural behavior.</p>
-                <div style="width: 100%; padding: 2rem 0; text-align: center; color: #8B5FFF; font-size: 1.2rem; font-style: italic; opacity: 0.6;">To Be Continued...</div>
-                <a href="#" class="exhibit-link" onclick="event.preventDefault(); event.stopPropagation(); openVersionModal()">Enter Exhibit</a>
-            </div>
-            <div class="exhibit-card">
-                <div class="exhibit-number">02</div>
-                <h3 class="exhibit-title">Motion Design Lab</h3>
-                <p class="exhibit-description">Discover the future of motion graphics. AI-driven animations that blend creativity with computational precision.</p>
-                <a href="#" class="exhibit-link">Enter Exhibit</a>
-            </div>
-            <div class="exhibit-card">
-                <div class="exhibit-number">03</div>
-                <h3 class="exhibit-title">Visual Effects Studio</h3>
-                <p class="exhibit-description">Dive into cutting-edge VFX workflows. See how AI accelerates complex compositing and scene generation.</p>
-                <a href="#" class="exhibit-link">Enter Exhibit</a>
-            </div>
-            <div class="exhibit-card">
-                <div class="exhibit-number">04</div>
-                <h3 class="exhibit-title">Experimental Cinema</h3>
-                <p class="exhibit-description">Push the boundaries of video art. Experience avant-garde techniques powered by generative models.</p>
-                <a href="#" class="exhibit-link">Enter Exhibit</a>
+
+        <div class="gallery-stage" id="galleryStage">
+            <div class="gallery-grid"></div>
+            <div class="gallery-carousel" id="galleryCarousel">
+                <!-- Cards generated by JavaScript -->
             </div>
         </div>
+
+        <div class="gallery-hint">DRAG TO ROTATE &bull; CLICK TO EXPLORE</div>
     </section>
 
     <!-- AI Image Showcase Section -->
@@ -1839,6 +1978,199 @@
 
         // Start the sequential glow animation
         animateCardGlow();
+
+        // ==========================================
+        // 3D SHOWCASE GALLERY
+        // ==========================================
+
+        (function() {
+            const gallerySection = document.getElementById('showcase');
+            const canvas = document.getElementById('gallery-canvas');
+            const ctx = canvas.getContext('2d');
+            const carousel = document.getElementById('galleryCarousel');
+
+            let width, height;
+            const particles = [];
+            const PARTICLE_COUNT = 300;
+            let warpSpeed = 0;
+
+            // Gallery Data
+            const exhibits = [
+                { title: "3D LEGO Living World", desc: "An interactive voxel sandbox powered by AI agents. Build worlds, spawn autonomous characters, and watch them come alive with procedural behavior.", action: "openVersionModal()" },
+                { title: "Motion Design Lab", desc: "Discover the future of motion graphics. AI-driven animations that blend creativity with computational precision.", action: null },
+                { title: "Visual Effects Studio", desc: "Dive into cutting-edge VFX workflows. See how AI accelerates complex compositing and scene generation.", action: null },
+                { title: "Experimental Cinema", desc: "Push the boundaries of video art. Experience avant-garde techniques powered by generative models.", action: null }
+            ];
+
+            const RADIUS = 650;
+            const SLICE = 360 / exhibits.length;
+            let currentAngle = 0;
+            let targetAngle = 0;
+            let velocity = 0;
+            let isDragging = false;
+            let lastX = 0;
+
+            // Particle System
+            function initParticles() {
+                width = window.innerWidth;
+                height = gallerySection.offsetHeight;
+                canvas.width = width;
+                canvas.height = height;
+                particles.length = 0;
+
+                for(let i = 0; i < PARTICLE_COUNT; i++) {
+                    particles.push({
+                        x: Math.random() * width - width/2,
+                        y: Math.random() * height - height/2,
+                        z: Math.random() * width,
+                        sizeBase: Math.random() * 2 + 1,
+                        type: Math.random() > 0.8 ? 'dust' : 'star'
+                    });
+                }
+            }
+
+            function renderParticles() {
+                const targetWarp = 0.5;
+                warpSpeed += (targetWarp - warpSpeed) * 0.05;
+
+                ctx.clearRect(0, 0, width, height);
+
+                const cx = width / 2;
+                const cy = height / 2;
+
+                particles.forEach(p => {
+                    p.z -= warpSpeed;
+
+                    if(p.z <= 0) {
+                        p.z = width;
+                        p.x = Math.random() * width - width/2;
+                        p.y = Math.random() * height - height/2;
+                    }
+
+                    const k = 250 / p.z;
+                    const px = p.x * k + cx;
+                    const py = p.y * k + cy;
+
+                    if(px > -50 && px < width + 50 && py > -50 && py < height + 50) {
+                        let size = (1 - p.z / width) * p.sizeBase * 2;
+                        if(p.type === 'dust') size *= 3;
+
+                        const opacity = (1 - p.z / width);
+
+                        ctx.beginPath();
+                        ctx.fillStyle = `rgba(220, 245, 255, ${opacity * (p.type === 'dust' ? 0.3 : 0.8)})`;
+
+                        if(p.type === 'dust') {
+                            ctx.shadowBlur = 10;
+                            ctx.shadowColor = "rgba(0, 243, 255, 0.5)";
+                        } else {
+                            ctx.shadowBlur = 0;
+                        }
+
+                        ctx.arc(px, py, size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                });
+                requestAnimationFrame(renderParticles);
+            }
+
+            // Generate Cards
+            exhibits.forEach((item, i) => {
+                const card = document.createElement('div');
+                card.className = 'gallery-card';
+                card.innerHTML = `
+                    <div class="gallery-card-img">To Be Continued...</div>
+                    <div class="gallery-card-info">${item.title}</div>
+                `;
+
+                card.addEventListener('click', () => {
+                    if(Math.abs(velocity) > 0.5) return;
+
+                    if(card.classList.contains('active')) {
+                        if(item.action === "openVersionModal()") {
+                            openVersionModal();
+                        }
+                    } else {
+                        const targetPos = -(i * SLICE);
+                        const diff = (targetPos - targetAngle) % 360;
+                        const shortDiff = (diff + 540) % 360 - 180;
+                        targetAngle += shortDiff;
+                    }
+                });
+
+                carousel.appendChild(card);
+            });
+
+            const cards = document.querySelectorAll('.gallery-card');
+
+            // Animation Loop
+            function animate() {
+                if(!isDragging) {
+                    velocity *= 0.92;
+
+                    if(Math.abs(velocity) < 0.001) {
+                        velocity = 0;
+                        targetAngle -= 0.02;
+                    } else {
+                        targetAngle += velocity;
+                    }
+
+                    if(Math.abs(velocity) < 0.1) {
+                        const snap = Math.round(targetAngle / SLICE) * SLICE;
+                        targetAngle += (snap - targetAngle) * 0.05;
+                    }
+                }
+
+                currentAngle += (targetAngle - currentAngle) * 0.06;
+
+                cards.forEach((card, i) => {
+                    const angle = currentAngle + (i * SLICE);
+                    const rad = angle * (Math.PI / 180);
+
+                    const x = Math.sin(rad) * RADIUS;
+                    const z = Math.cos(rad) * RADIUS;
+                    const rotY = angle;
+
+                    const depth = Math.cos(rad);
+
+                    const scale = 0.5 + (0.5 * ((depth + 1) / 2));
+                    const opacity = 0.3 + (0.7 * ((depth + 1) / 2));
+
+                    card.style.transform = `translate3d(${x}px, 0, ${z}px) rotateY(${rotY}deg) scale(${scale})`;
+                    card.style.opacity = opacity;
+                    card.style.zIndex = Math.round((depth + 1) * 100);
+
+                    if(depth > 0.99) card.classList.add('active');
+                    else card.classList.remove('active');
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            // Input Handling
+            gallerySection.addEventListener('mousedown', e => {
+                isDragging = true;
+                lastX = e.clientX;
+                velocity = 0;
+            });
+
+            window.addEventListener('mousemove', e => {
+                if(!isDragging) return;
+                const delta = e.clientX - lastX;
+                lastX = e.clientX;
+                velocity = delta * 0.3;
+                targetAngle += velocity;
+                currentAngle += velocity;
+            });
+
+            window.addEventListener('mouseup', () => isDragging = false);
+
+            // Initialize
+            window.addEventListener('resize', initParticles);
+            initParticles();
+            renderParticles();
+            animate();
+        })();
     </script>
 </body>
 </html>
