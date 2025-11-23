@@ -914,8 +914,8 @@
         }
 
         .version-modal-content {
-            max-width: 900px;
-            width: 90%;
+            max-width: 1400px;
+            width: 95%;
             padding: 3rem;
             position: relative;
         }
@@ -963,8 +963,8 @@
 
         .version-options {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
         }
 
         .version-option {
@@ -998,6 +998,34 @@
 
         .version-option:hover::before {
             opacity: 1;
+        }
+
+        .version-option.recommended {
+            border-color: #44aa44;
+            border-width: 3px;
+            transform: scale(1.05);
+            box-shadow: 0 10px 40px rgba(68, 170, 68, 0.3);
+            position: relative;
+        }
+
+        .version-option.recommended::after {
+            content: '⭐ RECOMMENDED';
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: linear-gradient(135deg, #44aa44, #66cc66);
+            color: #000;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            box-shadow: 0 4px 12px rgba(68, 170, 68, 0.4);
+        }
+
+        .version-option.recommended:hover {
+            transform: scale(1.08) translateY(-8px);
+            box-shadow: 0 20px 60px rgba(68, 170, 68, 0.5);
         }
 
         .version-badge {
@@ -1450,7 +1478,7 @@
                         <li>Enhanced AI with head tracking</li>
                     </ul>
                 </div>
-                <div class="version-option" onclick="window.location.href='lego-world-biomes.html'">
+                <div class="version-option recommended" onclick="window.location.href='lego-world-biomes.html'">
                     <span class="version-badge biomes">Biomes</span>
                     <h4>Biomes Edition</h4>
                     <p>Complete world with diverse ecosystems</p>
