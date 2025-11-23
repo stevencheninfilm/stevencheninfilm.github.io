@@ -698,12 +698,35 @@
             box-shadow: 0 0 30px #00f3ff;
         }
 
+        /* Thumbnail Section Titles */
+        .thumbnail-section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #00f3ff;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            border-left: 3px solid #00f3ff;
+            padding-left: 15px;
+        }
+
+        .detail-interface.active .thumbnail-section-title {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.7s;
+        }
+
         /* Version Thumbnails in Detail View */
         .version-thumbnails {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
-            margin-top: 2rem;
+            margin-top: 0;
             opacity: 0;
             transform: translateY(20px);
             transition: opacity 0.8s ease, transform 0.8s ease;
@@ -802,7 +825,7 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
-            margin-top: 2rem;
+            margin-top: 0;
             opacity: 0;
             transform: translateY(20px);
             transition: opacity 0.8s ease, transform 0.8s ease;
@@ -1783,6 +1806,9 @@
             <h2 class="data-title" id="detailTitle">LOADING</h2>
             <p class="data-desc" id="detailDesc">Analyzing structure...</p>
 
+            <!-- Game Versions Section Title -->
+            <h3 class="thumbnail-section-title" id="gameTitle" style="display: none;">Interactive Game Versions</h3>
+
             <!-- Version Thumbnails (shown only for 3D LEGO World) -->
             <div class="version-thumbnails" id="versionThumbnails" style="display: none;">
                 <a href="lego-world.html" class="version-thumb">
@@ -1810,6 +1836,9 @@
                     </div>
                 </a>
             </div>
+
+            <!-- Video Showcase Section Title -->
+            <h3 class="thumbnail-section-title" id="videoTitle" style="display: none;">Video Showcase</h3>
 
             <!-- Video Thumbnails (shown only for 3D LEGO World) -->
             <div class="video-thumbnails" id="videoThumbnails" style="display: none;">
@@ -2618,6 +2647,8 @@
             const detailInterface = document.querySelector('.detail-interface');
             const versionThumbnails = document.getElementById('versionThumbnails');
             const videoThumbnails = document.getElementById('videoThumbnails');
+            const gameTitle = document.getElementById('gameTitle');
+            const videoTitle = document.getElementById('videoTitle');
 
             function activateWarp(index) {
                 const data = exhibits[index];
@@ -2629,10 +2660,14 @@
 
                 // Show version and video thumbnails only for 3D LEGO Living World (index 0)
                 if(index === 0) {
+                    gameTitle.style.display = 'block';
                     versionThumbnails.style.display = 'grid';
+                    videoTitle.style.display = 'block';
                     videoThumbnails.style.display = 'grid';
                 } else {
+                    gameTitle.style.display = 'none';
                     versionThumbnails.style.display = 'none';
+                    videoTitle.style.display = 'none';
                     videoThumbnails.style.display = 'none';
                 }
 
