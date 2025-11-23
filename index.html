@@ -857,32 +857,13 @@
         .video-thumb-img {
             width: 100%;
             height: 100%;
-            object-fit: contain;
-            padding: 20%;
-            background: linear-gradient(135deg, rgba(74, 111, 255, 0.1), rgba(138, 95, 255, 0.1));
-            filter: grayscale(20%);
-            transition: filter 0.3s ease, transform 0.3s ease;
+            object-fit: cover;
+            filter: grayscale(50%);
+            transition: filter 0.3s ease;
         }
 
         .video-thumb:hover .video-thumb-img {
             filter: grayscale(0%);
-            transform: scale(1.05);
-        }
-
-        .video-thumb-instagram {
-            filter: brightness(0) saturate(100%) invert(21%) sepia(96%) saturate(5324%) hue-rotate(313deg) brightness(95%) contrast(95%);
-        }
-
-        .video-thumb:hover .video-thumb-instagram {
-            filter: brightness(0) saturate(100%) invert(28%) sepia(100%) saturate(3000%) hue-rotate(326deg) brightness(100%) contrast(100%);
-        }
-
-        .video-thumb-xpc {
-            filter: brightness(0) invert(1);
-        }
-
-        .video-thumb:hover .video-thumb-xpc {
-            filter: brightness(0) saturate(100%) invert(64%) sepia(64%) saturate(4684%) hue-rotate(165deg) brightness(102%) contrast(102%);
         }
 
         .video-thumb-play {
@@ -1862,12 +1843,12 @@
             <!-- Video Thumbnails (shown only for 3D LEGO World) -->
             <div class="video-thumbnails" id="videoThumbnails" style="display: none;">
                 <div class="video-thumb" onclick="openVideoModal('https://www.instagram.com/reel/DQs8pwjESBU/', 'https://www.instagram.com/p/DQs8pwjESBU/')">
-                    <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/instagram.svg" class="video-thumb-img video-thumb-instagram" alt="Instagram Video">
+                    <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=400" class="video-thumb-img" alt="Instagram Video">
                     <div class="video-thumb-play"></div>
                     <div class="video-thumb-label">Instagram Showcase</div>
                 </div>
                 <div class="video-thumb" onclick="openVideoModal('https://player.xinpianchang.com/?aid=13531246&mid=NK0mw6jEWqAwW1na', 'https://www.xinpianchang.com/a13531246')">
-                    <img src="https://static.xinpianchang.com/mobile-pc/img/xpc_logo_black.png" class="video-thumb-img video-thumb-xpc" alt="Xinpianchang Video">
+                    <img src="https://images.unsplash.com/photo-1536240478700-b869070f9279?q=80&w=400" class="video-thumb-img" alt="Xinpianchang Video">
                     <div class="video-thumb-play"></div>
                     <div class="video-thumb-label">Xinpianchang Demo</div>
                 </div>
