@@ -963,8 +963,8 @@
 
         .version-options {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
         }
 
         .version-option {
@@ -1014,6 +1014,11 @@
 
         .version-badge.ultimate {
             background: linear-gradient(135deg, #F7FF9E, #4A6FFF);
+            color: #000000;
+        }
+
+        .version-badge.biomes {
+            background: linear-gradient(135deg, #44aa44, #87CEEB, #ffffff);
             color: #000000;
         }
 
@@ -1443,6 +1448,21 @@
                         <li>Middle-click block picker</li>
                         <li>Wood & leaves blocks</li>
                         <li>Enhanced AI with head tracking</li>
+                    </ul>
+                </div>
+                <div class="version-option" onclick="window.location.href='lego-world-biomes.html'">
+                    <span class="version-badge biomes">Biomes</span>
+                    <h4>Biomes Edition</h4>
+                    <p>Complete world with diverse ecosystems</p>
+                    <ul class="version-features">
+                        <li>All Ultimate Edition features</li>
+                        <li>Snow-capped mountain peaks</li>
+                        <li>Sandy beaches & ocean water</li>
+                        <li>Grass plains with trees</li>
+                        <li>Dynamic biome-based generation</li>
+                        <li>Dirt, sand, and snow blocks</li>
+                        <li>Weather system with rain</li>
+                        <li>Drone camera mode (C key)</li>
                     </ul>
                 </div>
             </div>
