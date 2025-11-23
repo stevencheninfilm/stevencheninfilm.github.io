@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Showcase Gallery | AIGC Video Studio</title>
+    <style>
+        /* --- ASSETS & VARIABLES --- */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap');
+
+        :root {
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --void-bg: #020305;
+            --glass-panel: rgba(10, 20, 30, 0.6);
+            /* Ultra smooth cubic-bezier for UI slides */
+            --ease-fluid: cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+
+        body {
+            background-color: var(--void-bg);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            /* DEEP 3D SPACE */
+            perspective: 2000px;
+            perspective-origin: 50% 15%; /* Looking down from a high point */
+        }
+
+        /* --- LAYERS --- */
+        #particle-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .vignette {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, transparent 30%, #000 130%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        /* --- HEADER --- */
+        header {
+            position: absolute;
+            top: 40px; left: 0; width: 100%;
+            text-align: center;
+            z-index: 20;
+            transition: transform 1.2s var(--ease-fluid), opacity 0.8s;
+            pointer-events: none;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            letter-spacing: 15px;
+            font-weight: 900;
+            background: linear-gradient(to bottom, #fff, var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 30px rgba(0, 243, 255, 0.3));
+            margin: 0;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            letter-spacing: 8px;
+            color: var(--neon-purple);
+            text-transform: uppercase;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        /* Back Button */
+        .back-button {
+            position: absolute;
+            top: 40px;
+            left: 60px;
+            padding: 12px 24px;
+            background: transparent;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            font-family: 'Orbitron';
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            z-index: 30;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-button:hover {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 30px var(--neon-blue);
+        }
+
+        /* Warp State: Header leaves */
+        body.warp-active header {
+            transform: translateY(-150px);
+            opacity: 0;
+        }
+
+        body.warp-active .back-button {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* --- 3D STAGE --- */
+        .stage {
+            position: absolute;
+            width: 100%; height: 100%;
+            transform-style: preserve-3d;
+            /* High vantage point */
+            transform: translateY(180px) rotateX(25deg);
+            z-index: 10;
+            transition: transform 2s var(--ease-fluid), opacity 1s, filter 1s;
+        }
+
+        /* Warp State: Gallery zooms into the void */
+        body.warp-active .stage {
+            transform: translateY(180px) rotateX(25deg) translateZ(-8000px) scale(0.1);
+            opacity: 0;
+            filter: blur(40px);
+            pointer-events: none;
+        }
+
+        /* Floor Grid */
+        .grid {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 5000px; height: 5000px;
+            transform: translate(-50%, -50%) rotateX(90deg);
+            background:
+                linear-gradient(rgba(0, 243, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.04) 1px, transparent 1px);
+            background-size: 250px 250px;
+            mask-image: radial-gradient(circle, black 0%, transparent 60%);
+            -webkit-mask-image: radial-gradient(circle, black 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* --- CAROUSEL --- */
+        .carousel {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform-style: preserve-3d;
+        }
+
+        .card {
+            position: absolute;
+            /* Smaller cards for more visibility */
+            width: 180px; height: 280px;
+            margin-left: -90px; margin-top: -140px;
+
+            background: var(--glass-panel);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            backdrop-filter: blur(10px);
+
+            display: flex; flex-direction: column;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: border-color 0.5s, box-shadow 0.5s;
+            overflow: hidden;
+        }
+
+        .card.active {
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 80px rgba(0, 243, 255, 0.2);
+            z-index: 1000;
+        }
+
+        .card-img {
+            width: 100%; height: 80%;
+            object-fit: cover;
+            opacity: 0.6;
+            transition: opacity 0.5s, transform 0.5s;
+            filter: grayscale(80%) sepia(20%);
+            background: linear-gradient(135deg, rgba(74, 111, 255, 0.2), rgba(188, 19, 254, 0.2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-style: italic;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.9rem;
+        }
+        .card.active .card-img { opacity: 1; transform: scale(1.05); filter: grayscale(0%); }
+
+        .card-info {
+            height: 20%;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.8);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-family: 'Orbitron'; font-size: 0.75rem; letter-spacing: 2px;
+            color: var(--neon-blue);
+        }
+
+        /* --- DETAIL INTERFACE --- */
+        .interface {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 100;
+            display: grid; grid-template-columns: 50% 50%;
+            pointer-events: none;
+        }
+
+        .interface-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, rgba(10,15,30,0.9), #000);
+            opacity: 0;
+            transition: opacity 1.5s var(--ease-fluid);
+        }
+        body.warp-active .interface-bg { opacity: 1; }
+        body.warp-active .interface { pointer-events: auto; }
+
+        /* Left Panel */
+        .panel-left {
+            display: flex; justify-content: center; align-items: center;
+            perspective: 1000px;
+        }
+        .holo-box {
+            width: 400px; height: 550px;
+            position: relative;
+            transform: translateX(-150px) rotateY(15deg);
+            opacity: 0;
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            background: rgba(0, 243, 255, 0.02);
+            transition: transform 1.5s var(--ease-fluid), opacity 1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-style: italic;
+            color: rgba(255,255,255,0.4);
+            font-size: 1.2rem;
+        }
+        body.warp-active .holo-box {
+            transform: translateX(0) rotateY(15deg);
+            opacity: 1; transition-delay: 0.2s;
+        }
+
+        .holo-img {
+            width: 100%; height: 100%; object-fit: cover;
+            opacity: 0; mix-blend-mode: hard-light;
+        }
+
+        /* Materialization Scan */
+        .scan-beam {
+            position: absolute; left: 0; width: 100%; height: 5px;
+            background: var(--neon-blue);
+            box-shadow: 0 0 30px var(--neon-blue);
+            top: -10%; opacity: 0;
+        }
+        body.warp-active .scan-beam {
+            animation: beam-scan 3s ease-in-out infinite;
+            opacity: 1;
+        }
+        @keyframes beam-scan {
+            0% { top: -10%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 110%; opacity: 0; }
+        }
+
+        /* Right Panel */
+        .panel-right {
+            display: flex; flex-direction: column; justify-content: center;
+            padding: 80px;
+            transform: translateX(100px); opacity: 0;
+            transition: transform 1.5s var(--ease-fluid), opacity 1s;
+        }
+        body.warp-active .panel-right {
+            transform: translateX(0); opacity: 1; transition-delay: 0.4s;
+        }
+
+        .data-id { color: var(--neon-purple); font-family: 'Orbitron'; letter-spacing: 4px; margin-bottom: 10px; }
+        .data-title { font-family: 'Orbitron'; font-size: 3rem; color: #fff; margin-bottom: 30px; line-height: 1; text-transform: uppercase; }
+        .data-desc {
+            font-size: 1.1rem; line-height: 1.8; color: #ccc;
+            border-left: 2px solid var(--neon-blue); padding-left: 20px;
+            background: linear-gradient(90deg, rgba(0,243,255,0.05), transparent);
+        }
+
+        .btn-back {
+            margin-top: 40px; padding: 15px 40px;
+            background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue);
+            font-family: 'Orbitron'; letter-spacing: 2px; cursor: pointer;
+            width: fit-content; transition: 0.3s;
+        }
+        .btn-back:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 30px var(--neon-blue); }
+
+        /* Hint */
+        .hint {
+            position: absolute; bottom: 40px; width: 100%; text-align: center;
+            color: rgba(255,255,255,0.3); font-family: 'Orbitron'; font-size: 0.7rem; letter-spacing: 2px;
+            transition: opacity 0.5s; pointer-events: none;
+        }
+        body.warp-active .hint { opacity: 0; }
+
+    </style>
+</head>
+<body>
+
+    <!-- BACKGROUND ENGINE -->
+    <canvas id="particle-canvas"></canvas>
+    <div class="vignette"></div>
+
+    <a href="index.html" class="back-button">← BACK TO MAIN</a>
+
+    <header>
+        <h1>SHOWCASE GALLERY</h1>
+        <div class="subtitle">Digital Museum of AI Creations</div>
+    </header>
+
+    <!-- 3D GALLERY -->
+    <div class="stage" id="stage">
+        <div class="grid"></div>
+        <div class="carousel" id="carousel">
+            <!-- Items via JS -->
+        </div>
+    </div>
+
+    <div class="hint">DRAG TO ROTATE &bull; CLICK TO WARP</div>
+
+    <!-- DETAIL OVERLAY -->
+    <div class="interface-bg"></div>
+    <div class="interface">
+        <div class="panel-left">
+            <div class="holo-box">
+                <div class="scan-beam"></div>
+                <span style="position: absolute;">To Be Continued...</span>
+                <img src="" class="holo-img" id="detailImg">
+            </div>
+        </div>
+        <div class="panel-right">
+            <span class="data-id">EXHIBIT // <span id="detailId">001</span></span>
+            <h2 class="data-title" id="detailTitle">LOADING</h2>
+            <p class="data-desc" id="detailDesc">Analyzing structure...</p>
+            <button class="btn-back" id="backBtn">DISENGAGE</button>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * 1. ADVANCED PARTICLE ENGINE (Bokeh + Warp)
+         */
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        const particles = [];
+
+        // Configuration
+        const PARTICLE_COUNT = 400;
+        let warpSpeed = 0;
+
+        function initParticles() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            particles.length = 0;
+
+            for(let i=0; i<PARTICLE_COUNT; i++) {
+                particles.push({
+                    x: Math.random() * width - width/2,
+                    y: Math.random() * height - height/2,
+                    z: Math.random() * width,
+                    sizeBase: Math.random() * 2 + 1,
+                    type: Math.random() > 0.8 ? 'dust' : 'star'
+                });
+            }
+        }
+
+        function renderParticles() {
+            const targetWarp = document.body.classList.contains('warp-active') ? 80 : 0.5;
+            warpSpeed += (targetWarp - warpSpeed) * 0.05;
+
+            ctx.clearRect(0, 0, width, height);
+
+            if(warpSpeed > 5) {
+                ctx.fillStyle = `rgba(0,0,0,0.2)`;
+                ctx.fillRect(0,0,width,height);
+            }
+
+            const cx = width / 2;
+            const cy = height / 2;
+
+            particles.forEach(p => {
+                p.z -= warpSpeed;
+
+                if(p.z <= 0) {
+                    p.z = width;
+                    p.x = Math.random() * width - width/2;
+                    p.y = Math.random() * height - height/2;
+                }
+
+                const k = 250 / p.z;
+                const px = p.x * k + cx;
+                const py = p.y * k + cy;
+
+                if(px > -50 && px < width + 50 && py > -50 && py < height + 50) {
+
+                    let size = (1 - p.z / width) * p.sizeBase * 2;
+                    if(p.type === 'dust') size *= 3;
+
+                    const opacity = (1 - p.z / width);
+
+                    ctx.beginPath();
+
+                    if(warpSpeed > 10) {
+                        const kPrev = 250 / (p.z + warpSpeed);
+                        const pxPrev = p.x * kPrev + cx;
+                        const pyPrev = p.y * kPrev + cy;
+
+                        ctx.lineWidth = size;
+                        ctx.strokeStyle = `rgba(200, 240, 255, ${opacity * 0.5})`;
+                        ctx.moveTo(px, py);
+                        ctx.lineTo(pxPrev, pyPrev);
+                        ctx.stroke();
+                    } else {
+                        ctx.fillStyle = `rgba(220, 245, 255, ${opacity * (p.type === 'dust' ? 0.3 : 0.8)})`;
+
+                        if(p.type === 'dust') {
+                            ctx.shadowBlur = 10;
+                            ctx.shadowColor = "rgba(0, 243, 255, 0.5)";
+                        } else {
+                            ctx.shadowBlur = 0;
+                        }
+
+                        ctx.arc(px, py, size, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            });
+            requestAnimationFrame(renderParticles);
+        }
+
+        window.addEventListener('resize', initParticles);
+        initParticles();
+        renderParticles();
+
+
+        /**
+         * 2. DATA & LOGIC
+         */
+        const items = [
+            { t: "3D LEGO Living World", d: "An interactive voxel sandbox powered by AI agents. Build worlds, spawn autonomous characters, and watch them come alive with procedural behavior.", img: "", link: "openVersionModal()" },
+            { t: "Motion Design Lab", d: "Discover the future of motion graphics. AI-driven animations that blend creativity with computational precision.", img: "" },
+            { t: "Visual Effects Studio", d: "Dive into cutting-edge VFX workflows. See how AI accelerates complex compositing and scene generation.", img: "" },
+            { t: "Experimental Cinema", d: "Push the boundaries of video art. Experience avant-garde techniques powered by generative models.", img: "" }
+        ];
+
+        const carousel = document.getElementById('carousel');
+        const RADIUS = 650;
+        const SLICE = 360 / items.length;
+
+        let currentAngle = 0;
+        let targetAngle = 0;
+        let velocity = 0;
+        let isDragging = false;
+        let startX = 0;
+        let lastX = 0;
+
+
+        /**
+         * 3. DOM GENERATION
+         */
+        items.forEach((item, i) => {
+            const el = document.createElement('div');
+            el.className = 'card';
+            el.innerHTML = `
+                <div class="card-img">${item.img ? `<img src="${item.img}" style="width:100%;height:100%;object-fit:cover;">` : 'To Be Continued...'}</div>
+                <div class="card-info">${item.t}</div>
+            `;
+
+            el.addEventListener('click', () => {
+                if(Math.abs(velocity) > 0.5) return;
+
+                if(el.classList.contains('active')) {
+                    if(item.link) {
+                        if(item.link === 'openVersionModal()') {
+                            window.location.href = 'index.html#showcase';
+                        }
+                    } else {
+                        activateWarp(i);
+                    }
+                } else {
+                    const targetPos = -(i * SLICE);
+                    const diff = (targetPos - targetAngle) % 360;
+                    const shortDiff = (diff + 540) % 360 - 180;
+                    targetAngle += shortDiff;
+                }
+            });
+
+            carousel.appendChild(el);
+        });
+        const cards = document.querySelectorAll('.card');
+
+
+        /**
+         * 4. SMOOTH PHYSICS ENGINE
+         */
+        function animate() {
+            if(!isDragging) {
+                velocity *= 0.92;
+
+                if(Math.abs(velocity) < 0.001 && !document.body.classList.contains('warp-active')) {
+                    velocity = 0;
+                    targetAngle -= 0.02;
+                } else {
+                    targetAngle += velocity;
+                }
+
+                if(Math.abs(velocity) < 0.1 && !document.body.classList.contains('warp-active')) {
+                    const snap = Math.round(targetAngle / SLICE) * SLICE;
+                    targetAngle += (snap - targetAngle) * 0.05;
+                }
+            }
+
+            currentAngle += (targetAngle - currentAngle) * 0.06;
+
+            cards.forEach((card, i) => {
+                const angle = currentAngle + (i * SLICE);
+                const rad = angle * (Math.PI / 180);
+
+                const x = Math.sin(rad) * RADIUS;
+                const z = Math.cos(rad) * RADIUS;
+                const rotY = angle;
+
+                const depth = Math.cos(rad);
+
+                const scale = 0.5 + (0.5 * ((depth + 1) / 2));
+                const opacity = 0.3 + (0.7 * ((depth + 1) / 2));
+
+                card.style.transform = `translate3d(${x}px, 0, ${z}px) rotateY(${rotY}deg) scale(${scale})`;
+                card.style.opacity = opacity;
+                card.style.zIndex = Math.round((depth + 1) * 100);
+
+                if(depth > 0.99) card.classList.add('active');
+                else card.classList.remove('active');
+            });
+
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+
+        /**
+         * 5. INPUT HANDLING
+         */
+        window.addEventListener('mousedown', e => {
+            if(document.body.classList.contains('warp-active')) return;
+            isDragging = true;
+            startX = e.clientX;
+            lastX = e.clientX;
+            velocity = 0;
+        });
+
+        window.addEventListener('mousemove', e => {
+            if(!isDragging) return;
+            const delta = e.clientX - lastX;
+            lastX = e.clientX;
+            velocity = delta * 0.3;
+            targetAngle += velocity;
+            currentAngle += velocity;
+        });
+
+        window.addEventListener('mouseup', () => isDragging = false);
+
+
+        /**
+         * 6. WARP TRANSITION
+         */
+        const detailImg = document.getElementById('detailImg');
+        const detailTitle = document.getElementById('detailTitle');
+        const detailDesc = document.getElementById('detailDesc');
+        const detailId = document.getElementById('detailId');
+
+        function activateWarp(index) {
+            const data = items[index];
+
+            detailImg.src = data.img || '';
+            detailDesc.innerText = data.d;
+            detailId.innerText = "00" + (index + 1);
+
+            detailImg.style.opacity = 0;
+            setTimeout(() => {
+                detailImg.style.transition = "opacity 0.8s ease-in";
+                detailImg.style.opacity = data.img ? 0.8 : 0;
+            }, 500);
+
+            document.body.classList.add('warp-active');
+
+            scrambleText(detailTitle, data.t);
+        }
+
+        document.getElementById('backBtn').addEventListener('click', () => {
+            document.body.classList.remove('warp-active');
+            detailImg.style.transition = "none";
+        });
+
+        function scrambleText(element, final) {
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            let iter = 0;
+            const interval = setInterval(() => {
+                element.innerText = final.split("").map((c, i) => {
+                    if(i < iter) return final[i];
+                    return chars[Math.floor(Math.random() * chars.length)];
+                }).join("");
+                if(iter >= final.length) clearInterval(interval);
+                iter += 1/3;
+            }, 30);
+        }
+
+    </script>
+</body>
+</html>
