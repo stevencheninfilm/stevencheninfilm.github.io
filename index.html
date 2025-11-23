@@ -891,6 +891,171 @@
             font-style: italic;
         }
 
+        /* Version Selector Modal */
+        .version-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .version-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .version-modal-content {
+            max-width: 900px;
+            width: 90%;
+            padding: 3rem;
+            position: relative;
+        }
+
+        .version-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: none;
+            color: #DEDEDE;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .version-modal-close:hover {
+            color: #ffffff;
+        }
+
+        .version-modal-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .version-modal-header h3 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #4A6FFF, #8B5FFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .version-modal-header p {
+            font-size: 1.2rem;
+            color: #DEDEDE;
+        }
+
+        .version-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .version-option {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(222, 222, 222, 0.2);
+            border-radius: 1.5rem;
+            padding: 2.5rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .version-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(74, 111, 255, 0.1), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .version-option:hover {
+            transform: translateY(-8px);
+            border-color: #8B5FFF;
+            box-shadow: 0 20px 60px rgba(138, 95, 255, 0.4);
+        }
+
+        .version-option:hover::before {
+            opacity: 1;
+        }
+
+        .version-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #4A6FFF, #8B5FFF);
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+        }
+
+        .version-badge.ultimate {
+            background: linear-gradient(135deg, #F7FF9E, #4A6FFF);
+            color: #000000;
+        }
+
+        .version-option h4 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+
+        .version-option p {
+            font-size: 1rem;
+            color: #DEDEDE;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .version-features {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .version-features li {
+            font-size: 0.95rem;
+            color: #DEDEDE;
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .version-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #8B5FFF;
+            font-weight: 700;
+        }
+
+        .version-features.ultimate li::before {
+            color: #F7FF9E;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .nav-links li:nth-child(1),
@@ -924,6 +1089,18 @@
             .section-video-showcase,
             .section-ai-tools {
                 padding: 6rem 4vw;
+            }
+
+            .version-options {
+                grid-template-columns: 1fr;
+            }
+
+            .version-modal-content {
+                padding: 2rem 1.5rem;
+            }
+
+            .version-modal-header h3 {
+                font-size: 1.8rem;
             }
         }
 
@@ -992,11 +1169,11 @@
             <p class="text-size-large">Step into our digital museum of AI-powered creations</p>
         </div>
         <div class="exhibit-grid">
-            <div class="exhibit-card" onclick="window.location.href='lego-world.html'">
+            <div class="exhibit-card" onclick="openVersionModal()">
                 <div class="exhibit-number">01</div>
                 <h3 class="exhibit-title">3D LEGO Living World</h3>
                 <p class="exhibit-description">An interactive voxel sandbox powered by AI agents. Build worlds, spawn autonomous characters, and watch them come alive with procedural behavior.</p>
-                <a href="lego-world.html" class="exhibit-link" onclick="event.stopPropagation()">Enter Exhibit</a>
+                <a href="#" class="exhibit-link" onclick="event.preventDefault(); event.stopPropagation(); openVersionModal()">Enter Exhibit</a>
             </div>
             <div class="exhibit-card">
                 <div class="exhibit-number">02</div>
@@ -1230,7 +1407,80 @@
         </div>
     </footer>
 
+    <!-- Version Selector Modal -->
+    <div id="version-modal" class="version-modal">
+        <div class="version-modal-content">
+            <button class="version-modal-close" onclick="closeVersionModal()">&times;</button>
+            <div class="version-modal-header">
+                <h3>Select Your Experience</h3>
+                <p>Choose which version of the 3D LEGO Living World you'd like to explore</p>
+            </div>
+            <div class="version-options">
+                <div class="version-option" onclick="window.location.href='lego-world.html'">
+                    <span class="version-badge">Classic</span>
+                    <h4>Basic Edition</h4>
+                    <p>The original interactive voxel experience</p>
+                    <ul class="version-features">
+                        <li>Interactive voxel building</li>
+                        <li>AI autonomous agents</li>
+                        <li>Procedural terrain generation</li>
+                        <li>Day/night cycle</li>
+                        <li>8-slot hotbar with blocks & NPCs</li>
+                        <li>Retro pixel art aesthetic</li>
+                    </ul>
+                </div>
+                <div class="version-option" onclick="window.location.href='lego-world-v4.html'">
+                    <span class="version-badge ultimate">Ultimate</span>
+                    <h4>Ultimate Edition</h4>
+                    <p>Enhanced experience with cutting-edge features</p>
+                    <ul class="version-features ultimate">
+                        <li>All Classic Edition features</li>
+                        <li>Bloom post-processing effects</li>
+                        <li>Save/Load world functionality</li>
+                        <li>Procedural tree generation</li>
+                        <li>Drifting cloud system</li>
+                        <li>Flashlight toggle (F key)</li>
+                        <li>Middle-click block picker</li>
+                        <li>Wood & leaves blocks</li>
+                        <li>Enhanced AI with head tracking</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Version Modal Functions
+        function openVersionModal() {
+            const modal = document.getElementById('version-modal');
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10);
+        }
+
+        function closeVersionModal() {
+            const modal = document.getElementById('version-modal');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 300);
+        }
+
+        // Close modal on background click
+        document.getElementById('version-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeVersionModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeVersionModal();
+            }
+        });
+
         // Lenis Smooth Scroll
         const lenis = new Lenis({
             lerp: 0.1,
