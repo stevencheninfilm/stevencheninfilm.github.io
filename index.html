@@ -494,16 +494,10 @@
         .gallery-card-img {
             width: 100%;
             height: 80%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            object-fit: cover;
             opacity: 0.6;
             transition: opacity 0.5s, transform 0.5s;
             filter: grayscale(80%) sepia(20%);
-            background: linear-gradient(135deg, rgba(74, 111, 255, 0.2), rgba(188, 19, 254, 0.2));
-            font-style: italic;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.9rem;
         }
 
         .gallery-card.active .gallery-card-img {
@@ -559,7 +553,7 @@
             transition: opacity 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        .section-showcase-window.warp-active .detail-interface-bg {
+        .detail-interface-bg.active {
             opacity: 1;
         }
 
@@ -573,13 +567,10 @@
             display: grid;
             grid-template-columns: 50% 50%;
             pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.5s;
         }
 
-        .section-showcase-window.warp-active .detail-interface {
+        .detail-interface.active {
             pointer-events: auto;
-            opacity: 1;
         }
 
         /* Left Panel - Holographic Display */
@@ -601,7 +592,7 @@
             transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 1s;
         }
 
-        .section-showcase-window.warp-active .holo-box {
+        .detail-interface.active .holo-box {
             transform: translateX(0) rotateY(15deg);
             opacity: 1;
             transition-delay: 0.2s;
@@ -613,6 +604,11 @@
             object-fit: cover;
             opacity: 0;
             mix-blend-mode: hard-light;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.3);
+            font-style: italic;
         }
 
         /* Materialization Scan Beam */
@@ -627,7 +623,7 @@
             opacity: 0;
         }
 
-        .section-showcase-window.warp-active .scan-beam {
+        .detail-interface.active .scan-beam {
             animation: beam-scan 3s ease-in-out infinite;
             opacity: 1;
         }
@@ -650,7 +646,7 @@
             transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 1s;
         }
 
-        .section-showcase-window.warp-active .detail-panel-right {
+        .detail-interface.active .detail-panel-right {
             transform: translateX(0);
             opacity: 1;
             transition-delay: 0.4s;
@@ -2166,10 +2162,30 @@
 
             // Gallery Data
             const exhibits = [
-                { title: "3D LEGO Living World", desc: "An interactive voxel sandbox powered by AI agents. Build worlds, spawn autonomous characters, and watch them come alive with procedural behavior.", action: "openVersionModal()" },
-                { title: "Motion Design Lab", desc: "Discover the future of motion graphics. AI-driven animations that blend creativity with computational precision.", action: null },
-                { title: "Visual Effects Studio", desc: "Dive into cutting-edge VFX workflows. See how AI accelerates complex compositing and scene generation.", action: null },
-                { title: "Experimental Cinema", desc: "Push the boundaries of video art. Experience avant-garde techniques powered by generative models.", action: null }
+                {
+                    title: "3D LEGO Living World",
+                    desc: "An interactive voxel sandbox powered by AI agents. Build worlds, spawn autonomous characters, and watch them come alive with procedural behavior.",
+                    action: "openVersionModal()",
+                    img: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=600"
+                },
+                {
+                    title: "Motion Design Lab",
+                    desc: "Discover the future of motion graphics. AI-driven animations that blend creativity with computational precision.",
+                    action: null,
+                    img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=600"
+                },
+                {
+                    title: "Visual Effects Studio",
+                    desc: "Dive into cutting-edge VFX workflows. See how AI accelerates complex compositing and scene generation.",
+                    action: null,
+                    img: "https://images.unsplash.com/photo-1536240478700-b869070f9279?q=80&w=600"
+                },
+                {
+                    title: "Experimental Cinema",
+                    desc: "Push the boundaries of video art. Experience avant-garde techniques powered by generative models.",
+                    action: null,
+                    img: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=80&w=600"
+                }
             ];
 
             const RADIUS = 500;
@@ -2270,7 +2286,7 @@
                 const card = document.createElement('div');
                 card.className = 'gallery-card';
                 card.innerHTML = `
-                    <div class="gallery-card-img">To Be Continued...</div>
+                    <img src="${item.img}" class="gallery-card-img" alt="${item.title}">
                     <div class="gallery-card-info">${item.title}</div>
                 `;
 
@@ -2364,12 +2380,14 @@
             const detailDesc = document.getElementById('detailDesc');
             const detailId = document.getElementById('detailId');
             const backBtn = document.getElementById('backBtn');
+            const detailInterfaceBg = document.querySelector('.detail-interface-bg');
+            const detailInterface = document.querySelector('.detail-interface');
 
             function activateWarp(index) {
                 const data = exhibits[index];
 
                 // Set Data
-                detailImg.src = '';  // Placeholder for now
+                detailImg.src = data.img;
                 detailDesc.innerText = data.desc;
                 detailId.innerText = "00" + (index + 1);
 
@@ -2382,6 +2400,8 @@
 
                 // Activate Warp State
                 gallerySection.classList.add('warp-active');
+                detailInterfaceBg.classList.add('active');
+                detailInterface.classList.add('active');
                 isDragging = false;
 
                 // Text Scramble Effect
@@ -2404,6 +2424,8 @@
             // Back Button
             backBtn.addEventListener('click', () => {
                 gallerySection.classList.remove('warp-active');
+                detailInterfaceBg.classList.remove('active');
+                detailInterface.classList.remove('active');
                 detailImg.style.transition = "none";
             });
 
