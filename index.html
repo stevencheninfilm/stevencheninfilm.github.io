@@ -698,6 +698,105 @@
             box-shadow: 0 0 30px #00f3ff;
         }
 
+        /* Version Thumbnails in Detail View */
+        .version-thumbnails {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .detail-interface.active .version-thumbnails {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.8s;
+        }
+
+        .version-thumb {
+            position: relative;
+            aspect-ratio: 16/9;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .version-thumb:hover {
+            border-color: #00f3ff;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .version-thumb-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(50%);
+            transition: filter 0.3s ease;
+        }
+
+        .version-thumb:hover .version-thumb-img {
+            filter: grayscale(0%);
+        }
+
+        .version-thumb-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent);
+            padding: 1rem 0.75rem 0.75rem;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .version-thumb:hover .version-thumb-overlay {
+            transform: translateY(0);
+        }
+
+        .version-thumb-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #00f3ff;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .version-thumb-desc {
+            font-size: 0.75rem;
+            color: #ccc;
+            line-height: 1.4;
+        }
+
+        .version-thumb-badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #4A6FFF, #8B5FFF);
+            color: #fff;
+        }
+
+        .version-thumb-badge.ultimate {
+            background: linear-gradient(135deg, #F7FF9E, #4A6FFF);
+            color: #000;
+        }
+
+        .version-thumb-badge.biomes {
+            background: linear-gradient(135deg, #44aa44, #87CEEB);
+            color: #000;
+        }
+
         .exhibit-grid {
             display: none;
         }
@@ -1537,6 +1636,35 @@
             <span class="data-id">ARTIFACT // <span id="detailId">001</span></span>
             <h2 class="data-title" id="detailTitle">LOADING</h2>
             <p class="data-desc" id="detailDesc">Analyzing structure...</p>
+
+            <!-- Version Thumbnails (shown only for 3D LEGO World) -->
+            <div class="version-thumbnails" id="versionThumbnails" style="display: none;">
+                <a href="lego-world.html" class="version-thumb">
+                    <span class="version-thumb-badge">Classic</span>
+                    <img src="https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=400" class="version-thumb-img" alt="Basic Edition">
+                    <div class="version-thumb-overlay">
+                        <div class="version-thumb-title">Basic Edition</div>
+                        <div class="version-thumb-desc">Original voxel sandbox with AI agents, terrain generation, and day/night cycle</div>
+                    </div>
+                </a>
+                <a href="lego-world-v4.html" class="version-thumb">
+                    <span class="version-thumb-badge ultimate">Ultimate</span>
+                    <img src="https://images.unsplash.com/photo-1614732414444-096e5f1122d5?q=80&w=400" class="version-thumb-img" alt="Ultimate Edition">
+                    <div class="version-thumb-overlay">
+                        <div class="version-thumb-title">Ultimate Edition</div>
+                        <div class="version-thumb-desc">Bloom effects, save/load, procedural trees, clouds, flashlight, and enhanced AI</div>
+                    </div>
+                </a>
+                <a href="lego-world-biomes.html" class="version-thumb">
+                    <span class="version-thumb-badge biomes">Biomes</span>
+                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=400" class="version-thumb-img" alt="Biomes Edition">
+                    <div class="version-thumb-overlay">
+                        <div class="version-thumb-title">Biomes Edition</div>
+                        <div class="version-thumb-desc">Mountains, beaches, grass plains, weather system, and drone camera mode</div>
+                    </div>
+                </a>
+            </div>
+
             <button class="btn-back" id="backBtn">DISENGAGE</button>
         </div>
     </div>
@@ -2374,6 +2502,7 @@
             const backBtn = document.getElementById('backBtn');
             const detailInterfaceBg = document.querySelector('.detail-interface-bg');
             const detailInterface = document.querySelector('.detail-interface');
+            const versionThumbnails = document.getElementById('versionThumbnails');
 
             function activateWarp(index) {
                 const data = exhibits[index];
@@ -2382,6 +2511,13 @@
                 detailImg.src = data.img;
                 detailDesc.innerText = data.desc;
                 detailId.innerText = "00" + (index + 1);
+
+                // Show version thumbnails only for 3D LEGO Living World (index 0)
+                if(index === 0) {
+                    versionThumbnails.style.display = 'grid';
+                } else {
+                    versionThumbnails.style.display = 'none';
+                }
 
                 // Trigger Materialization Animation
                 detailImg.style.opacity = 0;
