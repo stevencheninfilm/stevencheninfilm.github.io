@@ -797,6 +797,157 @@
             color: #000;
         }
 
+        /* Video Thumbnails */
+        .video-thumbnails {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .detail-interface.active .video-thumbnails {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 1s;
+        }
+
+        .video-thumb {
+            position: relative;
+            aspect-ratio: 16/9;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        .video-thumb:hover {
+            border-color: #bc13fe;
+            box-shadow: 0 0 20px rgba(188, 19, 254, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .video-thumb-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(50%);
+            transition: filter 0.3s ease;
+        }
+
+        .video-thumb:hover .video-thumb-img {
+            filter: grayscale(0%);
+        }
+
+        .video-thumb-play {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(188, 19, 254, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .video-thumb:hover .video-thumb-play {
+            background: rgba(188, 19, 254, 1);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .video-thumb-play::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 20px solid #fff;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            margin-left: 4px;
+        }
+
+        .video-thumb-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent);
+            padding: 1rem 0.75rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #bc13fe;
+            letter-spacing: 1px;
+        }
+
+        /* Video Modal */
+        .video-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .video-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .video-modal-content {
+            position: relative;
+            width: 90%;
+            max-width: 1200px;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(188, 19, 254, 0.3);
+        }
+
+        .video-modal-close {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .video-modal-close:hover {
+            color: #bc13fe;
+        }
+
+        .video-modal iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
         .exhibit-grid {
             display: none;
         }
@@ -1599,6 +1750,20 @@
                 </a>
             </div>
 
+            <!-- Video Thumbnails (shown only for 3D LEGO World) -->
+            <div class="video-thumbnails" id="videoThumbnails" style="display: none;">
+                <div class="video-thumb" onclick="openVideoModal('https://www.instagram.com/p/DQs8pwjESBU/embed')">
+                    <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=400" class="video-thumb-img" alt="Instagram Video">
+                    <div class="video-thumb-play"></div>
+                    <div class="video-thumb-label">Instagram Showcase</div>
+                </div>
+                <div class="video-thumb" onclick="openVideoModal('https://www.xinpianchang.com/a13531246?from=embed')">
+                    <img src="https://images.unsplash.com/photo-1536240478700-b869070f9279?q=80&w=400" class="video-thumb-img" alt="Xinpianchang Video">
+                    <div class="video-thumb-play"></div>
+                    <div class="video-thumb-label">Xinpianchang Demo</div>
+                </div>
+            </div>
+
             <button class="btn-back" id="backBtn">DISENGAGE</button>
         </div>
     </div>
@@ -2391,6 +2556,7 @@
             const detailInterfaceBg = document.querySelector('.detail-interface-bg');
             const detailInterface = document.querySelector('.detail-interface');
             const versionThumbnails = document.getElementById('versionThumbnails');
+            const videoThumbnails = document.getElementById('videoThumbnails');
 
             function activateWarp(index) {
                 const data = exhibits[index];
@@ -2400,11 +2566,13 @@
                 detailDesc.innerText = data.desc;
                 detailId.innerText = "00" + (index + 1);
 
-                // Show version thumbnails only for 3D LEGO Living World (index 0)
+                // Show version and video thumbnails only for 3D LEGO Living World (index 0)
                 if(index === 0) {
                     versionThumbnails.style.display = 'grid';
+                    videoThumbnails.style.display = 'grid';
                 } else {
                     versionThumbnails.style.display = 'none';
+                    videoThumbnails.style.display = 'none';
                 }
 
                 // Trigger Materialization Animation
@@ -2451,6 +2619,54 @@
             renderParticles();
             animate();
         })();
+
+        // Video Modal Functions
+        const videoModal = document.createElement('div');
+        videoModal.className = 'video-modal';
+        videoModal.id = 'videoModal';
+        videoModal.innerHTML = `
+            <div class="video-modal-content">
+                <button class="video-modal-close" onclick="closeVideoModal()">&times;</button>
+                <iframe id="videoFrame" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        `;
+        document.body.appendChild(videoModal);
+
+        function openVideoModal(url) {
+            const modal = document.getElementById('videoModal');
+            const iframe = document.getElementById('videoFrame');
+            iframe.src = url;
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10);
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const iframe = document.getElementById('videoFrame');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                iframe.src = '';
+            }, 300);
+        }
+
+        // Close modal on background click
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('videoModal');
+            if (modal && e.target === modal) {
+                closeVideoModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('videoModal');
+            if (e.key === 'Escape' && modal && modal.classList.contains('active')) {
+                closeVideoModal();
+            }
+        });
     </script>
 </body>
 </html>
