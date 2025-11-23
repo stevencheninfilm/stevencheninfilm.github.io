@@ -949,6 +949,15 @@
             box-shadow: 0 0 25px rgba(188, 19, 254, 0.8);
         }
 
+        #videoContainer {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+        }
+
         .video-modal iframe {
             width: 100%;
             height: 100%;
@@ -1777,7 +1786,7 @@
 
             <!-- Video Thumbnails (shown only for 3D LEGO World) -->
             <div class="video-thumbnails" id="videoThumbnails" style="display: none;">
-                <div class="video-thumb" onclick="openVideoModal('https://www.instagram.com/p/DQs8pwjESBU/embed')">
+                <div class="video-thumb" onclick="openVideoModal('https://www.instagram.com/reel/DQs8pwjESBU/')">
                     <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=400" class="video-thumb-img" alt="Instagram Video">
                     <div class="video-thumb-play"></div>
                     <div class="video-thumb-label">Instagram Showcase</div>
@@ -2650,18 +2659,52 @@
         videoModal.className = 'video-modal';
         videoModal.id = 'videoModal';
         videoModal.innerHTML = `
-            <div class="video-modal-content">
+            <div class="video-modal-content" id="videoModalContent">
                 <button class="video-modal-close" onclick="closeVideoModal()">&times;</button>
                 <div class="video-modal-hint">CLICK X TO CLOSE &bull; ESC KEY &bull; CLICK OUTSIDE</div>
-                <iframe id="videoFrame" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <div id="videoContainer"></div>
             </div>
         `;
         document.body.appendChild(videoModal);
 
+        // Load Instagram embed script
+        const instagramScript = document.createElement('script');
+        instagramScript.src = '//www.instagram.com/embed.js';
+        instagramScript.async = true;
+        document.body.appendChild(instagramScript);
+
         function openVideoModal(url) {
             const modal = document.getElementById('videoModal');
-            const iframe = document.getElementById('videoFrame');
-            iframe.src = url;
+            const container = document.getElementById('videoContainer');
+
+            // Check if it's an Instagram URL
+            if (url.includes('instagram.com')) {
+                // Use Instagram embed
+                const postId = url.match(/\/p\/([^\/]+)/)?.[1] || url.match(/\/reel\/([^\/]+)/)?.[1];
+                if (postId) {
+                    container.innerHTML = `
+                        <blockquote class="instagram-media"
+                            data-instgrm-permalink="https://www.instagram.com/p/${postId}/"
+                            data-instgrm-version="14"
+                            style="background:#000; border:0; border-radius:3px; margin: 0 auto; max-width:540px; min-width:326px; padding:0; width:100%;">
+                        </blockquote>
+                    `;
+                    // Process Instagram embeds
+                    if (window.instgrm) {
+                        window.instgrm.Embeds.process();
+                    }
+                }
+            } else {
+                // Use iframe for other videos
+                container.innerHTML = `
+                    <iframe src="${url}"
+                        style="width:100%; height:100%; border:none;"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                `;
+            }
+
             modal.style.display = 'flex';
             setTimeout(() => {
                 modal.classList.add('active');
@@ -2670,11 +2713,11 @@
 
         function closeVideoModal() {
             const modal = document.getElementById('videoModal');
-            const iframe = document.getElementById('videoFrame');
+            const container = document.getElementById('videoContainer');
             modal.classList.remove('active');
             setTimeout(() => {
                 modal.style.display = 'none';
-                iframe.src = '';
+                container.innerHTML = '';
             }, 300);
         }
 
