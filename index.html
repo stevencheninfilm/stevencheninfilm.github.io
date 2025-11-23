@@ -2165,25 +2165,21 @@
                 {
                     title: "3D LEGO Living World",
                     desc: "An interactive voxel sandbox powered by AI agents. Build worlds, spawn autonomous characters, and watch them come alive with procedural behavior.",
-                    action: "openVersionModal()",
                     img: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=600"
                 },
                 {
                     title: "Motion Design Lab",
                     desc: "Discover the future of motion graphics. AI-driven animations that blend creativity with computational precision.",
-                    action: null,
                     img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=600"
                 },
                 {
                     title: "Visual Effects Studio",
                     desc: "Dive into cutting-edge VFX workflows. See how AI accelerates complex compositing and scene generation.",
-                    action: null,
                     img: "https://images.unsplash.com/photo-1536240478700-b869070f9279?q=80&w=600"
                 },
                 {
                     title: "Experimental Cinema",
                     desc: "Push the boundaries of video art. Experience avant-garde techniques powered by generative models.",
-                    action: null,
                     img: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?q=80&w=600"
                 }
             ];
@@ -2294,11 +2290,7 @@
                     if(Math.abs(velocity) > 0.5) return;
 
                     if(card.classList.contains('active')) {
-                        if(item.action === "openVersionModal()") {
-                            openVersionModal();
-                        } else {
-                            activateWarp(i);
-                        }
+                        activateWarp(i);
                     } else {
                         const targetPos = -(i * SLICE);
                         const diff = (targetPos - targetAngle) % 360;
