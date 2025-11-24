@@ -726,24 +726,55 @@
     </footer>
 
     <script>
-        gsap.registerPlugin(ScrollTrigger, Draggable, TextPlugin);
-        const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
-        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-        requestAnimationFrame(raf);
+        // SAFETY: Register GSAP plugins only if GSAP loaded
+        if (typeof gsap !== 'undefined') {
+            gsap.registerPlugin(ScrollTrigger, Draggable, TextPlugin);
+        }
+
+        // SAFETY: Initialize Lenis only if it loaded
+        let lenis = null;
+        if (typeof Lenis !== 'undefined') {
+            lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+            function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+            requestAnimationFrame(raf);
+        }
 
         /* MODAL LOGIC */
         function openConstruction() {
             const modal = document.getElementById('construction-modal');
             modal.classList.add('active');
-            gsap.fromTo(".modal-content", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "back.out(1.5)" });
+            if (typeof gsap !== 'undefined') {
+                gsap.fromTo(".modal-content", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "back.out(1.5)" });
+            }
         }
         function closeConstruction() {
             const modal = document.getElementById('construction-modal');
-            gsap.to(".modal-content", { y: 50, opacity: 0, duration: 0.3, onComplete: () => { modal.classList.remove('active'); }});
+            if (typeof gsap !== 'undefined') {
+                gsap.to(".modal-content", { y: 50, opacity: 0, duration: 0.3, onComplete: () => { modal.classList.remove('active'); }});
+            } else {
+                modal.classList.remove('active');
+            }
         }
 
         /* LOADING SEQUENCE */
         window.addEventListener('load', () => {
+            // SAFETY: Check if GSAP loaded
+            if (typeof gsap === 'undefined') {
+                console.warn('GSAP not loaded, showing content immediately');
+                // Fallback: immediately show content without animations
+                document.querySelector('.preloader').style.display = 'none';
+                document.querySelector('.hero-title').style.opacity = '1';
+                document.querySelector('.hero-title').style.transform = 'translateY(0)';
+                document.querySelector('.hero-subtitle').style.opacity = '1';
+                document.querySelector('.hero-subtitle').style.transform = 'translateY(0)';
+                document.querySelector('#card-prompt').style.opacity = '1';
+                document.querySelector('#card-prompt').style.transform = 'scale(1)';
+                document.querySelector('#card-gemini').style.opacity = '1';
+                document.querySelector('#card-gemini').style.transform = 'scale(1)';
+                document.querySelector('.drag-hint').style.opacity = '1';
+                return;
+            }
+
             const tl = gsap.timeline();
             tl.to(".loader-line", { width: "100%", duration: 1.5, ease: "power2.inOut" })
               .to(".loader-text", { opacity: 0, duration: 0.5 })
@@ -807,14 +838,30 @@
             if (getComputedStyle(vCard).opacity > 0) { c3.style.opacity = 1; drawCable(p2Card, vCard, ['cable-3', 'cable-3-p']); } else { c3.style.opacity = 0; }
         }
 
-        Draggable.create(".draggable-card", {
-            type: "x,y", bounds: ".section-hero", inertia: true,
-            onPress: function() { gsap.to(".drag-hint", { opacity: 0, duration: 0.5 }); gsap.to(".draggable-card", { zIndex: 5 }); gsap.to(this.target, { zIndex: 100, scale: 1.02, duration: 0.2 }); },
-            onRelease: function() { gsap.to(this.target, { scale: 1, duration: 0.2 }); },
-            onDrag: updateCables, onThrowUpdate: updateCables
-        });
-        gsap.ticker.add(updateCables);
-        gsap.to(".draggable-card", { y: "+=8", duration: 2.5, yoyo: true, repeat: -1, ease: "sine.inOut", stagger: 0.3 });
+        // SAFETY: Only create Draggable if GSAP loaded
+        if (typeof Draggable !== 'undefined') {
+            Draggable.create(".draggable-card", {
+                type: "x,y", bounds: ".section-hero", inertia: true,
+                onPress: function() {
+                    if (typeof gsap !== 'undefined') {
+                        gsap.to(".drag-hint", { opacity: 0, duration: 0.5 });
+                        gsap.to(".draggable-card", { zIndex: 5 });
+                        gsap.to(this.target, { zIndex: 100, scale: 1.02, duration: 0.2 });
+                    }
+                },
+                onRelease: function() {
+                    if (typeof gsap !== 'undefined') {
+                        gsap.to(this.target, { scale: 1, duration: 0.2 });
+                    }
+                },
+                onDrag: updateCables, onThrowUpdate: updateCables
+            });
+        }
+
+        if (typeof gsap !== 'undefined') {
+            gsap.ticker.add(updateCables);
+            gsap.to(".draggable-card", { y: "+=8", duration: 2.5, yoyo: true, repeat: -1, ease: "sine.inOut", stagger: 0.3 });
+        }
 
         /* PARTICLE ENGINE */
         const canvas = document.getElementById('particle-canvas');
@@ -902,13 +949,26 @@
         document.getElementById('backBtn').addEventListener('click', () => { document.body.classList.remove('warp-active'); detailImg.style.transition = "none"; });
 
         document.querySelectorAll('.magnetic-btn').forEach(btn => {
-            btn.addEventListener('mousemove', e => { const rect = btn.getBoundingClientRect(); const x = e.clientX - rect.left - rect.width/2; const y = e.clientY - rect.top - rect.height/2; gsap.to(btn, { x: x*0.2, y: y*0.2, duration: 0.3 }); });
-            btn.addEventListener('mouseleave', () => { gsap.to(btn, { x: 0, y: 0, duration: 0.6, ease: "elastic.out(1, 0.4)" }); });
+            btn.addEventListener('mousemove', e => {
+                if (typeof gsap !== 'undefined') {
+                    const rect = btn.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width/2;
+                    const y = e.clientY - rect.top - rect.height/2;
+                    gsap.to(btn, { x: x*0.2, y: y*0.2, duration: 0.3 });
+                }
+            });
+            btn.addEventListener('mouseleave', () => {
+                if (typeof gsap !== 'undefined') {
+                    gsap.to(btn, { x: 0, y: 0, duration: 0.6, ease: "elastic.out(1, 0.4)" });
+                }
+            });
         });
 
         /* PROFILE ANIMATIONS */
-        gsap.from(".profile-card", { scrollTrigger: { trigger: ".section-profile", start: "top 70%" }, y: 50, opacity: 0, duration: 1, ease: "power3.out" });
-        gsap.from(".chip", { scrollTrigger: { trigger: ".section-profile", start: "top 60%" }, y: 20, opacity: 0, stagger: 0.1, duration: 0.8, delay: 0.3 });
+        if (typeof gsap !== 'undefined') {
+            gsap.from(".profile-card", { scrollTrigger: { trigger: ".section-profile", start: "top 70%" }, y: 50, opacity: 0, duration: 1, ease: "power3.out" });
+            gsap.from(".chip", { scrollTrigger: { trigger: ".section-profile", start: "top 60%" }, y: 20, opacity: 0, stagger: 0.1, duration: 0.8, delay: 0.3 });
+        }
     </script>
 </body>
 </html>
