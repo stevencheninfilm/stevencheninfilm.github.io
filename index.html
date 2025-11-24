@@ -648,17 +648,27 @@
     <footer><div>© 2024 Steven Chen</div><div>DESIGNED FOR THE FUTURE</div></footer>
 
     <script>
-        gsap.registerPlugin(ScrollTrigger, Draggable, TextPlugin);
-        const lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
-        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-        requestAnimationFrame(raf);
+        // SAFETY: Register GSAP plugins only if GSAP loaded
+        if (typeof gsap !== 'undefined') {
+            gsap.registerPlugin(ScrollTrigger, Draggable, TextPlugin);
+        }
+
+        // SAFETY: Initialize Lenis only if it loaded
+        let lenis = null;
+        if (typeof Lenis !== 'undefined') {
+            lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
+            function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+            requestAnimationFrame(raf);
+        }
 
         /* CURSOR LOGIC */
         const cursor = document.getElementById('cursor');
         const cursorDot = document.getElementById('cursor-dot');
         window.addEventListener('mousemove', e => {
-            gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.15, ease: "power2.out" });
-            gsap.to(cursorDot, { x: e.clientX, y: e.clientY, duration: 0 });
+            if (typeof gsap !== 'undefined') {
+                gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.15, ease: "power2.out" });
+                gsap.to(cursorDot, { x: e.clientX, y: e.clientY, duration: 0 });
+            }
         });
         document.querySelectorAll('a, button, .gallery-card, .thumb-card, .draggable-card').forEach(el => {
             el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
@@ -795,8 +805,15 @@
             getComputedStyle(gCard).opacity>0?(c1.style.opacity=1,drawCable(pCard,gCard,['cable-1','cable-1-p'])):c1.style.opacity=0;
             getComputedStyle(vCard).opacity>0?(c2.style.opacity=1,drawCable(gCard,vCard,['cable-2','cable-2-p']),c3.style.opacity=1,drawCable(p2Card,vCard,['cable-3','cable-3-p'])):(c2.style.opacity=0,c3.style.opacity=0);
         }
-        Draggable.create(".draggable-card", { type: "x,y", bounds: ".section-hero", inertia: true, onPress: function() { gsap.to(".drag-hint", { opacity: 0 }); gsap.to(".draggable-card", { zIndex: 5 }); gsap.to(this.target, { zIndex: 100, scale: 1.02 }); }, onRelease: function() { gsap.to(this.target, { scale: 1 }); }, onDrag: updateCables, onThrowUpdate: updateCables });
-        gsap.ticker.add(updateCables); gsap.to(".draggable-card", { y: "+=8", duration: 2.5, yoyo: true, repeat: -1, ease: "sine.inOut", stagger: 0.3 });
+        // SAFETY: Only create Draggable if GSAP loaded
+        if (typeof Draggable !== 'undefined') {
+            Draggable.create(".draggable-card", { type: "x,y", bounds: ".section-hero", inertia: true, onPress: function() { if (typeof gsap !== 'undefined') { gsap.to(".drag-hint", { opacity: 0 }); gsap.to(".draggable-card", { zIndex: 5 }); gsap.to(this.target, { zIndex: 100, scale: 1.02 }); } }, onRelease: function() { if (typeof gsap !== 'undefined') { gsap.to(this.target, { scale: 1 }); } }, onDrag: updateCables, onThrowUpdate: updateCables });
+        }
+
+        if (typeof gsap !== 'undefined') {
+            gsap.ticker.add(updateCables);
+            gsap.to(".draggable-card", { y: "+=8", duration: 2.5, yoyo: true, repeat: -1, ease: "sine.inOut", stagger: 0.3 });
+        }
 
         /* PARTICLES */
         const canvas = document.getElementById('particle-canvas'), ctx = canvas.getContext('2d');
@@ -947,8 +964,10 @@
             document.getElementById('detailImg').style.transition = "none";
         };
 
-        gsap.from(".profile-card", { scrollTrigger: { trigger: ".section-profile", start: "top 70%" }, y: 50, opacity: 0, duration: 1, ease: "power3.out" });
-        gsap.from(".chip", { scrollTrigger: { trigger: ".section-profile", start: "top 60%" }, y: 20, opacity: 0, stagger: 0.1, duration: 0.8, delay: 0.3 });
+        if (typeof gsap !== 'undefined') {
+            gsap.from(".profile-card", { scrollTrigger: { trigger: ".section-profile", start: "top 70%" }, y: 50, opacity: 0, duration: 1, ease: "power3.out" });
+            gsap.from(".chip", { scrollTrigger: { trigger: ".section-profile", start: "top 60%" }, y: 20, opacity: 0, stagger: 0.1, duration: 0.8, delay: 0.3 });
+        }
     </script>
 </body>
 </html>
