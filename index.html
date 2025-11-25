@@ -15,7 +15,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
-    
+
     <!-- Lenis Smooth Scroll -->
     <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
 
@@ -107,15 +107,15 @@
 
         .nav-logo { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; color: #fff; }
         .nav-links { display: flex; gap: 1rem; }
-        
-        /* Enhanced Nav Buttons */
+
         .magnetic-btn {
             padding: 0.75rem 1.5rem; position: relative; overflow: hidden;
             border: 1px solid rgba(255,255,255,0.2); border-radius: 2rem;
             color: #fff; text-decoration: none; font-size: 0.9rem; font-weight: 600;
             background: rgba(255,255,255,0.02); backdrop-filter: blur(5px);
-            transition: 0.3s; cursor: none;
+            transition: 0.3s; cursor: none; display: inline-block;
         }
+        .magnetic-btn span { display: inline-block; transition: transform 0.1s; pointer-events: none; }
         .magnetic-btn::before {
             content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
@@ -139,11 +139,16 @@
         .hero-title {
             font-family: var(--font-display); font-size: clamp(3rem, 7vw, 7rem);
             line-height: 1; margin-bottom: 1.5rem; text-transform: uppercase;
-            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+            /* Liquid Metal Effect */
+            background: linear-gradient(135deg, #fff 20%, #a5b4fc 50%, #fff 80%);
+            background-size: 200% auto;
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             filter: drop-shadow(0 0 30px rgba(0, 243, 255, 0.3));
             opacity: 0; transform: translateY(40px);
+            animation: liquidText 5s linear infinite;
         }
+        @keyframes liquidText { to { background-position: 200% center; } }
+
         .hero-subtitle {
             font-size: 1.2rem; color: #a1a1aa; max-width: 600px; margin: 0 auto; letter-spacing: 1px;
             opacity: 0; transform: translateY(30px);
@@ -151,7 +156,8 @@
 
         /* Hero Playground */
         .hero-playground {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 5;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 5;
         }
         .drag-hint {
             position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%);
@@ -169,6 +175,7 @@
             animation: pulse-dot 1.5s infinite;
         }
         @keyframes pulse-dot { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+        @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
 
         .draggable-card {
             position: absolute; width: 280px;
@@ -181,10 +188,10 @@
         .draggable-card:active { cursor: grabbing; border-color: #fff; box-shadow: 0 0 40px rgba(255,255,255,0.3); }
         .draggable-card:hover { border-color: rgba(255,255,255,0.4); z-index: 50; }
         .draggable-card img { width: 100%; height: 100%; display: block; pointer-events: none; object-fit: cover; }
-        
-        #card-video { 
+
+        #card-video {
             top: 45%; left: 65%; width: 320px; aspect-ratio: 720/576; padding: 0; background: #000;
-        } 
+        }
         #card-video video {
             width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none;
         }
@@ -195,15 +202,15 @@
 
         .typing-overlay {
             position: absolute; top: 25%; left: 8%; width: 84%;
-            font-family: 'Courier New', monospace; 
+            font-family: 'Courier New', monospace;
             font-size: 0.8rem; font-weight: 700;
-            color: rgba(255,255,255,0.95); 
+            color: rgba(255,255,255,0.95);
             line-height: 1.5; pointer-events: none;
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
         .cable-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 4; }
-        .cable-group { transition: opacity 0.8s ease; opacity: 0; } 
+        .cable-group { transition: opacity 0.8s ease; opacity: 0; }
         .cable-path { fill: none; stroke: rgba(255, 255, 255, 0.15); stroke-width: 2; }
         .cable-pulse {
             fill: none; stroke: #ffffff; stroke-width: 3;
@@ -226,14 +233,15 @@
         }
         body.warp-active .gallery-header { transform: translateY(-150px); opacity: 0; }
         .h2-title { font-family: var(--font-display); font-size: 3rem; letter-spacing: 10px; text-transform: uppercase; color: #fff; }
-        
+
+        .scramble-reveal { opacity: 0; }
+
         .stage {
             position: absolute; width: 100%; height: 100%; transform-style: preserve-3d;
             transform: translateY(100px) rotateX(20deg); z-index: 10;
             transition: transform 2s var(--ease-fluid), opacity 1s, filter 1s;
         }
         body.warp-active .stage { transform: translateY(100px) rotateX(20deg) translateZ(-8000px) scale(0.1); opacity: 0; filter: blur(40px); pointer-events: none; }
-        
         .grid {
             position: absolute; top: 50%; left: 50%; width: 4000px; height: 4000px;
             transform: translate(-50%, -50%) rotateX(90deg);
@@ -289,9 +297,9 @@
             transition: transform 1.5s var(--ease-fluid), opacity 1s;
         }
         body.warp-active .holo-box { transform: translateX(0) rotateY(15deg); opacity: 1; transition-delay: 0.2s; }
-        .holo-img { 
-            width: 100%; height: 100%; object-fit: cover; opacity: 0; mix-blend-mode: hard-light; 
-            clip-path: inset(50% 0 50% 0); /* Glitch Setup */
+        .holo-img {
+            width: 100%; height: 100%; object-fit: cover; opacity: 0; mix-blend-mode: hard-light;
+            clip-path: inset(50% 0 50% 0); /* Glitch Init */
         }
 
         .scan-beam {
@@ -313,7 +321,7 @@
 
         .data-id { color: var(--neon-purple); font-family: var(--font-display); letter-spacing: 4px; margin-bottom: 5px; }
         .data-title { font-family: var(--font-display); font-size: 2.8rem; color: #fff; margin-bottom: 15px; line-height: 1.1; text-transform: uppercase; }
-        
+
         .data-desc {
             font-size: 1rem; line-height: 1.6; color: #ccc;
             border-left: 2px solid var(--neon-blue); padding-left: 20px;
@@ -331,12 +339,12 @@
         }
         .section-subtitle.visible { display: block; opacity: 1; }
 
-        /* THUMBNAILS */
+        /* THUMBNAILS ROW */
         .thumbnails-wrapper { position: relative; width: 100%; display: none; opacity: 0; transition: opacity 0.5s; margin-bottom: 15px; }
         .thumbnails-wrapper.visible { display: block; opacity: 1; }
         .thumbnails-row {
             display: flex; gap: 15px; overflow-x: auto; padding: 10px 5px;
-            scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; 
+            scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;
         }
         .thumbnails-row::-webkit-scrollbar { display: none; }
         .thumb-card {
@@ -346,7 +354,6 @@
         }
         .thumb-card:hover { border-color: var(--neon-blue); transform: scale(1.05); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .thumb-img { width: 100%; height: 100%; object-fit: cover; }
-        
         .nav-arrow {
             position: absolute; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%;
             background: rgba(0,0,0,0.8); border: 1px solid var(--neon-blue); color: var(--neon-blue); font-size: 1rem; cursor: none;
@@ -372,17 +379,12 @@
         .v-title { color: var(--neon-blue); font-size: 0.7rem; font-weight: 700; margin-bottom: 2px; font-family: var(--font-display); }
         .v-desc { font-size: 0.6rem; color: #ccc; line-height: 1.2; }
 
-        /* VIDEO THUMBNAILS - ENLARGED LOGOS */
+        /* VIDEO THUMBNAILS */
         .video-showcase { display: none; grid-template-columns: repeat(2, 1fr); gap: 15px; opacity: 0; transition: opacity 0.8s ease; }
         .video-showcase.visible { display: grid; opacity: 1; }
-        .video-card {
-            position: relative; aspect-ratio: 16/9; border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 8px; overflow: hidden; cursor: none; transition: all 0.3s;
-            background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;
-            text-decoration: none;
-        }
+        .video-card { position: relative; aspect-ratio: 16/9; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; overflow: hidden; cursor: none; transition: all 0.3s; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; text-decoration: none; }
         .video-card:hover { border-color: var(--neon-gold); transform: translateY(-5px); }
-        .video-card img { width: 65px; height: 65px; object-fit: contain; z-index: 2; } /* Enlarged from 40px */
+        .video-card img { width: 60px; height: 60px; object-fit: contain; z-index: 2; }
         .video-label { position: absolute; bottom: 0; width: 100%; text-align: center; padding: 5px; font-size: 0.65rem; font-family: var(--font-display); color: var(--neon-gold); background: linear-gradient(to top, rgba(0,0,0,0.9), transparent); }
 
         .btn-back { margin-bottom: 40px; padding: 12px 30px; background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); font-family: var(--font-display); letter-spacing: 2px; cursor: none; width: fit-content; transition: 0.3s; display: block; }
@@ -409,54 +411,147 @@
         .section-voxel {
             position: relative; padding: 8rem 4vw; background: #020305; z-index: 5;
             display: flex; justify-content: center; border-top: 1px solid var(--border-glass);
+            transform: scale(0.95); opacity: 0; transition: all 1s ease-out;
         }
+        .section-voxel.reveal-active { transform: scale(1); opacity: 1; }
+
         .voxel-card {
             width: 100%; max-width: 1300px; height: 500px; position: relative;
             border-radius: 24px; overflow: hidden; border: 1px solid var(--border-glass);
             display: flex; align-items: center; justify-content: center; text-decoration: none;
             transition: transform 0.4s, border-color 0.4s; background: #050507; cursor: none;
+            /* Isolate blend modes to this container */
+            isolation: isolate;
         }
         .voxel-card:hover { transform: scale(1.01); border-color: var(--neon-red); box-shadow: 0 0 50px rgba(255, 70, 85, 0.15); }
-        .voxel-img-layer { position: absolute; inset: 0; z-index: 0; }
-        .voxel-img-layer img { width: 100%; height: 100%; object-fit: cover; opacity: 0.4; transition: transform 0.5s; }
-        .voxel-card:hover .voxel-img-layer img { transform: scale(1.05); }
 
+        /* Layer 1: Static Image */
+        .voxel-img-layer { position: absolute; inset: 0; z-index: 0; }
+        .voxel-img-layer img {
+            width: 100%; height: 100%; object-fit: cover; opacity: 0.6;
+            animation: zoomCycle 8s ease-in-out infinite;
+        }
+
+        /* Layer 2: 3D Iframe & Mask Animation */
+        .voxel-iframe-layer {
+            position: absolute; inset: 0; z-index: 1; pointer-events: none;
+            /* Start hidden via clip-path */
+            clip-path: inset(0 100% 0 0);
+            /* 10s loop steps(30) for pixelated wipe */
+            animation: voxelGlitchWipe 10s steps(30) infinite;
+            /* Mix blend for digital look */
+            mix-blend-mode: hard-light;
+        }
+        .voxel-iframe-layer iframe {
+            width: 100%; height: 100%; border: none; display: block; object-fit: cover;
+            animation: zoomCycle 8s ease-in-out infinite;
+        }
+
+        /* 10s Glitch Wipe Cycle */
+        @keyframes voxelGlitchWipe {
+            0%, 45% { clip-path: inset(0 100% 0 0); filter: grayscale(100%) brightness(0.5); }
+            45.1% { filter: grayscale(0%) brightness(1.5) contrast(1.5); } /* Flash */
+            50% { clip-path: inset(0 0 0 0); filter: grayscale(0%) brightness(1); }
+            50.1%, 90% { clip-path: inset(0 0 0 0); }
+            95% { clip-path: inset(0 100% 0 0); }
+            100% { clip-path: inset(0 100% 0 0); }
+        }
+
+        /* Scanline Effect Pseudo-Element */
+        .voxel-card::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 10px; height: 100%;
+            background: var(--neon-red);
+            z-index: 5; opacity: 0; pointer-events: none;
+            box-shadow: 0 0 30px var(--neon-red);
+            mix-blend-mode: overlay;
+            animation: scanLineMove 10s steps(30) infinite;
+        }
+
+        @keyframes scanLineMove {
+            0%, 45% { left: 0%; opacity: 0; }
+            45.1% { opacity: 1; }
+            50% { left: 100%; opacity: 1; }
+            50.1% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        /* Chromatic Aberration Shake */
+        .voxel-card { animation: chromaticShake 10s linear infinite; }
+        @keyframes chromaticShake {
+            0%, 44% { text-shadow: none; transform: translate(0,0); }
+            45%, 50% { transform: translate(2px, 0); box-shadow: -2px 0 var(--neon-blue), 2px 0 var(--neon-red); }
+            51% { transform: translate(0,0); box-shadow: none; }
+            100% { transform: translate(0,0); }
+        }
+
+        @keyframes zoomCycle {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Interactive Grid Overlay */
         .voxel-bg-anim {
-            position: absolute; inset: 0; opacity: 0.4; z-index: 1; mix-blend-mode: soft-light;
+            position: absolute; inset: 0; opacity: 0.6; z-index: 2; mix-blend-mode: soft-light;
             background-image:
                 linear-gradient(to right, rgba(0, 243, 255, 0.1) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(0, 243, 255, 0.1) 1px, transparent 1px);
             background-size: 40px 40px;
             transform: perspective(500px) rotateX(60deg);
             transform-origin: center top;
-            animation: gridMove 5s linear infinite;
-            mask-image: radial-gradient(circle, black 30%, transparent 80%);
+            mask-image: radial-gradient(circle 300px at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 80%);
+            -webkit-mask-image: radial-gradient(circle 300px at var(--mouse-x, 50%) var(--mouse-y, 50%), black 0%, transparent 80%);
+            pointer-events: none;
         }
-        @keyframes gridMove { from { background-position: 0 0; } to { background-position: 0 40px; } }
 
-        .voxel-content { text-align: center; position: relative; z-index: 10; }
+        .voxel-content { text-align: center; position: relative; z-index: 10; pointer-events: none; }
         .voxel-label { color: var(--neon-red); font-family: var(--font-display); letter-spacing: 4px; font-size: 0.9rem; margin-bottom: 15px; }
         .voxel-title { font-family: var(--font-display); font-size: 4rem; color: #fff; line-height: 1; margin-bottom: 20px; text-transform: uppercase; text-shadow: 0 0 20px rgba(255, 70, 85, 0.4); }
         .voxel-desc { color: #ccc; font-size: 1.1rem; max-width: 600px; margin: 0 auto 30px; }
         .voxel-btn {
             padding: 12px 30px; border: 1px solid var(--neon-red); color: var(--neon-red);
             font-family: var(--font-display); letter-spacing: 2px; border-radius: 30px;
-            background: rgba(255, 70, 85, 0.1); transition: 0.3s;
+            background: rgba(255, 70, 85, 0.1); transition: 0.3s; pointer-events: auto;
         }
         .voxel-card:hover .voxel-btn { background: var(--neon-red); color: #000; box-shadow: 0 0 20px var(--neon-red); }
         body.warp-active .section-voxel { filter: blur(20px); opacity: 0; pointer-events: none; transition: 0.5s; }
 
         /* --- FILM SECTION --- */
-        .section-film { position: relative; padding: 8rem 4vw; background: #020305; z-index: 5; display: flex; justify-content: center; cursor: none; }
-        .film-link-wrapper { 
-            position: relative; width: 100%; max-width: 1300px; height: 500px; 
+        .section-film {
+            position: relative; padding: 8rem 4vw; background: #020305;
+            z-index: 5; display: flex; justify-content: center; cursor: none;
+            overflow: hidden; /* Contain light */
+        }
+        .film-link-wrapper {
+            position: relative; width: 100%; max-width: 1300px; height: 500px;
             border-radius: 24px; overflow: hidden; display: block; text-decoration: none;
             border: 1px solid var(--border-glass); transition: transform 0.4s; cursor: none;
+            /* Mouse tracking vars */
+            --spot-x: 50%; --spot-y: 50%;
         }
-        .film-link-wrapper:hover { transform: scale(1.01); border-color: var(--neon-gold); box-shadow: 0 0 50px rgba(247,255,158,0.1); }
+        .film-link-wrapper:hover { transform: scale(1.01); border-color: var(--neon-gold); }
+
+        /* Cinematic Spotlight Effect */
+        .film-projector-beam {
+            position: absolute; inset: 0; z-index: 20; pointer-events: none;
+            /* Dark outside, transparent inside to reveal strips */
+            background: radial-gradient(circle 300px at var(--spot-x) var(--spot-y), rgba(255,255,255,0.15) 0%, rgba(2,3,5,0.95) 70%);
+            mix-blend-mode: hard-light;
+        }
+
         #film-canvas { position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; opacity: 0.6; }
-        .film-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: radial-gradient(circle, transparent 20%, #000 140%); }
-        .film-content { position: absolute; bottom: 50px; left: 50px; z-index: 10; }
+
+        /* Film Grain Overlay */
+        .film-grain {
+            position: absolute; inset: 0; pointer-events: none; z-index: 15; opacity: 0.15;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .film-strips { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-around; opacity: 0.3; z-index: 10; }
+        .film-strip-row { display: flex; gap: 10px; white-space: nowrap; }
+        .film-frame { width: 80px; height: 60px; border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); flex-shrink: 0; }
+
+        .film-content { position: absolute; bottom: 50px; left: 50px; z-index: 30; pointer-events: none; }
         .film-title { font-family: var(--font-display); font-size: 4rem; line-height: 1; color: #fff; margin-bottom: 20px; text-transform: uppercase; }
         .film-play { display: flex; align-items: center; gap: 15px; color: #fff; font-family: var(--font-display); letter-spacing: 2px; font-size: 0.9rem; }
         .play-circle { width: 50px; height: 50px; border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
@@ -465,9 +560,8 @@
         .film-link-wrapper:hover .play-tri { border-left-color: #000; }
         body.warp-active .section-film { filter: blur(20px); opacity: 0; pointer-events: none; transition: 0.5s; }
 
-
         /* --- PROFILE SECTION --- */
-        .section-profile { padding: 8rem 4vw; border-top: 1px solid var(--border-glass); background: linear-gradient(180deg, #020305 0%, #0a0a12 100%); z-index: 5; position: relative; }
+        .section-profile { padding: 8rem 4vw; border-top: 1px solid var(--border-glass); background: linear-gradient(180deg, #020305 0%, #0a0a12 100%); z-index: 5; position: relative; margin-bottom: 300px; /* Space for footer reveal */ }
         body.warp-active .section-profile { filter: blur(20px); opacity: 0; pointer-events: none; transition: 0.5s; }
 
         .profile-card {
@@ -475,7 +569,10 @@
             align-items: start; background: rgba(15, 20, 30, 0.4); border: 1px solid rgba(255,255,255,0.05);
             border-radius: 24px; padding: 4rem; backdrop-filter: blur(20px); box-shadow: 0 20px 50px -10px rgba(0,0,0,0.5);
             position: relative; overflow: hidden; transition: transform 0.2s ease-out;
+            transform: scale(0.95); opacity: 0; /* Init for reveal */
         }
+        .profile-card.reveal-active { transform: scale(1); opacity: 1; transition: all 1s ease-out; }
+
         .profile-card::before { content: ''; position: absolute; inset: 0; border-radius: 24px; padding: 1px; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent 60%, rgba(139, 95, 255, 0.3)); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
         .profile-vis { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; position: relative; }
         .img-container { width: 250px; height: 250px; border-radius: 50%; background: #050507; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 30px rgba(0,0,0,0.5); overflow: hidden; }
@@ -495,7 +592,7 @@
         .app-tag { display: inline-block; margin-right: 10px; color: #ccc; }
         .app-tag::before { content:'#'; color: var(--neon-blue); margin-right: 2px; }
         .chips-row { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
-        .chip { display: flex; align-items: center; gap: 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 0.8rem 1rem; border-radius: 12px; min-width: 220px; transition: transform 0.3s, border-color 0.3s; cursor: none; }
+        .chip { display: flex; align-items: center; gap: 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 0.8rem 1rem; border-radius: 12px; min-width: 220px; transition: transform 0.3s, border-color 0.3s; cursor: default; }
         .chip:hover { transform: translateY(-3px); border-color: var(--neon-purple); background: rgba(255,255,255,0.05); }
         .chip-icon { width: 40px; height: 40px; border-radius: 8px; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; }
         .chip-icon img { width: 100%; height: 100%; object-fit: cover; }
@@ -517,7 +614,16 @@
         .brand-container { width: 100%; max-width: 900px; position: relative; border-radius: 20px; overflow: hidden; border: 1px solid var(--border-glass); background: rgba(255,255,255,0.02); }
         .brand-img { width: 100%; height: auto; display: block; opacity: 0.8; transition: opacity 0.5s; }
         .brand-img:hover { opacity: 1; }
-        footer { padding: 4rem 4vw; border-top: 1px solid var(--border-glass); color: #666; display: flex; justify-content: space-between; position: relative; z-index: 5; background: #020305; }
+
+        /* PARALLAX FOOTER */
+        footer {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            /* Reduced Padding from 4rem to 2rem */
+            padding: 2rem 4vw;
+            border-top: 1px solid var(--border-glass);
+            color: #666; display: flex; justify-content: space-between;
+            z-index: 1; background: #000;
+        }
 
         @media (max-width: 900px) {
             .profile-card { grid-template-columns: 1fr; text-align: center; padding: 2rem; }
@@ -568,11 +674,11 @@
     <nav>
         <div class="nav-logo">STEVEN CHEN</div>
         <div class="nav-links">
-            <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'}); return false;" class="magnetic-btn">Home</a>
-            <a href="#showcase" class="magnetic-btn">Work</a>
-            <a href="#voxel-art" class="magnetic-btn">Voxel Art</a>
-            <a href="#film" class="magnetic-btn">Film/Commercial</a>
-            <a href="#profile" class="magnetic-btn">Profile</a>
+            <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'}); return false;" class="magnetic-btn"><span>Home</span></a>
+            <a href="#showcase" class="magnetic-btn"><span>Work</span></a>
+            <a href="#voxel-art" class="magnetic-btn"><span>Voxel Art</span></a>
+            <a href="#film" class="magnetic-btn"><span>Film/Commercial</span></a>
+            <a href="#profile" class="magnetic-btn"><span>Profile</span></a>
         </div>
     </nav>
 
@@ -599,7 +705,7 @@
     <!-- Gallery 3D -->
     <section class="section-showcase-window" id="showcase">
         <div class="gallery-header">
-            <h2 class="h2-title">Project Archive</h2>
+            <h2 class="h2-title scramble-reveal">Project Archive</h2>
             <div style="color:var(--neon-purple); letter-spacing:4px; font-size:0.8rem; margin-top:10px;">INTERACTIVE DIMENSION</div>
         </div>
         <div class="stage" id="stage"><div class="grid"></div><div class="carousel" id="carousel"></div></div>
@@ -615,14 +721,14 @@
         <div class="panel-right">
             <span class="data-id">ARTIFACT // <span id="detailId">001</span></span>
             <h2 class="data-title" id="detailTitle">LOADING</h2>
-            
+
             <div class="data-desc" id="detailDesc"></div>
 
             <h3 class="section-subtitle" id="thumb-subtitle">Project Thumbnails</h3>
             <div class="thumbnails-wrapper" id="thumb-wrapper">
-                <button class="nav-arrow prev" id="thumb-prev" onclick="scrollThumbs(-300)">❮</button>
+                <button class="nav-arrow prev" id="thumb-prev" onclick="scrollThumbs(-300)">◀</button>
                 <div class="thumbnails-row" id="thumbnails-container"></div>
-                <button class="nav-arrow next" id="thumb-next" onclick="scrollThumbs(300)">❯</button>
+                <button class="nav-arrow next" id="thumb-next" onclick="scrollThumbs(300)">▶</button>
             </div>
 
             <h3 class="section-subtitle" id="game-subtitle">Interactive Game (Versions):</h3>
@@ -641,12 +747,22 @@
 
     <!-- VOXEL ART SECTION -->
     <section class="section-voxel" id="voxel-art">
-        <a href="/voxel-art/" class="voxel-card">
-            <div class="voxel-img-layer"><img src="voxel-bg.jpg"></div>
-            <div class="voxel-bg-anim"></div>
+        <a href="http://localhost:3000/voxel-art/" target="_blank" class="voxel-card">
+            <!-- Layer 1: Static Image (With Zoom Animation) -->
+            <div class="voxel-img-layer"><img src="voxel-bg-1.jpg" alt="Voxel Background"></div>
+
+            <!-- Layer 2: 3D Scene Iframe (Glitch Wipe + Zoom) -->
+            <div class="voxel-iframe-layer">
+                <iframe src="voxel-scene-Example-1.html" tabindex="-1"></iframe>
+            </div>
+
+            <!-- Grid Overlay (Interactive) -->
+            <div class="voxel-bg-anim" id="voxel-grid-overlay"></div>
+
+            <!-- Content -->
             <div class="voxel-content">
                 <div class="voxel-label">NEW AI TOOL</div>
-                <h2 class="voxel-title">IMAGE TO<br>VOXEL ART</h2>
+                <h2 class="voxel-title scramble-reveal">IMAGE TO<br>VOXEL ART</h2>
                 <p class="voxel-desc">Create voxel art scenes inspired by any image, with Gemini 3.</p>
                 <div class="voxel-btn">LAUNCH APP</div>
             </div>
@@ -657,13 +773,19 @@
     <div class="section-film" id="film" onclick="openConstruction()">
         <div class="film-link-wrapper">
             <div class="film-bg"><img src="film-cover.jpg" alt="Film Cover"></div>
+            <div class="film-grain"></div>
+
+            <!-- CINEMATIC SPOTLIGHT -->
+            <div class="film-projector-beam"></div>
+
             <div class="film-strips">
+                <!-- Strips will be animated via GSAP -->
                 <div class="film-strip-row" id="strip-1"><div class="film-frame"></div><div class="film-frame"></div><div class="film-frame"></div><div class="film-frame"></div></div>
                  <div class="film-strip-row" id="strip-2" style="margin-left: -100px;"><div class="film-frame"></div><div class="film-frame"></div><div class="film-frame"></div><div class="film-frame"></div></div>
                  <div class="film-strip-row" id="strip-3"><div class="film-frame"></div><div class="film-frame"></div><div class="film-frame"></div><div class="film-frame"></div></div>
             </div>
             <div class="film-content">
-                <h2 class="film-title">FILM & <br>COMMERCIAL</h2>
+                <h2 class="film-title scramble-reveal">FILM & <br>COMMERCIAL</h2>
                 <div class="film-play"><div class="play-circle"><div class="play-tri"></div></div><span>WATCH SHOWREEL</span></div>
             </div>
         </div>
@@ -678,7 +800,7 @@
             </div>
             <div class="profile-info">
                 <span class="profile-label">AIGC Creative Director · Film Producer/Director/Editor</span>
-                <h2 class="profile-name">Steven Chen</h2>
+                <h2 class="profile-name scramble-reveal">Steven Chen</h2>
                 <div class="profile-edu">USC School of Cinematic Arts | MFA 2026</div>
                 <div class="profile-value">AI Creative Direction, Film Production, Advertising & Branded Storytelling, Global Digital Marketing, Creative Entrepreneur.</div>
                 <div class="app-areas">
@@ -703,53 +825,60 @@
     </section>
 
     <section class="section-brands"><h3 class="brand-header">Strategic Partners</h3><div class="brand-container"><img src="brand-all.png" alt="Brands" class="brand-img"></div></section>
-    <footer><div>© 2024 Steven Chen</div><div>DESIGNED FOR THE FUTURE</div></footer>
+    <footer><div>© 2026 Steven Chen</div><div>DESIGNED FOR THE FUTURE</div></footer>
 
     <script>
-        // SAFETY: Register GSAP plugins only if GSAP loaded
-        if (typeof gsap !== 'undefined') {
-            gsap.registerPlugin(ScrollTrigger, Draggable, TextPlugin);
-        }
+        gsap.registerPlugin(ScrollTrigger, Draggable, TextPlugin);
 
-        // SAFETY: Initialize Lenis only if it loaded
-        let lenis = null;
-        if (typeof Lenis !== 'undefined') {
-            lenis = new Lenis({ lerp: 0.08, smoothWheel: true });
-            function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-            requestAnimationFrame(raf);
-        }
+        // --- 1. SMOOTHER SCROLL ---
+        const lenis = new Lenis({
+            lerp: 0.06,
+            wheelMultiplier: 0.9,
+            smoothWheel: true
+        });
+        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+        requestAnimationFrame(raf);
 
         /* CURSOR LOGIC */
         const cursor = document.getElementById('cursor');
         const cursorDot = document.getElementById('cursor-dot');
+        let mouseX = 0, mouseY = 0;
+
         window.addEventListener('mousemove', e => {
-            if (typeof gsap !== 'undefined') {
-                gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.15, ease: "power2.out" });
-                gsap.to(cursorDot, { x: e.clientX, y: e.clientY, duration: 0 });
-            }
+            mouseX = e.clientX; mouseY = e.clientY;
+            gsap.to(cursor, { x: mouseX, y: mouseY, duration: 0.15, ease: "power2.out" });
+            gsap.to(cursorDot, { x: mouseX, y: mouseY, duration: 0 });
         });
-        document.querySelectorAll('a, button, .gallery-card, .thumb-card, .draggable-card').forEach(el => {
+        document.querySelectorAll('a, button, .gallery-card, .thumb-card, .draggable-card, .magnetic-btn, .film-link-wrapper, .voxel-card').forEach(el => {
             el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
             el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
         });
 
-        /* TEXT SCRAMBLE NAV HOVER */
-        const navLinks = document.querySelectorAll('.magnetic-btn');
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        navLinks.forEach(link => {
-            link.addEventListener('mouseenter', event => {
-                let iteration = 0;
-                const originalText = event.target.innerText;
-                const interval = setInterval(() => {
-                    event.target.innerText = originalText.split("")
-                        .map((letter, index) => {
-                            if(index < iteration) return originalText[index];
-                            return letters[Math.floor(Math.random() * 26)];
-                        }).join("");
-                    if(iteration >= originalText.length) clearInterval(interval);
-                    iteration += 1/3;
-                }, 30);
+        /* --- 2. MAGNETIC NAV BUTTONS (BUTTON + TEXT) --- */
+        const magneticBtns = document.querySelectorAll('.magnetic-btn');
+        magneticBtns.forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                gsap.to(btn, { x: x * 0.3, y: y * 0.3, duration: 0.3, ease: 'power2.out' });
+                gsap.to(btn.querySelector('span'), { x: x * 0.5, y: y * 0.5, duration: 0.3, ease: 'power2.out' });
             });
+            btn.addEventListener('mouseleave', () => {
+                gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+                gsap.to(btn.querySelector('span'), { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+            });
+        });
+
+        /* --- 3. HERO PARALLAX --- */
+        const heroSection = document.querySelector('.section-hero');
+        const heroContent = document.querySelector('.hero-content');
+
+        heroSection.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 2;
+            const y = (e.clientY / window.innerHeight - 0.5) * 2;
+            gsap.to(heroContent, { x: -x * 20, y: -y * 20, duration: 1, ease: "power2.out" });
+            gsap.to('.draggable-card', { rotationY: x * 3, rotationX: -y * 3, duration: 1.5, ease: "power2.out" });
         });
 
         /* SCROLL PROGRESS BAR */
@@ -760,23 +889,48 @@
             document.getElementById('scroll-progress').style.width = progress + '%';
         });
 
-        function openConstruction() {
-            document.getElementById('construction-modal').classList.add('active');
-            if (typeof gsap !== 'undefined') {
-                gsap.fromTo(".modal-content", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "back.out(1.5)" });
-            }
-        }
-        function closeConstruction() {
-            const m=document.getElementById('construction-modal');
-            if (typeof gsap !== 'undefined') {
-                gsap.to(".modal-content", { y: 50, opacity: 0, duration: 0.3, onComplete: () => m.classList.remove('active') });
-            } else {
-                m.classList.remove('active');
-            }
-        }
+        /* --- 4. SCRAMBLE REVEAL ON SCROLL --- */
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*";
+        const scrambleElements = document.querySelectorAll('.scramble-reveal');
+        scrambleElements.forEach(el => {
+            ScrollTrigger.create({
+                trigger: el,
+                start: "top 85%",
+                onEnter: () => {
+                    gsap.to(el, { opacity: 1, duration: 0.5 });
+                    let iteration = 0;
+                    const originalText = el.innerText;
+                    const interval = setInterval(() => {
+                        el.innerText = originalText.split("")
+                            .map((letter, index) => {
+                                if(index < iteration) return originalText[index];
+                                if(letter === ' ' || letter === '\n') return letter;
+                                return letters[Math.floor(Math.random() * letters.length)];
+                            }).join("");
+                        if(iteration >= originalText.length) clearInterval(interval);
+                        iteration += 1/2;
+                    }, 30);
+                },
+                once: true
+            });
+        });
+
+        /* --- 5. IMAGE SCALE REVEALS --- */
+        gsap.utils.toArray('.section-voxel, .profile-card').forEach(el => {
+            ScrollTrigger.create({
+                trigger: el,
+                start: "top 75%",
+                onEnter: () => el.classList.add('reveal-active'),
+                once: true
+            });
+        });
+
+        /* MODALS & LIGHTBOX */
+        function openConstruction() { document.getElementById('construction-modal').classList.add('active'); gsap.fromTo(".modal-content", { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "back.out(1.5)" }); }
+        function closeConstruction() { const m=document.getElementById('construction-modal'); gsap.to(".modal-content", { y: 50, opacity: 0, duration: 0.3, onComplete: () => m.classList.remove('active') }); }
         function openLightbox(src) { const lb=document.getElementById('lightbox'); document.getElementById('lightbox-img').src=src; lb.classList.add('active'); }
         function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
-        
+
         const thumbRow = document.getElementById('thumbnails-container');
         const prevBtn = document.getElementById('thumb-prev'); const nextBtn = document.getElementById('thumb-next');
         function scrollThumbs(amount) { thumbRow.scrollBy({ left: amount, behavior: 'smooth' }); }
@@ -788,66 +942,33 @@
 
         const profileCard = document.querySelector('.profile-card');
         profileCard.addEventListener('mousemove', (e) => {
-            if (typeof gsap !== 'undefined') {
-                const rect = profileCard.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top;
-                const cx = rect.width/2; const cy = rect.height/2;
-                gsap.to(profileCard, { rotationY: (x-cx)/100, rotationX: -(y-cy)/100, duration: 0.5, ease: "power2.out", transformPerspective: 1000 });
-            }
+            const rect = profileCard.getBoundingClientRect(); const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+            const cx = rect.width/2; const cy = rect.height/2;
+            gsap.to(profileCard, { rotationY: (x-cx)/100, rotationX: -(y-cy)/100, duration: 0.5, ease: "power2.out", transformPerspective: 1000 });
         });
-        profileCard.addEventListener('mouseleave', () => {
-            if (typeof gsap !== 'undefined') {
-                gsap.to(profileCard, { rotationY: 0, rotationX: 0, duration: 0.8, ease: "elastic.out(1,0.5)" });
-            }
-        });
-
-        // EMERGENCY FALLBACK: Force show content after 5 seconds
-        setTimeout(() => {
-            const preloader = document.querySelector('.preloader');
-            if (preloader && window.getComputedStyle(preloader).display !== 'none') {
-                console.warn('Emergency timeout - forcing content display');
-                preloader.style.display = 'none';
-                document.querySelector('.hero-title').style.opacity = '1';
-                document.querySelector('.hero-title').style.transform = 'translateY(0)';
-                document.querySelector('.hero-subtitle').style.opacity = '1';
-                document.querySelector('.hero-subtitle').style.transform = 'translateY(0)';
-                document.querySelector('#card-prompt').style.opacity = '1';
-                document.querySelector('#card-prompt').style.transform = 'scale(1)';
-                document.querySelector('#card-gemini').style.opacity = '1';
-                document.querySelector('#card-gemini').style.transform = 'scale(1)';
-                document.querySelector('.drag-hint').style.opacity = '1';
-            }
-        }, 5000);
+        profileCard.addEventListener('mouseleave', () => { gsap.to(profileCard, { rotationY: 0, rotationX: 0, duration: 0.8, ease: "elastic.out(1,0.5)" }); });
 
         window.addEventListener('load', () => {
-            // SAFETY: Check if GSAP loaded
-            if (typeof gsap === 'undefined') {
-                console.warn('GSAP not loaded, showing content immediately');
-                document.querySelector('.preloader').style.display = 'none';
-                document.querySelector('.hero-title').style.opacity = '1';
-                document.querySelector('.hero-title').style.transform = 'translateY(0)';
-                document.querySelector('.hero-subtitle').style.opacity = '1';
-                document.querySelector('.hero-subtitle').style.transform = 'translateY(0)';
-                document.querySelector('#card-prompt').style.opacity = '1';
-                document.querySelector('#card-prompt').style.transform = 'scale(1)';
-                document.querySelector('#card-gemini').style.opacity = '1';
-                document.querySelector('#card-gemini').style.transform = 'scale(1)';
-                document.querySelector('.drag-hint').style.opacity = '1';
-                return;
-            }
-
+            console.log('Page loaded, starting animations');
+            console.log('GSAP loaded:', typeof gsap !== 'undefined');
+            console.log('Lenis loaded:', typeof Lenis !== 'undefined');
             const tl = gsap.timeline();
             tl.to(".loader-line", { width: "100%", duration: 1.5, ease: "power2.inOut" }).to(".loader-text", { opacity: 0 }).to(".preloader", { y: "-100%", duration: 1.2, ease: "expo.inOut" })
               .to(".hero-title", { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" }, "-=0.5").to(".hero-subtitle", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.9")
               .to("#card-prompt, #card-gemini", { opacity: 1, scale: 1, duration: 0.8, stagger: 0.2, ease: "back.out(1.7)" }, "-=0.8").to(".drag-hint", { opacity: 1, duration: 1 }, "-=0.5");
-            gsap.to("#typed-text", { text: { value: "Low-angle ground-level cinematic shot of a Cybertruck entering the frame from the right side at high speed and charging directly toward the camera." }, duration: 5.5, delay: 2.5, ease: "none", onComplete: () => {
+            gsap.to("#typed-text", { text: { value: "Low-angle ground-level cinematic shot of a Cybertruck entering the frame from the right side at high speed and charging directly toward the camera." }, duration: 3.5, delay: 2.5, ease: "none", onComplete: () => {
                 const img=document.querySelector("#card-gemini img"); gsap.to("#card-gemini", { scale: 1.05, duration: 0.1, yoyo: true, repeat: 1, onStart: () => { img.src = "gemini-after-card.png"; } });
                 gsap.to("#card-prompt-2", { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.7)", delay: 0.5 });
-                gsap.to("#typed-text-2", { text: { value: "Cybertruck bursts forward from inside the sand cloud, emerging from the haze at high speed and charging directly toward the camera." }, duration: 5, delay: 1.5, ease: "none", onComplete: () => { gsap.to("#card-video", { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.7)", onStart: () => { document.querySelector("#card-video video").play(); } }); } });
+                gsap.to("#typed-text-2", { text: { value: "Cybertruck bursts forward from inside the sand cloud, emerging from the haze at high speed and charging directly toward the camera." }, duration: 3, delay: 1.0, ease: "none", onComplete: () => { gsap.to("#card-video", { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.7)", onStart: () => { document.querySelector("#card-video video").play(); } }); } });
             }});
-            
-            gsap.to("#strip-1", { x: "-50%", duration: 20, ease: "none", repeat: -1 });
-            gsap.to("#strip-2", { x: "50%", duration: 25, ease: "none", repeat: -1 });
-            gsap.to("#strip-3", { x: "-50%", duration: 18, ease: "none", repeat: -1 });
+
+            const t1 = gsap.to("#strip-1", { x: "-50%", duration: 20, ease: "none", repeat: -1 });
+            const t2 = gsap.to("#strip-2", { x: "50%", duration: 25, ease: "none", repeat: -1 });
+            const t3 = gsap.to("#strip-3", { x: "-50%", duration: 18, ease: "none", repeat: -1 });
+
+            const filmSec = document.getElementById('film');
+            filmSec.addEventListener('mouseenter', () => { gsap.to([t1, t2, t3], { timeScale: 2.5, duration: 1, ease: "power2.in" }); });
+            filmSec.addEventListener('mouseleave', () => { gsap.to([t1, t2, t3], { timeScale: 1, duration: 1, ease: "power2.out" }); });
         });
 
         /* CABLES */
@@ -863,94 +984,165 @@
             getComputedStyle(gCard).opacity>0?(c1.style.opacity=1,drawCable(pCard,gCard,['cable-1','cable-1-p'])):c1.style.opacity=0;
             getComputedStyle(vCard).opacity>0?(c2.style.opacity=1,drawCable(gCard,vCard,['cable-2','cable-2-p']),c3.style.opacity=1,drawCable(p2Card,vCard,['cable-3','cable-3-p'])):(c2.style.opacity=0,c3.style.opacity=0);
         }
-        // SAFETY: Only create Draggable if GSAP loaded
-        if (typeof Draggable !== 'undefined') {
-            Draggable.create(".draggable-card", { type: "x,y", bounds: ".section-hero", inertia: true, onPress: function() { if (typeof gsap !== 'undefined') { gsap.to(".drag-hint", { opacity: 0 }); gsap.to(".draggable-card", { zIndex: 5 }); gsap.to(this.target, { zIndex: 100, scale: 1.02 }); } }, onRelease: function() { if (typeof gsap !== 'undefined') { gsap.to(this.target, { scale: 1 }); } }, onDrag: updateCables, onThrowUpdate: updateCables });
-        }
+        Draggable.create(".draggable-card", { type: "x,y", bounds: ".section-hero", inertia: true, onPress: function() { gsap.to(".drag-hint", { opacity: 0 }); gsap.to(".draggable-card", { zIndex: 5 }); gsap.to(this.target, { zIndex: 100, scale: 1.02 }); }, onRelease: function() { gsap.to(this.target, { scale: 1 }); }, onDrag: updateCables, onThrowUpdate: updateCables });
+        gsap.ticker.add(updateCables); gsap.to(".draggable-card", { y: "+=8", duration: 2.5, yoyo: true, repeat: -1, ease: "sine.inOut", stagger: 0.3 });
 
-        if (typeof gsap !== 'undefined') {
-            gsap.ticker.add(updateCables);
-            gsap.to(".draggable-card", { y: "+=8", duration: 2.5, yoyo: true, repeat: -1, ease: "sine.inOut", stagger: 0.3 });
-        }
-
-        /* PARTICLES */
+        /* --- 6. REACTIVE PARTICLES --- */
         const canvas = document.getElementById('particle-canvas'), ctx = canvas.getContext('2d');
-        let width, height, warpSpeed = 0; const particles = [];
-        function initP() { width=window.innerWidth; height=window.innerHeight; canvas.width=width; canvas.height=height; particles.length=0; for(let i=0;i<300;i++) particles.push({x:Math.random()*width-width/2, y:Math.random()*height-height/2, z:Math.random()*width, sz:Math.random()*2+0.5}); }
+        let width, height;
+        const particles = [];
+
+        function initP() {
+            width=window.innerWidth; height=window.innerHeight; canvas.width=width; canvas.height=height;
+            particles.length=0;
+            for(let i=0;i<300;i++) particles.push({
+                x:Math.random()*width,
+                y:Math.random()*height,
+                z:Math.random()*width,
+                sz:Math.random()*2+0.5,
+                vx: 0, vy: 0
+            });
+        }
+
         function renderP() {
-            warpSpeed += (document.body.classList.contains('warp-active')?60:0.5 - warpSpeed)*0.05;
-            warpSpeed > 2 ? (ctx.fillStyle=`rgba(2,3,5,0.3)`, ctx.fillRect(0,0,width,height)) : ctx.clearRect(0,0,width,height);
+            ctx.clearRect(0,0,width,height);
             const cx=width/2, cy=height/2;
+
             particles.forEach(p => {
-                p.z-=warpSpeed; if(p.z<=0){ p.z=width; p.x=Math.random()*width-width/2; p.y=Math.random()*height-height/2; }
-                const k=250/p.z, px=p.x*k+cx, py=p.y*k+cy;
-                if(px>-50 && px<width+50 && py>-50 && py<height+50) {
-                    ctx.beginPath();
-                    if(warpSpeed>5) { ctx.strokeStyle=`rgba(200,240,255,${(1-p.z/width)*0.5})`; ctx.lineWidth=(1-p.z/width)*p.sz*2; ctx.moveTo(px,py); ctx.lineTo(p.x*250/(p.z+warpSpeed*0.5)+cx, p.y*250/(p.z+warpSpeed*0.5)+cy); ctx.stroke(); }
-                    else { ctx.fillStyle=`rgba(220,245,255,${1-p.z/width})`; ctx.arc(px,py,(1-p.z/width)*p.sz*2,0,Math.PI*2); ctx.fill(); }
+                p.z -= 0.5 + (document.body.classList.contains('warp-active') ? 50 : 0);
+                if(p.z <= 0) { p.z = width; p.x = Math.random()*width; p.y = Math.random()*height; }
+
+                let dx = p.x - mouseX; let dy = p.y - mouseY;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if (dist < 150) {
+                    const force = (150 - dist) / 150;
+                    p.vx += (dx / dist) * force * 2;
+                    p.vy += (dy / dist) * force * 2;
+                }
+
+                p.x += p.vx; p.y += p.vy;
+                p.vx *= 0.95; p.vy *= 0.95;
+
+                const k = 250 / p.z;
+                const px = (p.x - cx) * k + cx;
+                const py = (p.y - cy) * k + cy;
+
+                if(px > 0 && px < width && py > 0 && py < height) {
+                    const size = (1 - p.z / width) * p.sz * 2;
+                    ctx.fillStyle = `rgba(220, 245, 255, ${1 - p.z / width})`;
+                    ctx.beginPath(); ctx.arc(px, py, size, 0, Math.PI * 2); ctx.fill();
                 }
             });
             requestAnimationFrame(renderP);
         }
         window.addEventListener('resize', initP); initP(); renderP();
 
+        /* INTERACTIVE VOXEL GRID */
+        const voxelCard = document.querySelector('.voxel-card');
+        const voxelOverlay = document.getElementById('voxel-grid-overlay');
+        voxelCard.addEventListener('mousemove', (e) => {
+            const rect = voxelCard.getBoundingClientRect();
+            voxelOverlay.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+            voxelOverlay.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+        });
+
+        /* FILM SPOTLIGHT LOGIC */
+        const filmWrapper = document.querySelector('.film-link-wrapper');
+        filmWrapper.addEventListener('mousemove', (e) => {
+            const rect = filmWrapper.getBoundingClientRect();
+            filmWrapper.style.setProperty('--spot-x', `${e.clientX - rect.left}px`);
+            filmWrapper.style.setProperty('--spot-y', `${e.clientY - rect.top}px`);
+        });
+
         /* DATA */
         const items = [
             {
                 t: "FEEL EVERY STORIES",
-                d: "“FEEL EVERY STORIES” is an experimental AI-driven concept film that visualizes sound as a journey across different worlds and physical mediums. Through water, sand, light, and deep ocean environments, the film reimagines how sound travels, transforms, and returns to a single line of energy—ultimately revealing a speaker engineered from the inside out. A visual exploration of acoustic design, perception, and storytelling.",
+                d: "FEEL EVERY STORIES is an experimental AI-driven concept film that visualizes sound as a journey across different worlds and physical mediums. Through water, sand, light, and deep ocean environments, the film reimagines how sound travels, transforms, and returns to a single line of energy—ultimately revealing a speaker engineered from the inside out. A visual exploration of acoustic design, perception, and storytelling.",
                 img: "spearker.jpg",
-                base: "Feel", thumbs: 8, 
+                base: "Feel", thumbs: 8,
                 videos: [
                     { img: "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png", url: "https://www.instagram.com/p/DRSS70DkfqK/", label: "Instagram" },
                     { img: "https://www.xinpianchang.com/apple-touch-icon.png", url: "https://www.xinpianchang.com/a13539125", label: "Xinpianchang" }
                 ]
             },
-            { 
-                t: "LEGO World: My Self-Introduction", 
-                d: "A creator journeys through worlds built from pixels, LEGO, and dreams — crossing from cinema into simulation, from reality into imagination.", 
+            {
+                t: "LEGO World: My Self-Introduction",
+                d: "A creator journeys through worlds built from pixels, LEGO, and dreams – crossing from cinema into simulation, from reality into imagination.",
                 img: "lego-main.jpg",
                 base: "Lego", thumbs: 7,
-                game: true, 
+                game: true,
                 videos: [
                     { img: "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png", url: "https://www.instagram.com/p/DQs8pwjESBU/", label: "Instagram" },
                     { img: "https://www.xinpianchang.com/apple-touch-icon.png", url: "https://www.xinpianchang.com/a13531246", label: "Xinpianchang" }
                 ]
             },
-            { t: "Chronos Key", d: "A recursive mechanism that folds time.", img: "https://images.unsplash.com/photo-1535295972055-1c762f4483e5?w=500", base: "Chronos", thumbs: 2 },
-            { t: "Void Shard", d: "Solidified dark matter.", img: "https://images.unsplash.com/photo-1618331835717-801e976710b2?w=500", base: "Void", thumbs: 2 },
-            { t: "Nebula Core", d: "Magnetically contained stellar nursery.", img: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=500", base: "Nebula", thumbs: 2 },
-            { t: "Solar Lens", d: "Optics forged from crystallized plasma.", img: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=500", base: "Solar", thumbs: 2 }
+            /* UPDATED ITEMS WITH LOCK */
+            { t: "ARTIFACT // 003 THE FUTURE", d: "A recursive mechanism that folds time.", img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=500", locked: true },
+            { t: "ARTIFACT // 004 THE FUTURE", d: "Solidified dark matter.", img: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=500", locked: true },
+            /* NEW ITEM */
+            {
+                t: "CYBERTRUCK: MARS",
+                d: "A lone Cybertruck is transported across deep space and released onto the surface of Mars, where it emerges from a landing craft into the red dust and harsh light of an unfamiliar world. The film follows its quiet, cinematic journey through sandstorms, industrial ruins, and future colonies—transforming a vehicle reveal into an epic interplanetary odyssey.",
+                img: "cyber-main.jpg",
+                base: "Cyber",
+                thumbs: 7
+            }
         ];
 
         /* CAROUSEL LOGIC */
-        const carousel = document.getElementById('carousel'), RADIUS = 600, SLICE = 360/items.length;
-        let ang = 0, tang = 0, vel = 0, drag = false, startX = 0;
-        
+        const carousel = document.getElementById('carousel'), RADIUS = 520, SLICE = 360/items.length;
+        let currentAngle = 0, targetAngle = 0, velocity = 0, isDragging = false, startX = 0, lastX = 0;
+
         items.forEach((item, i) => {
             const el = document.createElement('div'); el.className = 'gallery-card';
             el.innerHTML = `<img src="${item.img}" class="card-img"><div class="card-info">${item.t}</div>`;
-            el.onclick = () => { if(Math.abs(vel)>0.5) return; if(el.classList.contains('active')) activateWarp(i); else tang += ((-(i*SLICE) - tang)%360 + 540)%360 - 180; };
+            el.onclick = () => {
+                if(Math.abs(velocity) > 0.5) return;
+                if(el.classList.contains('active')) {
+                    if(item.locked) {
+                        // TRIGGER LOCKED MODAL
+                        document.querySelector('.modal-text').innerText = "The future is still under construction.";
+                        openConstruction();
+                    } else {
+                        activateWarp(i);
+                    }
+                }
+                else {
+                    const targetIndex = -i * SLICE;
+                    const diff = (targetIndex - targetAngle) % 360;
+                    const shortest = (2 * diff % 360) - diff;
+                    targetAngle += (diff < -180 ? diff + 360 : diff > 180 ? diff - 360 : diff);
+                }
+            };
             carousel.appendChild(el);
         });
         const cards = document.querySelectorAll('.gallery-card');
 
-        function anim() {
-            if(!drag) { vel *= 0.92; if(Math.abs(vel)<0.001 && !document.body.classList.contains('warp-active')) vel=0, tang-=0.02; else tang+=vel; if(Math.abs(vel)<0.1 && !document.body.classList.contains('warp-active')) tang += (Math.round(tang/SLICE)*SLICE - tang)*0.05; }
-            ang += (tang - ang)*0.06;
+        function updateCarousel() {
+            if (!isDragging) {
+                velocity *= 0.95; targetAngle += velocity;
+                if(Math.abs(velocity) < 0.1 && !document.body.classList.contains('warp-active')) targetAngle -= 0.03;
+            }
+            currentAngle += (targetAngle - currentAngle) * 0.1;
             cards.forEach((c, i) => {
-                const a = ang + i*SLICE, r = a * Math.PI/180, x = Math.sin(r)*RADIUS, z = Math.cos(r)*RADIUS, d = Math.cos(r);
+                const a = currentAngle + i*SLICE, r = a * Math.PI/180, x = Math.sin(r)*RADIUS, z = Math.cos(r)*RADIUS, d = Math.cos(r);
                 c.style.transform = `translate3d(${x}px,0,${z}px) rotateY(${a}deg) scale(${0.5+0.5*((d+1)/2)})`;
                 c.style.opacity = 0.3 + 0.7*((d+1)/2); c.style.zIndex = Math.round((d+1)*100);
-                d > 0.99 ? c.classList.add('active') : c.classList.remove('active');
+                if(d > 0.98) c.classList.add('active'); else c.classList.remove('active');
             });
-            requestAnimationFrame(anim);
+            requestAnimationFrame(updateCarousel);
         }
-        anim();
+        updateCarousel();
 
-        document.getElementById('showcase').addEventListener('mousedown', e => { if(!document.body.classList.contains('warp-active')) drag=true, startX=e.clientX, vel=0; });
-        window.addEventListener('mousemove', e => { if(drag) { const d=e.clientX-startX; startX=e.clientX; vel=d*0.3; tang+=vel; ang+=vel; }});
-        window.addEventListener('mouseup', () => drag=false);
+        const showcase = document.getElementById('showcase');
+        showcase.addEventListener('mousedown', e => {
+            if(!document.body.classList.contains('warp-active')) { isDragging = true; startX = e.clientX; lastX = e.clientX; velocity = 0; }
+        });
+        window.addEventListener('mousemove', e => {
+            if(isDragging) { const delta = e.clientX - lastX; lastX = e.clientX; velocity = delta * 0.3; targetAngle += velocity; }
+        });
+        window.addEventListener('mouseup', () => { isDragging = false; });
 
         /* WARP LOGIC */
         function activateWarp(i) {
@@ -958,63 +1150,42 @@
             document.getElementById('detailImg').src = d.img;
             document.getElementById('detailDesc').innerText = d.d;
             document.getElementById('detailId').innerText = "00" + (i+1);
-            
-            // Glitch Effect on Load
+
             const img = document.getElementById('detailImg');
-            img.style.opacity = 0; 
-            img.style.clipPath = 'inset(50% 0 50% 0)';
-            
-            setTimeout(() => { 
-                img.style.transition="all 0.5s cubic-bezier(0.19, 1, 0.22, 1)"; 
-                img.style.opacity = 1; 
-                img.style.clipPath = 'inset(0 0 0 0)';
-            }, 300);
-            
+            img.style.opacity = 0; img.style.clipPath = 'inset(50% 0 50% 0)';
+            setTimeout(() => { img.style.transition="all 0.5s cubic-bezier(0.19, 1, 0.22, 1)"; img.style.opacity = 1; img.style.clipPath = 'inset(0 0 0 0)'; }, 300);
             document.body.classList.add('warp-active');
-            
+
             let iter = 0; const final = d.t.toUpperCase();
             const iv = setInterval(() => {
-                document.getElementById('detailTitle').innerText = final.split("").map((c,x) => x < iter ? final[x] : "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[Math.floor(Math.random()*36)]).join("");
+                document.getElementById('detailTitle').innerText = final.split("").map((c,x) => x < iter ? final[x] : letters[Math.floor(Math.random()*letters.length)]).join("");
                 if(iter >= final.length) clearInterval(iv); iter += 1/3;
             }, 30);
 
-            const tCont = document.getElementById('thumbnails-container');
-            const tWrap = document.getElementById('thumb-wrapper');
-            const tSub = document.getElementById('thumb-subtitle');
-            tCont.innerHTML = '';
+            const tCont = document.getElementById('thumbnails-container'); tCont.innerHTML = '';
             if(d.thumbs > 0) {
-                tSub.classList.add('visible'); tWrap.classList.add('visible');
+                document.getElementById('thumb-wrapper').classList.add('visible');
                 for(let n=1; n<=d.thumbs; n++) {
                     const thumb = document.createElement('div'); thumb.className = 'thumb-card';
                     thumb.innerHTML = `<img src="${d.base}-Thumb-${n}.jpg" class="thumb-img">`;
                     thumb.onclick = () => openLightbox(`${d.base}-Thumb-${n}.jpg`);
                     tCont.appendChild(thumb);
                 }
-                setTimeout(() => thumbRow.dispatchEvent(new Event('scroll')), 100);
-            } else {
-                tSub.classList.remove('visible'); tWrap.classList.remove('visible');
-            }
+            } else document.getElementById('thumb-wrapper').classList.remove('visible');
 
-            const lego = document.getElementById('lego-versions');
-            const gameSub = document.getElementById('game-subtitle');
-            const vCont = document.getElementById('video-showcase');
-            const vSub = document.getElementById('video-subtitle');
-            
-            if(d.game) { lego.classList.add('visible'); gameSub.classList.add('visible'); } 
-            else { lego.classList.remove('visible'); gameSub.classList.remove('visible'); }
+            if(d.game) { document.getElementById('lego-versions').classList.add('visible'); document.getElementById('game-subtitle').classList.add('visible'); }
+            else { document.getElementById('lego-versions').classList.remove('visible'); document.getElementById('game-subtitle').classList.remove('visible'); }
 
-            vCont.innerHTML = '';
+            const vCont = document.getElementById('video-showcase'); vCont.innerHTML = '';
             if(d.videos) {
-                vSub.classList.add('visible'); vCont.classList.add('visible');
+                document.getElementById('video-subtitle').classList.add('visible'); vCont.classList.add('visible');
                 d.videos.forEach(v => {
                     const vCard = document.createElement('a');
                     vCard.className = 'video-card'; vCard.href = v.url; vCard.target = "_blank";
                     vCard.innerHTML = `<img src="${v.img}"><div class="video-label">Watch on ${v.label}</div>`;
                     vCont.appendChild(vCard);
                 });
-            } else {
-                vSub.classList.remove('visible'); vCont.classList.remove('visible');
-            }
+            } else { document.getElementById('video-subtitle').classList.remove('visible'); vCont.classList.remove('visible'); }
         }
 
         document.getElementById('backBtn').onclick = () => {
@@ -1022,10 +1193,7 @@
             document.getElementById('detailImg').style.transition = "none";
         };
 
-        if (typeof gsap !== 'undefined') {
-            gsap.from(".profile-card", { scrollTrigger: { trigger: ".section-profile", start: "top 70%" }, y: 50, opacity: 0, duration: 1, ease: "power3.out" });
-            gsap.from(".chip", { scrollTrigger: { trigger: ".section-profile", start: "top 60%" }, y: 20, opacity: 0, stagger: 0.1, duration: 0.8, delay: 0.3 });
-        }
+        gsap.from(".chip", { scrollTrigger: { trigger: ".section-profile", start: "top 60%" }, y: 20, opacity: 0, stagger: 0.1, duration: 0.8, delay: 0.3 });
     </script>
 </body>
 </html>

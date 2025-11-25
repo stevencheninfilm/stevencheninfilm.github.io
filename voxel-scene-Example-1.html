@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voxel Cybertruck Desert Run</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #dcb188; }
+        canvas { display: block; }
+        #info {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            text-align: center;
+            color: rgba(0, 0, 0, 0.5);
+            font-family: sans-serif;
+            font-size: 12px;
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+    </style>
+    <!-- Import Three.js as a module -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <style>
+      /* Hides common overlay IDs and classes used in Three.js examples and generated code */
+      #info, #loading, #ui, #instructions, .label, .overlay, #description {
+        display: none !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        visibility: hidden !important;
+      }
+      /* Ensure the body doesn't show selected text cursor interaction outside canvas */
+      body {
+        user-select: none !important;
+      }
+    </style>
+  </head>
+<body>
+    <div id="info">Voxel Cybertruck // Desert Run</div>
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- Configuration ---
+        const VOXEL_SIZE = 0.5;
+        const CAR_COLOR = 0xCCCCCC; // Stainless Steel
+        const WINDOW_COLOR = 0x111111;
+        const TAIL_LIGHT_COLOR = 0xFF3300;
+        const WHEEL_COLOR = 0x1a1a1a;
+        const SAND_COLORS = [0xC27845, 0xD48C55, 0xB06636]; // Canyon colors
+        const ROCK_COLOR = 0x6e5241;
+
+        // --- Scene Setup ---
+        const scene = new THREE.Scene();
+        // Fog to blend the horizon and give that dusty atmosphere
+        scene.fog = new THREE.Fog(0xdcb188, 20, 90);
+        scene.background = new THREE.Color(0xdcb188);
+
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+        // Position camera low and behind to match the reference image's action shot
+        camera.position.set(-20, 4.800000000000001, 20); 
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.target.set(0, 2, 0);
+
+        // --- Lighting ---
+        const ambientLight = new THREE.HemisphereLight(0xffffff, 0x8d5c3d, 0.6);
+        scene.add(ambientLight);
+
+        const sunLight = new THREE.DirectionalLight(0xfff5e6, 2.0);
+        sunLight.position.set(-50, 60, 20);
+        sunLight.castShadow = true;
+        sunLight.shadow.mapSize.width = 2048;
+        sunLight.shadow.mapSize.height = 2048;
+        sunLight.shadow.camera.near = 0.5;
+        sunLight.shadow.camera.far = 200;
+        sunLight.shadow.camera.left = -50;
+        sunLight.shadow.camera.right = 50;
+        sunLight.shadow.camera.top = 50;
+        sunLight.shadow.camera.bottom = -50;
+        scene.add(sunLight);
+
+        // --- Voxel Engine ---
+        // We use InstancedMesh to render thousands of cubes efficiently
+        const geometry = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE);
+        // Slightly rounded cubes look better
+        const geometryRounded = new THREE.BoxGeometry(VOXEL_SIZE, VOXEL_SIZE, VOXEL_SIZE); 
+        
+        const material = new THREE.MeshStandardMaterial({ 
+            roughness: 0.8, 
+            metalness: 0.1 
+        });
+
+        // Store voxel data {x, y, z, color}
+        const voxels = [];
+
+        function addVoxel(x, y, z, colorHex) {
+            voxels.push({ 
+                x: x * VOXEL_SIZE, 
+                y: y * VOXEL_SIZE, 
+                z: z * VOXEL_SIZE, 
+                color: new THREE.Color(colorHex) 
+            });
+        }
+
+        // --- Procedural Generation: The Truck ---
+        function buildTruck() {
+            const length = 36;
+            const width = 14;
+            const peakX = 2; // Where the roof peaks
+            
+            // Iterate grid
+            for (let x = -length/2; x < length/2; x++) {
+                for (let z = -width/2; z < width/2; z++) {
+                    // Determine height based on Cybertruck's angular profile
+                    let h = 0;
+                    
+                    // Basic Wedge Math
+                    if (x > peakX) {
+                        // Front slope
+                        h = 10 - (x - peakX) * 0.7;
+                    } else {
+                        // Rear slope (bed cover)
+                        h = 10 - (peakX - x) * 0.5;
+                    }
+                    
+                    // Cut the bottom for ground clearance
+                    let floor = 2;
+
+                    // Wheel wells
+                    let isWheelWell = false;
+                    const wheelZ = Math.abs(z) > width/2 - 3;
+                    // Front wheels
+                    if (x > 8 && x < 15 && wheelZ) isWheelWell = true;
+                    // Rear wheels
+                    if (x < -8 && x > -15 && wheelZ) isWheelWell = true;
+
+                    if (isWheelWell) continue;
+
+                    for (let y = floor; y < h; y++) {
+                        let color = CAR_COLOR;
+                        
+                        // Windows
+                        let isWindow = false;
+                        // Side windows
+                        if ((Math.abs(z) === width/2 - 1) && y > 5 && y < h - 1) isWindow = true;
+                        // Windshield
+                        if (x > peakX + 2 && y === Math.floor(h) && Math.abs(z) < width/2 - 1) isWindow = true;
+                        
+                        if (isWindow) color = WINDOW_COLOR;
+
+                        // Rear Light Strip
+                        if (x === Math.floor(-length/2) && y > h - 1.5) {
+                            color = TAIL_LIGHT_COLOR;
+                        }
+
+                        // Front Headlight Strip
+                        if (x === Math.floor(length/2) - 1 && y > h - 2 && y < h-1) {
+                             color = 0xFFFFFF; // Headlight
+                        }
+
+                        // Black plastic trim at bottom
+                        if (y === floor) color = 0x222222;
+
+                        addVoxel(x, y, z, color);
+                    }
+                }
+            }
+
+            // Wheels
+            const wheelPositions = [
+                {x: 11.5, z: 6}, {x: 11.5, z: -6},
+                {x: -11.5, z: 6}, {x: -11.5, z: -6}
+            ];
+
+            wheelPositions.forEach(pos => {
+                for(let wx = -2; wx <= 2; wx++) {
+                    for(let wy = -2; wy <= 2; wy++) {
+                        // Circle shape logic
+                        if (wx*wx + wy*wy <= 5) {
+                            // Tire thickness
+                            for(let wz = -1; wz <= 1; wz++) {
+                                addVoxel(pos.x + wx, 2 + wy, pos.z + wz, WHEEL_COLOR);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Procedural Generation: The Environment ---
+        function buildEnvironment() {
+            // Ground Plane
+            const groundSize = 160;
+            for(let x = -groundSize; x < groundSize; x+=2) {
+                for(let z = -groundSize; z < groundSize; z+=2) {
+                    
+                    // Simple noise for terrain undulation
+                    const noise = Math.sin(x * 0.1) * Math.cos(z * 0.1);
+                    const yLevel = Math.floor(noise * 2) - 3;
+                    
+                    // Randomize ground color for texture
+                    const col = SAND_COLORS[Math.floor(Math.random() * SAND_COLORS.length)];
+                    
+                    // Only draw voxels near the center or randomly further out to save performance
+                    if (x*x + z*z < 3000 || Math.random() > 0.8) {
+                        addVoxel(x, yLevel, z, col);
+                        
+                        // Add some lower layers to hide holes
+                        addVoxel(x, yLevel-1, z, col);
+                    }
+                }
+            }
+
+            // Canyon Walls (Background)
+            for(let i=0; i<100; i++) {
+                const cx = (Math.random() - 0.5) * 150;
+                const cz = (Math.random() < 0.5 ? -1 : 1) * (40 + Math.random() * 40);
+                
+                // Stack blocks to make rock pillars
+                const height = 10 + Math.random() * 20;
+                const width = 4 + Math.random() * 8;
+                
+                for(let y=0; y<height; y++) {
+                    for(let wx=0; wx<width; wx++) {
+                        for(let wz=0; wz<width; wz++) {
+                            if (Math.random() > 0.3) {
+                                addVoxel(cx+wx, y - 5, cz+wz, ROCK_COLOR);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Dust Trail (Particles behind the car)
+            for(let i=0; i<400; i++) {
+                // Originating from rear wheels
+                const side = Math.random() > 0.5 ? 1 : -1;
+                const startX = -12;
+                const startZ = 6 * side;
+
+                // Drift backwards and out
+                const driftX = -(Math.random() * 30);
+                const driftZ = (Math.random() - 0.5) * 10;
+                const driftY = Math.random() * 8;
+
+                // Fade color based on height (dustier)
+                const dustColor = 0xcca382;
+
+                addVoxel(startX + driftX, driftY, startZ + driftZ, dustColor);
+            }
+        }
+
+        // --- Build Scene ---
+        buildTruck();
+        buildEnvironment();
+
+        // --- Rendering ---
+        const instancedMesh = new THREE.InstancedMesh(geometry, material, voxels.length);
+        instancedMesh.castShadow = true;
+        instancedMesh.receiveShadow = true;
+
+        const dummy = new THREE.Object3D();
+        const _color = new THREE.Color();
+
+        voxels.forEach((voxel, i) => {
+            dummy.position.set(voxel.x, voxel.y, voxel.z);
+            dummy.updateMatrix();
+            instancedMesh.setMatrixAt(i, dummy.matrix);
+            instancedMesh.setColorAt(i, voxel.color);
+        });
+
+        instancedMesh.instanceMatrix.needsUpdate = true;
+        instancedMesh.instanceColor.needsUpdate = true;
+
+        scene.add(instancedMesh);
+
+        // --- Animation Loop ---
+        // Add a secondary mesh for glowing tail lights to bloom (optional simple implementation)
+        const lightMaterial = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+        const tailLightGeo = new THREE.BoxGeometry(VOXEL_SIZE * 14, VOXEL_SIZE/2, VOXEL_SIZE/2);
+        const tailLightMesh = new THREE.Mesh(tailLightGeo, lightMaterial);
+        tailLightMesh.position.set(-8, 4.5, 0); // Approx position
+        // scene.add(tailLightMesh); // Keeping it purely voxel for stylistic consistency
+
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            const time = clock.getElapsedTime();
+
+            // Subtle camera movement to simulate driving vibration or drone shot
+            camera.position.y += Math.sin(time * 2) * 0.005;
+            
+            // Rotate the light slightly to simulate sun passing (very slow)
+            sunLight.position.x = -50 + Math.cos(time * 0.1) * 10;
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+
+    </script>
+</body>
+</html>
