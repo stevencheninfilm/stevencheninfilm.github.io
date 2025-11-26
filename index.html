@@ -694,10 +694,10 @@
                 <g id="cable-group-2" class="cable-group"><path id="cable-2" class="cable-path" d=""></path><path id="cable-2-p" class="cable-pulse" d=""></path></g>
                 <g id="cable-group-3" class="cable-group"><path id="cable-3" class="cable-path" d=""></path><path id="cable-3-p" class="cable-pulse" d=""></path></g>
             </svg>
-            <div id="card-prompt" class="draggable-card"><img src="prompt-card.png"><div class="typing-overlay"><span id="typed-text"></span><span style="animation: blink 1s infinite">|</span></div></div>
-            <div id="card-gemini" class="draggable-card"><img src="gemini-card.png"></div>
-            <div id="card-prompt-2" class="draggable-card" style="opacity: 0; transform: scale(0);"><img src="prompt-card.png"><div class="typing-overlay"><span id="typed-text-2"></span><span style="animation: blink 1s infinite">|</span></div></div>
-            <div id="card-video" class="draggable-card" style="opacity: 0; transform: scale(0);"><video src="veo-after-video.mp4" loop muted playsinline></video></div>
+            <div id="card-prompt" class="draggable-card"><img src="assets/images/ui/prompt-card.png"><div class="typing-overlay"><span id="typed-text"></span><span style="animation: blink 1s infinite">|</span></div></div>
+            <div id="card-gemini" class="draggable-card"><img src="assets/images/ui/gemini-card.png"></div>
+            <div id="card-prompt-2" class="draggable-card" style="opacity: 0; transform: scale(0);"><img src="assets/images/ui/prompt-card.png"><div class="typing-overlay"><span id="typed-text-2"></span><span style="animation: blink 1s infinite">|</span></div></div>
+            <div id="card-video" class="draggable-card" style="opacity: 0; transform: scale(0);"><video src="assets/videos/veo-after-video.mp4" loop muted playsinline></video></div>
             <div class="drag-hint"><div class="drag-icon"></div><span>Drag to Interact</span></div>
         </div>
     </section>
@@ -733,9 +733,9 @@
 
             <h3 class="section-subtitle" id="game-subtitle">Interactive Game (Versions):</h3>
             <div id="lego-versions" class="lego-versions">
-                <a href="lego-world.html" class="version-card"><div class="version-badge badge-classic">Classic</div><img src="https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=400" class="version-img"><div class="version-overlay"><div class="v-title">Basic Edition</div><div class="v-desc">Original voxel sandbox.</div></div></a>
-                <a href="lego-world-v4.html" class="version-card"><div class="version-badge badge-ultimate">Ultimate</div><img src="https://images.unsplash.com/photo-1614732414444-096e5f1122d5?q=80&w=400" class="version-img"><div class="version-overlay"><div class="v-title">Ultimate Edition</div><div class="v-desc">Enhanced bloom & AI.</div></div></a>
-                <a href="lego-world-biomes.html" class="version-card"><div class="version-badge badge-biomes">Biomes</div><img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=400" class="version-img"><div class="version-overlay"><div class="v-title">Biomes Edition</div><div class="v-desc">Diverse ecosystems.</div></div></a>
+                <a href="projects/lego-world.html" class="version-card"><div class="version-badge badge-classic">Classic</div><img src="https://images.unsplash.com/photo-1587654780291-39c9404d746b?q=80&w=400" class="version-img"><div class="version-overlay"><div class="v-title">Basic Edition</div><div class="v-desc">Original voxel sandbox.</div></div></a>
+                <a href="projects/lego-world-v4.html" class="version-card"><div class="version-badge badge-ultimate">Ultimate</div><img src="https://images.unsplash.com/photo-1614732414444-096e5f1122d5?q=80&w=400" class="version-img"><div class="version-overlay"><div class="v-title">Ultimate Edition</div><div class="v-desc">Enhanced bloom & AI.</div></div></a>
+                <a href="projects/lego-world-biomes.html" class="version-card"><div class="version-badge badge-biomes">Biomes</div><img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=400" class="version-img"><div class="version-overlay"><div class="v-title">Biomes Edition</div><div class="v-desc">Diverse ecosystems.</div></div></a>
             </div>
 
             <h3 class="section-subtitle" id="video-subtitle">Video Showcase</h3>
@@ -747,13 +747,13 @@
 
     <!-- VOXEL ART SECTION -->
     <section class="section-voxel" id="voxel-art">
-        <a href="http://localhost:3000/voxel-art/" target="_blank" class="voxel-card">
+        <a href="voxel-art/index.html" target="_blank" class="voxel-card">
             <!-- Layer 1: Static Image (With Zoom Animation) -->
-            <div class="voxel-img-layer"><img src="voxel-bg-1.jpg" alt="Voxel Background"></div>
+            <div class="voxel-img-layer"><img src="assets/images/voxel/voxel-bg-1.jpg" alt="Voxel Background"></div>
 
             <!-- Layer 2: 3D Scene Iframe (Glitch Wipe + Zoom) -->
             <div class="voxel-iframe-layer">
-                <iframe src="voxel-scene-Example-1.html" tabindex="-1"></iframe>
+                <iframe src="projects/voxel-scene-Example-1.html" tabindex="-1"></iframe>
             </div>
 
             <!-- Grid Overlay (Interactive) -->
@@ -772,7 +772,7 @@
     <!-- FILM SECTION -->
     <div class="section-film" id="film" onclick="openConstruction()">
         <div class="film-link-wrapper">
-            <div class="film-bg"><img src="film-cover.jpg" alt="Film Cover"></div>
+            <div class="film-bg"><img src="assets/images/profile/film-cover.jpg" alt="Film Cover"></div>
             <div class="film-grain"></div>
 
             <!-- CINEMATIC SPOTLIGHT -->
@@ -794,7 +794,7 @@
     <section class="section-profile" id="profile">
         <div class="profile-card">
             <div class="profile-vis">
-                <div class="img-container"><img src="steven-profile.jpg" class="real-profile-img" alt="Steven Chen"></div>
+                <div class="img-container"><img src="assets/images/profile/steven-profile.jpg" class="real-profile-img" alt="Steven Chen"></div>
                 <div class="orbit-ring"></div><div class="orbit-ring-2"></div>
                 <div class="status-badge"><div class="status-dot"></div><span>Available</span></div>
             </div>
@@ -810,8 +810,8 @@
                     <span class="app-tag">Proposal Videos</span>
                 </div>
                 <div class="chips-row">
-                    <div class="chip"><div class="chip-icon"><img src="cmu-logo.jpg" alt="CMU"></div><div class="chip-detail"><span class="chip-title">Carnegie Mellon University</span><span class="chip-sub">Consultant, Moodio AI</span></div></div>
-                    <div class="chip"><div class="chip-icon"><img src="opencreator-logo.jpg" alt="OC"></div><div class="chip-detail"><span class="chip-title">OpenCreator.io</span><span class="chip-sub">Creative Ambassador</span></div></div>
+                    <div class="chip"><div class="chip-icon"><img src="assets/images/logos/cmu-logo.jpg" alt="CMU"></div><div class="chip-detail"><span class="chip-title">Carnegie Mellon University</span><span class="chip-sub">Consultant, Moodio AI</span></div></div>
+                    <div class="chip"><div class="chip-icon"><img src="assets/images/logos/opencreator-logo.jpg" alt="OC"></div><div class="chip-detail"><span class="chip-title">OpenCreator.io</span><span class="chip-sub">Creative Ambassador</span></div></div>
                 </div>
                 <div class="profile-actions">
                     <a href="mailto:kieen1454@gmail.com" class="action-btn">Email Me</a>
@@ -824,7 +824,7 @@
         </div>
     </section>
 
-    <section class="section-brands"><h3 class="brand-header">Strategic Partners</h3><div class="brand-container"><img src="brand-all.png" alt="Brands" class="brand-img"></div></section>
+    <section class="section-brands"><h3 class="brand-header">Strategic Partners</h3><div class="brand-container"><img src="assets/images/logos/brand-all.png" alt="Brands" class="brand-img"></div></section>
     <footer><div>© 2026 Steven Chen</div><div>DESIGNED FOR THE FUTURE</div></footer>
 
     <script>
@@ -957,7 +957,7 @@
               .to(".hero-title", { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" }, "-=0.5").to(".hero-subtitle", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.9")
               .to("#card-prompt, #card-gemini", { opacity: 1, scale: 1, duration: 0.8, stagger: 0.2, ease: "back.out(1.7)" }, "-=0.8").to(".drag-hint", { opacity: 1, duration: 1 }, "-=0.5");
             gsap.to("#typed-text", { text: { value: "Low-angle ground-level cinematic shot of a Cybertruck entering the frame from the right side at high speed and charging directly toward the camera." }, duration: 3.5, delay: 2.5, ease: "none", onComplete: () => {
-                const img=document.querySelector("#card-gemini img"); gsap.to("#card-gemini", { scale: 1.05, duration: 0.1, yoyo: true, repeat: 1, onStart: () => { img.src = "gemini-after-card.png"; } });
+                const img=document.querySelector("#card-gemini img"); gsap.to("#card-gemini", { scale: 1.05, duration: 0.1, yoyo: true, repeat: 1, onStart: () => { img.src = "assets/images/ui/gemini-after-card.png"; } });
                 gsap.to("#card-prompt-2", { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.7)", delay: 0.5 });
                 gsap.to("#typed-text-2", { text: { value: "Cybertruck bursts forward from inside the sand cloud, emerging from the haze at high speed and charging directly toward the camera." }, duration: 3, delay: 1.0, ease: "none", onComplete: () => { gsap.to("#card-video", { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.7)", onStart: () => { document.querySelector("#card-video video").play(); } }); } });
             }});
@@ -1059,8 +1059,8 @@
             {
                 t: "FEEL EVERY STORIES",
                 d: "FEEL EVERY STORIES is an experimental AI-driven concept film that visualizes sound as a journey across different worlds and physical mediums. Through water, sand, light, and deep ocean environments, the film reimagines how sound travels, transforms, and returns to a single line of energy—ultimately revealing a speaker engineered from the inside out. A visual exploration of acoustic design, perception, and storytelling.",
-                img: "spearker.jpg",
-                base: "Feel", thumbs: 8,
+                img: "assets/images/projects/feel/spearker.jpg",
+                base: "assets/images/projects/feel/Feel", thumbs: 8,
                 videos: [
                     { img: "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png", url: "https://www.instagram.com/p/DRSS70DkfqK/", label: "Instagram" },
                     { img: "https://www.xinpianchang.com/apple-touch-icon.png", url: "https://www.xinpianchang.com/a13539125", label: "Xinpianchang" }
@@ -1069,8 +1069,8 @@
             {
                 t: "LEGO World: My Self-Introduction",
                 d: "A creator journeys through worlds built from pixels, LEGO, and dreams – crossing from cinema into simulation, from reality into imagination.",
-                img: "lego-main.jpg",
-                base: "Lego", thumbs: 7,
+                img: "assets/images/projects/lego/lego-main.jpg",
+                base: "assets/images/projects/lego/Lego", thumbs: 7,
                 game: true,
                 videos: [
                     { img: "https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png", url: "https://www.instagram.com/p/DQs8pwjESBU/", label: "Instagram" },
@@ -1084,8 +1084,8 @@
             {
                 t: "CYBERTRUCK: MARS",
                 d: "A lone Cybertruck is transported across deep space and released onto the surface of Mars, where it emerges from a landing craft into the red dust and harsh light of an unfamiliar world. The film follows its quiet, cinematic journey through sandstorms, industrial ruins, and future colonies—transforming a vehicle reveal into an epic interplanetary odyssey.",
-                img: "cyber-main.jpg",
-                base: "Cyber",
+                img: "assets/images/projects/cybertruck/cyber-main.jpg",
+                base: "assets/images/projects/cybertruck/Cyber",
                 thumbs: 7
             }
         ];
