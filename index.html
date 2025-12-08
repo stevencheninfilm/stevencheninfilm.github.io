@@ -93,8 +93,15 @@
             display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
         .loader-text { font-family: var(--font-display); letter-spacing: 4px; font-size: 0.9rem; color: var(--neon-blue); margin-bottom: 20px; }
-        .loader-line-bg { width: 200px; height: 2px; background: rgba(255,255,255,0.1); overflow: hidden; }
-        .loader-line { width: 0%; height: 100%; background: var(--neon-purple); }
+        .loader-percentage { font-family: var(--font-display); font-size: 3rem; font-weight: 700; color: var(--neon-purple); margin-bottom: 15px; text-shadow: 0 0 20px var(--neon-purple); }
+        .loader-status { font-family: var(--font-body); font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-bottom: 30px; letter-spacing: 2px; }
+        .loader-line-bg { width: 300px; height: 3px; background: rgba(255,255,255,0.1); overflow: hidden; border-radius: 10px; position: relative; }
+        .loader-line { width: 0%; height: 100%; background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue)); box-shadow: 0 0 10px var(--neon-purple); transition: width 0.1s ease-out; }
+        .network-status { display: flex; align-items: center; gap: 10px; margin-top: 30px; font-family: var(--font-body); font-size: 0.75rem; color: rgba(255,255,255,0.6); }
+        .network-indicator { width: 8px; height: 8px; border-radius: 50%; background: var(--neon-green); box-shadow: 0 0 10px var(--neon-green); animation: pulse-dot 2s infinite; }
+        .network-indicator.loading { background: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
+        .network-indicator.error { background: var(--neon-red); box-shadow: 0 0 10px var(--neon-red); animation: none; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
         /* --- NAVIGATION --- */
         nav {
@@ -651,7 +658,13 @@
     <!-- Loader -->
     <div class="preloader">
         <div class="loader-text">INITIALIZING ENGINE</div>
+        <div class="loader-percentage">0%</div>
+        <div class="loader-status">Loading assets...</div>
         <div class="loader-line-bg"><div class="loader-line"></div></div>
+        <div class="network-status">
+            <div class="network-indicator loading"></div>
+            <span id="network-text">Checking connection...</span>
+        </div>
     </div>
 
     <!-- Lightbox -->
@@ -952,10 +965,78 @@
             console.log('Page loaded, starting animations');
             console.log('GSAP loaded:', typeof gsap !== 'undefined');
             console.log('Lenis loaded:', typeof Lenis !== 'undefined');
-            const tl = gsap.timeline();
-            tl.to(".loader-line", { width: "100%", duration: 1.5, ease: "power2.inOut" }).to(".loader-text", { opacity: 0 }).to(".preloader", { y: "-100%", duration: 1.2, ease: "expo.inOut" })
-              .to(".hero-title", { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" }, "-=0.5").to(".hero-subtitle", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.9")
-              .to("#card-prompt, #card-gemini", { opacity: 1, scale: 1, duration: 0.8, stagger: 0.2, ease: "back.out(1.7)" }, "-=0.8").to(".drag-hint", { opacity: 1, duration: 1 }, "-=0.5");
+
+            // Advanced Preloader with Progress & Network Status
+            const percentageEl = document.querySelector('.loader-percentage');
+            const statusEl = document.querySelector('.loader-status');
+            const networkIndicator = document.querySelector('.network-indicator');
+            const networkText = document.getElementById('network-text');
+            const loaderLine = document.querySelector('.loader-line');
+
+            let progress = 0;
+            const loadingStages = [
+                { progress: 20, status: 'Loading scripts...', delay: 200 },
+                { progress: 40, status: 'Initializing animations...', delay: 300 },
+                { progress: 60, status: 'Loading assets...', delay: 400 },
+                { progress: 80, status: 'Preparing experience...', delay: 300 },
+                { progress: 100, status: 'Ready!', delay: 200 }
+            ];
+
+            // Check network connection
+            if (navigator.onLine) {
+                networkIndicator.classList.remove('loading');
+                networkIndicator.classList.add('connected');
+                networkText.textContent = 'Network: Online';
+            } else {
+                networkIndicator.classList.remove('loading');
+                networkIndicator.classList.add('error');
+                networkText.textContent = 'Network: Offline';
+            }
+
+            // Simulate progressive loading
+            let stageIndex = 0;
+            function updateProgress() {
+                if (stageIndex < loadingStages.length) {
+                    const stage = loadingStages[stageIndex];
+                    const startProgress = progress;
+                    const targetProgress = stage.progress;
+                    const duration = stage.delay;
+                    const startTime = Date.now();
+
+                    function animate() {
+                        const elapsed = Date.now() - startTime;
+                        const fraction = Math.min(elapsed / duration, 1);
+                        progress = startProgress + (targetProgress - startProgress) * fraction;
+
+                        percentageEl.textContent = Math.floor(progress) + '%';
+                        loaderLine.style.width = progress + '%';
+                        statusEl.textContent = stage.status;
+
+                        if (fraction < 1) {
+                            requestAnimationFrame(animate);
+                        } else {
+                            stageIndex++;
+                            if (stageIndex < loadingStages.length) {
+                                setTimeout(updateProgress, 100);
+                            } else {
+                                // Complete loading
+                                setTimeout(() => {
+                                    const tl = gsap.timeline();
+                                    tl.to(".loader-text, .loader-percentage, .loader-status, .network-status", { opacity: 0, duration: 0.5 })
+                                      .to(".preloader", { y: "-100%", duration: 1.2, ease: "expo.inOut" })
+                                      .to(".hero-title", { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" }, "-=0.5")
+                                      .to(".hero-subtitle", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.9")
+                                      .to("#card-prompt, #card-gemini", { opacity: 1, scale: 1, duration: 0.8, stagger: 0.2, ease: "back.out(1.7)" }, "-=0.8")
+                                      .to(".drag-hint", { opacity: 1, duration: 1 }, "-=0.5");
+                                }, 500);
+                            }
+                        }
+                    }
+                    animate();
+                }
+            }
+
+            updateProgress();
             gsap.to("#typed-text", { text: { value: "Low-angle ground-level cinematic shot of a Cybertruck entering the frame from the right side at high speed and charging directly toward the camera." }, duration: 3.5, delay: 2.5, ease: "none", onComplete: () => {
                 const img=document.querySelector("#card-gemini img"); gsap.to("#card-gemini", { scale: 1.05, duration: 0.1, yoyo: true, repeat: 1, onStart: () => { img.src = "assets/images/ui/gemini-after-card.png"; } });
                 gsap.to("#card-prompt-2", { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.7)", delay: 0.5 });
