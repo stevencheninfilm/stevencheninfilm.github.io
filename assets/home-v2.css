@@ -1,0 +1,55 @@
+/* V2 candidate: isolated home-page refinements. */
+.home-v2 .stage-step {
+  width: clamp(48px, 6.5vw, 86px);
+  min-width: 48px;
+  height: 96px;
+}
+
+.home-v2 .stage-step--prev {
+  left: clamp(8px, calc(18vw - 58px), 158px);
+}
+
+.home-v2 .stage-step--next {
+  right: clamp(8px, calc(18vw - 58px), 158px);
+}
+
+.home-v2 .stage-step span {
+  font-size: clamp(22px, 2.5vw, 34px);
+  font-weight: 300;
+}
+
+.home-v2 .stage-step--prev:hover span,
+.home-v2 .stage-step--prev:focus-visible span {
+  transform: translateX(-5px);
+}
+
+.home-v2 .stage-step--next:hover span,
+.home-v2 .stage-step--next:focus-visible span {
+  transform: translateX(5px);
+}
+
+@media (min-width: 1025px) {
+  .home-v2 .home-pagination {
+    left: auto;
+    right: calc(max(clamp(18px, 3.3vw, 64px), env(safe-area-inset-right)) + clamp(579px, 44vw, 835px) + 18px);
+    transform: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .home-v2 .stage-step {
+    height: 64px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .home-v2 .home-pagination {
+    bottom: max(82px, calc(env(safe-area-inset-bottom) + 76px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-v2 .stage-step span {
+    transform: none !important;
+  }
+}

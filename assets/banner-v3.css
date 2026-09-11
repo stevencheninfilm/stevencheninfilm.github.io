@@ -1,0 +1,324 @@
+@property --compare-split {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 50%;
+}
+
+.deck-card--comparison {
+  background: #07080a;
+}
+
+.comparison-stage {
+  --compare-split: 50%;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #07080a;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.comparison-frame {
+  position: absolute;
+  inset: clamp(8px, 1.05vw, 18px);
+  overflow: hidden;
+  border-radius: clamp(10px, 1vw, 17px);
+  background: #111317;
+  cursor: ew-resize;
+  touch-action: pan-y;
+  isolation: isolate;
+}
+
+.comparison-video,
+.comparison-after {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.comparison-video {
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+}
+
+.comparison-after {
+  z-index: 2;
+  overflow: hidden;
+  clip-path: inset(0 0 0 var(--compare-split));
+  will-change: clip-path;
+}
+
+.comparison-after::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(2, 4, 7, .12), transparent 26%, transparent 68%, rgba(2, 4, 7, .18));
+  pointer-events: none;
+}
+
+.comparison-label {
+  position: absolute;
+  z-index: 5;
+  top: clamp(12px, 1.2vw, 21px);
+  display: inline-flex;
+  min-height: 27px;
+  align-items: center;
+  padding: 1px 11px 0;
+  border-radius: 999px;
+  background: rgba(248, 248, 246, .94);
+  color: #101114;
+  font-size: clamp(9px, .62vw, 11px);
+  line-height: 1;
+  letter-spacing: .09em;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, .12);
+}
+
+.comparison-label--before {
+  left: clamp(12px, 1.2vw, 21px);
+}
+
+.comparison-label--after {
+  right: clamp(12px, 1.2vw, 21px);
+}
+
+.comparison-copy {
+  position: absolute;
+  z-index: 5;
+  left: clamp(30%, var(--compare-split), 70%);
+  top: 50%;
+  width: min(86%, 820px);
+  transform: translate(-50%, -50%);
+  color: #fff;
+  text-align: center;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 20px rgba(0, 0, 0, .68));
+  transition: opacity .3s ease, transform .48s cubic-bezier(.2, .75, .2, 1);
+}
+
+.comparison-copy p,
+.comparison-copy h1,
+.comparison-copy span,
+.comparison-copy em {
+  display: block;
+  margin: 0;
+}
+
+.comparison-copy p {
+  margin-bottom: clamp(8px, 1vw, 15px);
+  font-size: clamp(9px, .65vw, 11px);
+  line-height: 1.2;
+  letter-spacing: .15em;
+}
+
+.comparison-copy h1 {
+  font-size: clamp(34px, 4.5vw, 74px);
+  font-weight: 400;
+  line-height: .92;
+  letter-spacing: -.055em;
+}
+
+.comparison-copy span {
+  margin-top: clamp(10px, 1.2vw, 18px);
+  font-size: clamp(11px, .85vw, 14px);
+  line-height: 1.25;
+  letter-spacing: .035em;
+}
+
+.comparison-copy em {
+  width: max-content;
+  margin: clamp(18px, 2.1vw, 32px) auto 0;
+  padding: 9px 13px 8px;
+  border: 1px solid rgba(255, 255, 255, .58);
+  border-radius: 999px;
+  background: rgba(5, 7, 10, .18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: 9px;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.comparison-divider {
+  position: absolute;
+  z-index: 6;
+  left: var(--compare-split);
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  transform: translateX(-.5px);
+  background: rgba(255, 255, 255, .58);
+  box-shadow: 0 0 10px rgba(0, 0, 0, .26);
+  pointer-events: none;
+  will-change: left;
+}
+
+.comparison-handle {
+  position: absolute;
+  z-index: 7;
+  left: var(--compare-split);
+  top: 50%;
+  width: 56px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  color: #0d0e10;
+  cursor: ew-resize;
+  touch-action: none;
+  will-change: left;
+}
+
+.comparison-handle > span {
+  width: 8px;
+  height: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .75);
+  background: #e8b676;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, .38);
+  transition: transform .2s ease;
+}
+
+.comparison-handle i {
+  display: none;
+}
+
+.comparison-handle:hover > span {
+  transform: scale(1.45);
+}
+
+.comparison-handle:focus-visible {
+  outline: none;
+}
+
+.comparison-handle:focus-visible > span {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, .28), 0 1px 8px rgba(0, 0, 0, .38);
+}
+
+.comparison-stage.is-interacting .comparison-copy {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.97);
+}
+
+.project-deck.is-strip .comparison-stage {
+  pointer-events: none;
+}
+
+.project-deck.is-strip .comparison-frame {
+  inset: 0;
+  border-radius: 0;
+  cursor: inherit;
+}
+
+.project-deck.is-strip .comparison-label,
+.project-deck.is-strip .comparison-copy,
+.project-deck.is-strip .comparison-divider,
+.project-deck.is-strip .comparison-handle {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.project-deck.is-strip .comparison-video {
+  filter: saturate(.82) contrast(1.02);
+}
+
+@media (orientation: portrait) and (max-width: 900px) {
+  .deck-card--comparison .comparison-frame {
+    inset: auto max(8px, env(safe-area-inset-right)) auto max(8px, env(safe-area-inset-left));
+    top: 50%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    transform: translateY(-50%);
+    border-radius: 9px;
+  }
+
+  .deck-card--comparison .comparison-copy {
+    width: 82%;
+  }
+
+  .deck-card--comparison .comparison-copy p {
+    margin-bottom: 7px;
+    font-size: 8px;
+  }
+
+  .deck-card--comparison .comparison-copy h1 {
+    font-size: clamp(26px, 7vw, 46px);
+  }
+
+  .deck-card--comparison .comparison-copy span {
+    margin-top: 7px;
+    font-size: clamp(9px, 2vw, 12px);
+  }
+
+  .deck-card--comparison .comparison-copy em {
+    margin-top: clamp(10px, 2.6vw, 18px);
+    padding: 7px 9px 6px;
+    font-size: 0;
+  }
+
+  .deck-card--comparison .comparison-copy em::after {
+    content: "Drag handle to reveal";
+    font-size: 7px;
+  }
+
+  .deck-card--comparison .comparison-label {
+    top: 8px;
+    min-height: 23px;
+    padding-inline: 8px;
+    font-size: 8px;
+  }
+
+  .deck-card--comparison .comparison-label--before { left: 8px; }
+  .deck-card--comparison .comparison-label--after { right: 8px; }
+
+  .deck-card--comparison .comparison-handle {
+    width: 52px;
+    height: 56px;
+  }
+
+  .deck-card--comparison .comparison-handle > span {
+    width: 9px;
+    height: 9px;
+  }
+
+  .project-deck.is-strip .deck-card--comparison .comparison-frame {
+    inset: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    transform: none;
+    border-radius: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comparison-stage {
+    --compare-split: 50%;
+  }
+
+  .comparison-after,
+  .comparison-divider,
+  .comparison-handle {
+    will-change: auto;
+  }
+
+  .comparison-copy,
+  .comparison-handle > span {
+    transition: none;
+  }
+}
