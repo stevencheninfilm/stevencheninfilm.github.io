@@ -14,7 +14,7 @@
   <meta name="twitter:description" content="AI video, generative visual worlds, and selected films by Steven Chen.">
   <meta name="twitter:image" content="https://stevencheninfilm.com/assets/og.png">
   <title>Steven Chen — Generative Artist &amp; Filmmaker</title>
-  <link rel="stylesheet" href="assets/site.css?v=20260908-1">
+  <link rel="stylesheet" href="assets/site.css?v=20260911-4">
   <link rel="stylesheet" href="assets/home-v2.css?v=20260908-1">
   <link rel="stylesheet" href="assets/home-v3.css?v=20260910-2">
   <link rel="stylesheet" href="assets/banner-v3.css?v=20260910-2">
@@ -54,7 +54,7 @@
     <div class="project-deck">
       <article class="deck-card deck-card--comparison is-active" data-title="Grand Theft Art" data-page="0">
         <div class="comparison-stage" data-comparison>
-          <div class="comparison-frame">
+          <div class="comparison-frame" data-video-loading data-video-static-on-reduced-motion>
             <video class="comparison-video comparison-video--before" poster="assets/images/home/grand-theft-art-before.jpg" muted loop playsinline preload="none" data-src="assets/videos/grand-theft-art/previs.m4v" data-src-mobile="assets/videos/grand-theft-art/previs-mobile.m4v" aria-label="Unreal Engine 3D previs of the Grand Theft Art chase"></video>
             <div class="comparison-after" aria-hidden="true">
               <video class="comparison-video comparison-video--after" poster="assets/images/home/grand-theft-art-poster.jpg" muted loop playsinline preload="none" data-src="assets/videos/grand-theft-art/ai-render.m4v" data-src-mobile="assets/videos/grand-theft-art/ai-render-mobile.m4v"></video>
@@ -74,6 +74,15 @@
             <button class="comparison-handle" type="button" role="slider" aria-label="Reveal the 3D previs and AI render comparison" aria-orientation="horizontal" aria-valuemin="4" aria-valuemax="96" aria-valuenow="50" aria-valuetext="50 percent 3D previs, 50 percent AI render">
               <span aria-hidden="true"><i>←</i><i>→</i></span>
             </button>
+
+            <div class="video-loading-ui">
+              <span class="video-loading-status" aria-live="polite" aria-atomic="true"></span>
+              <div class="video-loading-meter">
+                <div class="video-loading-meta" aria-hidden="true"><span>LOADING VIDEO</span><output>0%</output></div>
+                <div class="video-loading-track" role="progressbar" aria-label="Loading comparison videos" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i aria-hidden="true"></i></div>
+              </div>
+              <button class="video-loading-retry" type="button" hidden>Retry</button>
+            </div>
           </div>
         </div>
       </article>
@@ -155,6 +164,7 @@
   <script src="assets/site.js?v=20260910-5"></script>
   <script src="assets/home-v2.js?v=20260908-1"></script>
   <script src="assets/home-v3.js?v=20260910-2"></script>
-  <script src="assets/banner-v3.js?v=20260910-2"></script>
+  <script src="assets/video-loader.js?v=20260911-5"></script>
+  <script src="assets/banner-v3.js?v=20260911-4"></script>
 </body>
 </html>

@@ -11,7 +11,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://stevencheninfilm.com/assets/og.png">
   <title>AI Visuals — Steven Chen</title>
-  <link rel="stylesheet" href="../assets/site.css?v=20260908-1">
+  <link rel="stylesheet" href="../assets/site.css?v=20260911-4">
 </head>
 <body class="content-page">
   <a class="skip-link" href="#main">Skip to projects</a>
@@ -32,8 +32,16 @@
     </section>
 
     <section class="project-feature" id="motion">
-      <div class="project-feature__media">
-        <video autoplay muted loop playsinline preload="metadata" poster="../assets/images/ui/gemini-after-card.png"><source src="../assets/videos/veo-after-video-silent.mp4" type="video/mp4"></video>
+      <div class="project-feature__media" data-video-loading data-video-static-on-reduced-motion>
+        <video autoplay muted loop playsinline preload="none" poster="../assets/images/ui/gemini-after-card.png" data-src="../assets/videos/veo-after-video-silent.mp4"></video>
+        <div class="video-loading-ui">
+          <span class="video-loading-status" aria-live="polite" aria-atomic="true"></span>
+          <div class="video-loading-meter">
+            <div class="video-loading-meta" aria-hidden="true"><span>LOADING VIDEO</span><output>0%</output></div>
+            <div class="video-loading-track" role="progressbar" aria-label="Loading From Prompt to Motion video" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i aria-hidden="true"></i></div>
+          </div>
+          <button class="video-loading-retry" type="button" hidden>Retry</button>
+        </div>
       </div>
       <div class="project-feature__info">
         <p class="project-number">01 / AI Video</p>
@@ -84,5 +92,6 @@
   </main>
 
   <footer class="site-footer"><a href="mailto:kieen1454@gmail.com">Start a project ↗</a><span>© 2026 Steven Chen</span></footer>
+  <script src="../assets/video-loader.js?v=20260911-5"></script>
 </body>
 </html>

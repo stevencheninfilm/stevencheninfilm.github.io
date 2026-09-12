@@ -39,6 +39,7 @@
     loaded = true;
     videos.forEach((video) => {
       video.muted = true;
+      if (video.dataset.videoLoaderManaged === 'true') return;
       const source = mobileMedia.matches && video.dataset.srcMobile ? video.dataset.srcMobile : video.dataset.src;
       if (!source) return;
       video.src = source;
@@ -173,6 +174,7 @@
     }
     if (master.paused) master.play().catch(() => {});
   });
+  videos.forEach((video) => video.addEventListener('video-loader:ready', updatePlayback));
 
   const splitFromPointer = (clientX) => {
     const rect = frame.getBoundingClientRect();
@@ -260,5 +262,6 @@
   });
 
   setSplit(split);
+  loadVideos();
   updatePlayback();
 })();
