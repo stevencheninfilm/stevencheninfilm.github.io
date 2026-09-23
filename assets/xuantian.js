@@ -2,8 +2,6 @@
   const body = document.body;
   const cloud = document.querySelector('.xj-cloud-reveal');
   const leaf = document.querySelector('.xj-leaf');
-  const video = document.querySelector('.xj-video');
-  const playButton = document.querySelector('.xj-video-play');
   const header = document.querySelector('.xj-header');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -82,23 +80,6 @@
   } else {
     window.setTimeout(() => cloud?.classList.add('is-open'), 700);
     window.setTimeout(finishReveal, 3500);
-  }
-
-  if (video && playButton) {
-    const showPlayButton = () => { playButton.hidden = false; };
-    const hidePlayButton = () => { playButton.hidden = true; };
-
-    playButton.addEventListener('click', async () => {
-      video.muted = false;
-      try {
-        await video.play();
-        hidePlayButton();
-      } catch {
-        video.controls = true;
-      }
-    });
-    video.addEventListener('play', hidePlayButton);
-    video.addEventListener('ended', showPlayButton);
   }
 
   const updateLeaf = () => {

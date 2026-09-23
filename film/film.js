@@ -1,3 +1,45 @@
+// Only these verified lossless variants replace their original PNG paths.
+const losslessWebpStills = new Set([
+  "alone_img_1",
+  "alone_img_10",
+  "alone_img_11",
+  "alone_img_12",
+  "alone_img_2",
+  "alone_img_3",
+  "alone_img_4",
+  "alone_img_5",
+  "alone_img_6",
+  "alone_img_7",
+  "alone_img_8",
+  "alone_img_9",
+  "everylook_img_1",
+  "everylook_img_2",
+  "everylook_img_3",
+  "everylook_img_4",
+  "everylook_img_5",
+  "everylook_img_6",
+  "ge_img_1",
+  "ge_img_2",
+  "ge_img_3",
+  "ge_img_4",
+  "invert_img_4",
+  "reason_img_1",
+  "reason_img_2",
+  "reason_img_3",
+  "reason_img_4",
+  "reason_img_5",
+  "reason_img_6",
+  "rene_img_2",
+  "rene_img_3",
+  "rene_img_4",
+  "wuhan_img_1",
+  "wuhan_img_2",
+  "wuhan_img_3",
+  "wuhan_img_4",
+  "wuhan_img_5",
+  "wuhan_img_6"
+]);
+
 const projects = [
   { title: 'Tumbleweed', role: 'Director', year: '2024', cover: 'tumbleweed_cover.jpg', prefix: 'tumbleweed', count: 6, description: 'A graduation film set in western China, shaped by distance, silence, and the landscapes people leave behind.', link: ['Watch via Baidu Pan', 'https://pan.baidu.com/s/1SXGOQOQRrPMyNpA5KLSbug?pwd=8888'], size: 'wide' },
   { title: 'In Every Look', role: 'Director', year: '2024', cover: 'everylook_cover.jpg', prefix: 'everylook', count: 6, description: 'A narrative short about attention, intimacy, and the meaning held inside a glance.', link: ['Watch on Bilibili', 'https://www.bilibili.com/video/BV1mH9YYLEy2/'] },
@@ -42,7 +84,8 @@ function openProject(project) {
   dialogGallery.innerHTML = '';
   for (let index = 1; index <= project.count; index += 1) {
     const image = document.createElement('img');
-    image.src = `images/${project.prefix}_img_${index}.png`;
+    const stem = `${project.prefix}_img_${index}`;
+    image.src = `images/${stem}.${losslessWebpStills.has(stem) ? 'webp' : 'png'}`;
     image.alt = `${project.title} still ${index}`;
     image.loading = 'lazy';
     image.decoding = 'async';
