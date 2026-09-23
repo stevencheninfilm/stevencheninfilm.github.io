@@ -23,6 +23,19 @@
     const controls = [...group.querySelectorAll('.comparison-handle')];
     if (!videos.length || !overlay || !output || !label || !progressbar || !statusText || !retry) return;
 
+    // Opt-in localization keeps existing English pages unchanged.
+    const copy = group.dataset.videoLang === 'zh' ? {
+      loading: '预告片加载中', loadingStatus: '视频正在加载',
+      error: '视频暂时无法加载', offline: '当前离线，无法加载视频',
+      errorStatus: '视频加载失败，请重试。', offlineStatus: '当前处于离线状态，请联网后重试。',
+      ready: '视频已就绪', staticReady: '视频静态预览已就绪'
+    } : {
+      loading: 'LOADING VIDEO', loadingStatus: 'Video loading',
+      error: 'VIDEO UNAVAILABLE', offline: 'VIDEO UNAVAILABLE OFFLINE',
+      errorStatus: 'Video unavailable. Retry loading.', offlineStatus: 'Video unavailable offline. Retry when connected.',
+      ready: 'Video ready', staticReady: 'Static video preview ready'
+    };
+
     const transfers = new Map(videos.map((video) => [video, {
       complete: false,
       loaded: 0,
@@ -76,9 +89,9 @@
       finished = false;
       overlay.hidden = false;
       overlay.classList.remove('is-ready', 'is-error');
-      label.textContent = 'LOADING VIDEO';
+      label.textContent = copy.loading;
       retry.hidden = true;
-      statusText.textContent = 'Video loading';
+      statusText.textContent = copy.loadingStatus;
       setControlsDisabled(true);
     };
 
@@ -91,9 +104,9 @@
       overlay.hidden = false;
       overlay.classList.remove('is-ready');
       overlay.classList.add('is-error');
-      label.textContent = navigator.onLine ? 'VIDEO UNAVAILABLE' : 'VIDEO UNAVAILABLE OFFLINE';
+      label.textContent = navigator.onLine ? copy.error : copy.offline;
       retry.hidden = false;
-      statusText.textContent = navigator.onLine ? 'Video unavailable. Retry loading.' : 'Video unavailable offline. Retry when connected.';
+      statusText.textContent = navigator.onLine ? copy.errorStatus : copy.offlineStatus;
       setControlsDisabled(true);
       if (restoreFocusAfterRetry) {
         retryFocusTimer = window.setTimeout(() => {
@@ -102,7 +115,7 @@
       }
     };
 
-    const hideAsReady = (announcement = 'Video ready') => {
+    const hideAsReady = (announcement = copy.ready) => {
       window.clearTimeout(readyTimer);
       window.clearTimeout(hideTimer);
       finished = true;
@@ -133,7 +146,7 @@
       if (finished) return;
       finished = true;
       setProgress(100);
-      statusText.textContent = 'Video ready';
+      statusText.textContent = copy.ready;
       setControlsDisabled(false);
       announceReady();
       restoreFocus();
@@ -219,7 +232,7 @@
 
       if (group.hasAttribute('data-video-static-on-reduced-motion') && motionPreference.matches) {
         videos.forEach((video) => video.pause());
-        hideAsReady('Static video preview ready');
+        hideAsReady(copy.staticReady);
         return;
       }
 

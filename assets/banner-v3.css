@@ -19,14 +19,37 @@
 }
 
 .comparison-frame {
+  --comparison-inset: clamp(8px, 1.05vw, 18px);
   position: absolute;
-  inset: clamp(8px, 1.05vw, 18px);
+  inset: var(--comparison-inset);
   overflow: hidden;
   border-radius: clamp(10px, 1vw, 17px);
   background: #111317;
   cursor: ew-resize;
   touch-action: pan-y;
   isolation: isolate;
+}
+
+/* Keep the navigation shade below the labels, inside the same stacking context. */
+.home-page:has(.project-deck:not(.is-strip) .deck-card--comparison.is-active) .home-header {
+  background: transparent;
+}
+
+.comparison-frame::before {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  inset: 0 0 auto;
+  height: calc(var(--home-header-height) - var(--comparison-inset));
+  background-image: var(--home-header-shade);
+  background-size: 100% var(--home-header-height);
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+.project-deck.is-strip .comparison-frame::before {
+  display: none;
 }
 
 .comparison-video,
@@ -237,6 +260,11 @@
 }
 
 @media (orientation: portrait) and (max-width: 900px) {
+  /* The portrait comparison sits mid-screen, clear of the top navigation. */
+  .comparison-frame::before {
+    display: none;
+  }
+
   .deck-card--comparison .comparison-frame {
     inset: auto max(8px, env(safe-area-inset-right)) auto max(8px, env(safe-area-inset-left));
     top: 50%;
