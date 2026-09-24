@@ -7,6 +7,16 @@
   unicode-range: U+3002, U+4e00, U+4e0d, U+4e16, U+4e24, U+4e4b, U+4e8b, U+4ece, U+4ed9, U+4f5c, U+5168, U+5185, U+518d, U+521b, U+5230, U+52ab, U+5355, U+53d9, U+53f0, U+540c, U+5411, U+56fe, U+5730, U+573a, U+5883, U+5929, U+5b8c, U+5b97, U+5bb6, U+5bb9, U+5bfc, U+5e73, U+5e87, U+5e8f, U+5f0f, U+5f53, U+5f71, U+6210, U+6240, U+6296, U+62a4, U+63a8, U+6574, U+65b0, U+662f, U+672f, U+6f14, U+7247, U+7384, U+751f, U+7535, U+753b, U+754c, U+79cd, U+79e9, U+7cbe, U+8005, U+827a, U+8350, U+884d, U+89c6, U+89c9, U+8d70, U+8fdb, U+9009, U+9762, U+97f3, U+9875, U+9996, U+ff0c;
 }
 
+/* Rename supplement: keep 决 in the same self-hosted display typeface. */
+@font-face {
+  font-family: "Xuantian Serif";
+  src: url("fonts/xuantian-jue-500.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  unicode-range: U+51B3;
+}
+
 :root {
   --xj-black: #081011;
   --xj-ink: #e8ece5;
@@ -57,28 +67,48 @@ body.xj-page { overflow-x: clip; background: var(--xj-black); color: var(--xj-in
 .xj-page .xj-header { transition: opacity .5s ease, background-color .25s ease; }
 .xj-page.is-revealing .xj-header { opacity: 0; }
 
-.xj-cloud-reveal { position: fixed; z-index: 100; inset: 0; overflow: hidden; background: rgba(10,15,21,.52); backdrop-filter: blur(3px); transition: background-color 2.1s ease, backdrop-filter 2.1s ease, opacity .3s ease, visibility .3s ease; }
-.xj-cloud-stage { position: absolute; inset: 0; overflow: hidden; }
-.xj-cloud { --flip: 1; position: absolute; display: block; width: clamp(650px, 82vw, 1480px); aspect-ratio: 1; background: url("images/projects/xuantian-jie/cloud-photo.png") center / contain no-repeat; filter: blur(4px) saturate(.6) brightness(.75); opacity: .96; will-change: transform, opacity, filter; transition: transform 2.35s cubic-bezier(.5,0,.12,1), opacity 1.8s ease, filter 2s ease; transition-delay: var(--cloud-delay, 0s); }
-.xj-cloud--back-left { z-index: 1; top: -43%; left: -24%; transform: rotate(-8deg) scale(.98) scaleX(var(--flip)); opacity: .9; filter: blur(15px) saturate(.5) brightness(.62); --cloud-delay: .02s; }
-.xj-cloud--back-right { --flip: -1; z-index: 1; top: -39%; right: -28%; transform: rotate(7deg) scale(1.02) scaleX(var(--flip)); opacity: .9; filter: blur(14px) saturate(.5) brightness(.64); --cloud-delay: .08s; }
-.xj-cloud--top { --flip: -1; z-index: 2; top: -52%; left: 7%; width: clamp(700px, 90vw, 1600px); transform: rotate(-2deg) scale(1.04) scaleX(var(--flip)); filter: blur(9px) saturate(.55) brightness(.68); --cloud-delay: .12s; }
-.xj-cloud--mid-left { z-index: 3; top: -3%; left: -33%; transform: rotate(4deg) scale(.9) scaleX(var(--flip)); filter: blur(3px) saturate(.66) brightness(.8); --cloud-delay: .18s; }
-.xj-cloud--mid-right { --flip: -1; z-index: 3; top: -6%; right: -34%; transform: rotate(-6deg) scale(.94) scaleX(var(--flip)); filter: blur(3px) saturate(.64) brightness(.78); --cloud-delay: .23s; }
-.xj-cloud--front-left { --flip: -1; z-index: 4; bottom: -53%; left: -24%; width: clamp(760px, 94vw, 1680px); transform: rotate(-4deg) scale(1.06) scaleX(var(--flip)); filter: blur(1px) saturate(.72) brightness(.9); --cloud-delay: .28s; }
-.xj-cloud--front-right { z-index: 4; right: -27%; bottom: -56%; width: clamp(760px, 96vw, 1720px); transform: rotate(5deg) scale(1.04) scaleX(var(--flip)); filter: blur(2px) saturate(.68) brightness(.86); --cloud-delay: .32s; }
-.xj-cloud--front-center { --flip: -1; z-index: 5; left: 7%; bottom: -63%; width: clamp(720px, 92vw, 1650px); transform: rotate(1deg) scale(1.08) scaleX(var(--flip)); opacity: .84; filter: blur(2px) saturate(.7) brightness(.88); --cloud-delay: .38s; }
-.xj-cloud-reveal.is-open { background-color: rgba(5,8,12,0); backdrop-filter: blur(0); }
-.xj-cloud-reveal.is-open .xj-cloud { opacity: 0; filter: blur(12px) saturate(.55) brightness(.74); }
-.xj-cloud-reveal.is-open .xj-cloud--back-left { transform: translate3d(-57vw,-8vh,0) rotate(-12deg) scale(1.08) scaleX(var(--flip)); }
-.xj-cloud-reveal.is-open .xj-cloud--back-right { transform: translate3d(57vw,-6vh,0) rotate(11deg) scale(1.1) scaleX(var(--flip)); }
-.xj-cloud-reveal.is-open .xj-cloud--top { transform: translate3d(0,-55vh,0) rotate(-4deg) scale(1.12) scaleX(var(--flip)); }
-.xj-cloud-reveal.is-open .xj-cloud--mid-left { transform: translate3d(-66vw,2vh,0) rotate(-2deg) scale(1.04) scaleX(var(--flip)); }
-.xj-cloud-reveal.is-open .xj-cloud--mid-right { transform: translate3d(66vw,4vh,0) rotate(1deg) scale(1.06) scaleX(var(--flip)); }
-.xj-cloud-reveal.is-open .xj-cloud--front-left { transform: translate3d(-72vw,26vh,0) rotate(-10deg) scale(1.16) scaleX(var(--flip)); }
-.xj-cloud-reveal.is-open .xj-cloud--front-right { transform: translate3d(72vw,24vh,0) rotate(12deg) scale(1.16) scaleX(var(--flip)); }
-.xj-cloud-reveal.is-open .xj-cloud--front-center { transform: translate3d(0,62vh,0) rotate(3deg) scale(1.2) scaleX(var(--flip)); }
-.xj-cloud-reveal.is-gone { opacity: 0; visibility: hidden; pointer-events: none; }
+/* The hidden DOM is scene data only. One decoded canvas renders the perspective,
+   avoiding oversized 3D/filter surfaces and inherited-style writes each frame. */
+.xj-cloud-reveal { --cloud-unit: max(1vw, .62vh); position: fixed; z-index: 100; inset: 0; overflow: hidden; pointer-events: none; background: rgba(10,15,21,.38); transition: background-color 2.8s cubic-bezier(.42,0,.58,1), opacity .2s ease, visibility .2s ease; }
+.xj-cloud-reveal::before { content: ""; position: absolute; inset: 0; background: #111920 url("images/projects/xuantian-jie/cloud-flight-4.webp") 50% 65% / max(220vw, 220vh) auto no-repeat; opacity: 1; transition: opacity .3s ease; }
+.xj-cloud-reveal.is-ready::before { opacity: 0; }
+.xj-flight-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .3s ease; }
+.xj-cloud-reveal.is-ready .xj-flight-canvas { opacity: 1; }
+.xj-cloud-stage { display: none; }
+.xj-cloud-depth, .xj-mountain-depth { --flight-progress: 0; --flight-y: 0vh; --sprite-scale: 1; --flight-alpha: 1; position: absolute; inset: 0; transform-origin: 53% 43%; transform: translate3d(0,var(--flight-y),var(--flight-z)); opacity: var(--flight-alpha); will-change: transform, opacity; }
+.xj-cloud-depth--far { --flight-z: -880px; z-index: 4; }
+.xj-cloud-depth--middle { --flight-z: -360px; z-index: 5; }
+.xj-cloud-depth--wake { --flight-z: -600px; z-index: 6; }
+.xj-cloud-depth--near { --flight-z: -60px; z-index: 7; }
+.xj-cloud-depth--canopy { --flight-z: -60px; z-index: 8; }
+.xj-cloud { --flip: 1; --turn: 0deg; --cloud-sway: 0vw; position: absolute; display: block; left: var(--cloud-x); top: var(--cloud-y); width: calc(var(--cloud-size) * var(--cloud-unit)); aspect-ratio: 1; background: var(--cloud-image) center / contain no-repeat; transform: translate(-50%,-50%) translateX(calc(var(--cloud-sway) * var(--flight-progress))) rotate(var(--turn)) scale(var(--sprite-scale)) scaleX(var(--flip)); filter: blur(1px) saturate(.58) brightness(.8); opacity: .98; }
+.xj-cloud--shape-1 { --cloud-image: url("images/projects/xuantian-jie/cloud-flight-1.webp"); }
+.xj-cloud--shape-2 { --cloud-image: url("images/projects/xuantian-jie/cloud-flight-2.webp"); }
+.xj-cloud--shape-3 { --cloud-image: url("images/projects/xuantian-jie/cloud-flight-3.webp"); }
+.xj-cloud--shape-4 { --cloud-image: url("images/projects/xuantian-jie/cloud-flight-4.webp"); }
+.xj-cloud-depth--far .xj-cloud { filter: blur(1px) saturate(.5) brightness(.73); }
+.xj-cloud-depth--near .xj-cloud { filter: blur(1.5px) saturate(.6) brightness(.86); }
+.xj-cloud-depth--canopy .xj-cloud { filter: blur(2px) saturate(.55) brightness(.86); }
+.xj-cloud-depth--canopy .xj-cloud:nth-child(1), .xj-cloud-depth--canopy .xj-cloud:nth-child(4), .xj-cloud-depth--canopy .xj-cloud:nth-child(5) { --cloud-sway: -10vw; }
+.xj-cloud-depth--canopy .xj-cloud:nth-child(2) { --cloud-sway: 9vw; }
+.xj-cloud-depth--canopy .xj-cloud:nth-child(3), .xj-cloud-depth--canopy .xj-cloud:nth-child(6), .xj-cloud-depth--canopy .xj-cloud:nth-child(7) { --cloud-sway: 10vw; }
+.xj-mountain-depth--far { --flight-z: -680px; --flight-alpha: 1; z-index: 1; }
+.xj-mountain-depth--middle { --flight-z: -420px; --flight-alpha: 1; z-index: 2; }
+.xj-mountain-depth--near { --flight-z: -120px; z-index: 3; }
+.xj-mountain { position: absolute; display: block; width: calc(var(--mountain-size) * max(1vw, .62vh)); aspect-ratio: 4 / 3; left: var(--mountain-x); top: var(--mountain-y); transform: translate(-50%,-50%); background: var(--mountain-image) center / contain no-repeat; filter: saturate(.72) brightness(.76); }
+.xj-mountain--left { --mountain-image: url("images/projects/xuantian-jie/mountain-left.webp"); --mountain-size: 65; --mountain-x: 11%; --mountain-y: 57%; }
+.xj-mountain--right { --mountain-image: url("images/projects/xuantian-jie/mountain-right.webp"); --mountain-size: 65; --mountain-x: 92%; --mountain-y: 60%; }
+.xj-mountain--middle { --mountain-image: url("images/projects/xuantian-jie/mountain-middle.webp"); --mountain-size: 142; --mountain-x: 50%; --mountain-y: 64%; filter: saturate(.62) brightness(.85); }
+.xj-mountain--far { --mountain-image: url("images/projects/xuantian-jie/mountain-far.webp"); --mountain-size: 210; --mountain-x: 50%; --mountain-y: 53%; filter: saturate(.5) brightness(.96); }
+.xj-cloud-reveal.is-open { background-color: transparent; }
+.xj-cloud-reveal.is-gone { opacity: 0; visibility: hidden; }
+.xj-cloud-reveal.is-gone .xj-cloud-depth, .xj-cloud-reveal.is-gone .xj-mountain-depth { will-change: auto; }
+@media (max-width: 700px) and (orientation: portrait) {
+  .xj-cloud-reveal { --cloud-unit: max(1vw, .9vh); }
+  .xj-cloud-stage { perspective-origin: 53% 40%; }
+  .xj-cloud-depth, .xj-mountain-depth { transform-origin: 53% 40%; }
+  .xj-mountain { width: calc(var(--mountain-size) * max(1vw, .48vh)); }
+}
 
 .xj-leaf { --leaf-y: 0px; --leaf-turn: 0deg; --leaf-alpha: 0; position: fixed; z-index: 28; top: 10vh; right: clamp(8px, 2vw, 34px); width: clamp(34px, 3.4vw, 58px); height: auto; object-fit: contain; opacity: var(--leaf-alpha); transform: translate3d(0, var(--leaf-y), 0) rotate(var(--leaf-turn)); mix-blend-mode: screen; filter: drop-shadow(0 0 10px rgba(218,177,89,.36)); pointer-events: none; will-change: transform, opacity; }
 
@@ -87,8 +117,14 @@ body.xj-page { overflow-x: clip; background: var(--xj-black); color: var(--xj-in
 .xj-hero__image { z-index: -3; object-fit: cover; object-position: 53% 50%; transform: scale(1.035); transition: transform 1.8s cubic-bezier(.2,.7,.2,1); }
 .xj-page:not(.is-revealing) .xj-hero__image { transform: scale(1); }
 .xj-hero__veil { z-index: -2; background: linear-gradient(180deg, rgba(8,10,13,.1) 20%, rgba(8,10,13,.18) 40%, rgba(8,10,13,.95) 100%), linear-gradient(90deg, rgba(8,10,13,.72), rgba(8,10,13,.36) 40%, transparent 75%); }
-.xj-hero__content { width: min(760px, 100%); transition: opacity .9s ease .35s, transform 1s cubic-bezier(.2,.7,.2,1) .25s; }
+.xj-hero__content { width: min(760px, 100%); transition: opacity .7s ease, transform .9s cubic-bezier(.2,.7,.2,1); }
 .xj-page.is-revealing .xj-hero__content { opacity: 0; transform: translateY(26px); }
+/* Approved volume opening: the complete clock is 1.2×, including UI reveals. */
+.xj-volume-opening .xj-hero__content { transition-duration: .583333s, .75s; }
+.xj-volume-opening .xj-hero__image { transition-duration: 1.5s; }
+.xj-volume-opening .xj-header { transition-duration: .416667s, .25s; }
+.xj-volume-opening .xj-cloud-reveal { transition-duration: 2.333333s, .166667s, .166667s; }
+.xj-volume-opening .xj-flight-canvas, .xj-volume-opening .xj-cloud-reveal::before { transition-duration: .25s; }
 .xj-hero__support { justify-content: flex-start; gap: 8px 10px; margin-bottom: 24px; color: var(--xj-ink); font-size: 12px; line-height: 1.5; flex-wrap: wrap; white-space: normal; }
 .xj-hero__support .project-tool-logo { width: 15px; height: 15px; flex-basis: 15px; }
 .xj-kicker, .xj-index { margin: 0; font-size: 12px; line-height: 1.6; letter-spacing: .12em; text-transform: uppercase; color: var(--xj-dim); }
@@ -238,6 +274,7 @@ body.xj-page { overflow-x: clip; background: var(--xj-black); color: var(--xj-in
 .xj-recognition__artwork { position: relative; width: 100%; max-width: 1800px; margin: 0 auto; }
 .xj-recognition__desktop { display: block; width: 100%; height: auto; }
 .xj-recognition__mobile { display: none; }
+.xj-recognition__project-label { position: absolute; z-index: 2; top: 5%; right: 1%; width: 18%; height: 9%; margin: 0; display: flex; align-items: center; justify-content: flex-end; padding-right: 1%; box-sizing: border-box; background: #000; color: #737373; font-size: clamp(9px, 1.05vw, 18px); letter-spacing: .12em; }
 .xj-end { position: relative; isolation: isolate; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 640px; padding: var(--xj-section-space) var(--xj-pad); overflow: hidden; text-align: center; }
 .xj-end__image, .xj-end::before { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -2; }
 .xj-end__image { object-fit: cover; object-position: 60% 45%; }
@@ -343,6 +380,8 @@ body.xj-page { overflow-x: clip; background: var(--xj-black); color: var(--xj-in
   /* Reframe the same source into two readable groups; do not shrink the wide text. */
   .xj-recognition__desktop { display: none; }
   .xj-recognition__mobile { display: grid; gap: 8px; }
+  .xj-recognition__artwork > .xj-recognition__project-label { display: none; }
+  .xj-recognition__crop .xj-recognition__project-label { top: 5%; right: 0; width: 55%; height: 9%; padding-right: 5%; font-size: clamp(8px, 2.3vw, 12px); }
   .xj-recognition__crop { position: relative; overflow: hidden; }
   .xj-recognition__crop--xpc { aspect-ratio: 1.83; }
   .xj-recognition__crop--douyin { aspect-ratio: 1.28; }

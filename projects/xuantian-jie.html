@@ -4,18 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#080a0d">
-  <meta name="description" content="《玄天劫》是 Steven Chen 创作的原创 AI 东方仙侠项目。从世界观、角色与宗门视觉开发，到导演、生成式影像、剪辑与声音设计，探索完整的电影叙事流程。">
-  <meta property="og:title" content="玄天劫 / XUANTIAN JIE — Steven Chen">
+  <meta name="description" content="《玄天决》是 Steven Chen 创作的原创 AI 东方仙侠项目。从世界观、角色与宗门视觉开发，到导演、生成式影像、剪辑与声音设计，探索完整的电影叙事流程。">
+  <meta property="og:title" content="玄天决 / XUANTIAN JUE — Steven Chen">
   <meta property="og:description" content="原创 AI 东方仙侠概念预告片。从世界观与视觉开发，走向完整的电影叙事。">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:type" content="video.movie">
   <meta property="og:image" content="https://stevencheninfilm.com/assets/images/projects/xuantian-jie/xuantian-hero.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://stevencheninfilm.com/assets/images/projects/xuantian-jie/xuantian-hero.jpg">
-  <title>玄天劫 / XUANTIAN JIE — Steven Chen</title>
+  <title>玄天决 / XUANTIAN JUE — Steven Chen</title>
   <link rel="stylesheet" href="../assets/site.css?v=20260922-7">
   <link rel="preload" href="../assets/fonts/xuantian-headings-500.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="../assets/xuantian.css?v=20260923-player-1">
+  <link rel="preload" href="../assets/fonts/xuantian-jue-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/images/projects/xuantian-jie/cloud-flight-4.webp" as="image" media="(prefers-reduced-motion: no-preference)">
+  <link rel="preload" href="../assets/images/projects/xuantian-jie/mountain-left.webp" as="image" media="(prefers-reduced-motion: no-preference)">
+  <link rel="stylesheet" href="../assets/xuantian.css?v=20260924-jue-release">
   <noscript><style>.xj-cloud-reveal,.xj-leaf{display:none}.xj-page.is-revealing .xj-header,.xj-page.is-revealing .xj-hero__content,.xj-reveal{opacity:1;transform:none}</style></noscript>
 </head>
 <body class="content-page xj-page is-revealing">
@@ -23,27 +26,77 @@
 
   <div class="xj-cloud-reveal" aria-hidden="true">
     <div class="xj-cloud-stage">
-      <i class="xj-cloud xj-cloud--back-left"></i>
-      <i class="xj-cloud xj-cloud--back-right"></i>
-      <i class="xj-cloud xj-cloud--top"></i>
-      <i class="xj-cloud xj-cloud--mid-left"></i>
-      <i class="xj-cloud xj-cloud--mid-right"></i>
-      <i class="xj-cloud xj-cloud--front-left"></i>
-      <i class="xj-cloud xj-cloud--front-right"></i>
-      <i class="xj-cloud xj-cloud--front-center"></i>
+      <div class="xj-mountain-depth xj-mountain-depth--far" data-flight-layer="mountain-far">
+        <i class="xj-mountain xj-mountain--far"></i>
+      </div>
+      <div class="xj-mountain-depth xj-mountain-depth--middle" data-flight-layer="mountain-middle">
+        <i class="xj-mountain xj-mountain--middle"></i>
+      </div>
+      <div class="xj-mountain-depth xj-mountain-depth--near" data-flight-layer="mountain-near">
+        <i class="xj-mountain xj-mountain--left"></i>
+        <i class="xj-mountain xj-mountain--right"></i>
+      </div>
+      <div class="xj-cloud-depth xj-cloud-depth--far" data-flight-layer="far">
+        <i class="xj-cloud xj-cloud--shape-2" style="--cloud-x:-70%;--cloud-y:112%;--cloud-size:70;--turn:-6deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-4" style="--cloud-x:-10%;--cloud-y:106%;--cloud-size:64;--turn:3deg;--flip:-1"></i>
+        <i class="xj-cloud xj-cloud--shape-2" style="--cloud-x:50%;--cloud-y:110%;--cloud-size:68;--turn:-4deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-4" style="--cloud-x:112%;--cloud-y:105%;--cloud-size:65;--turn:6deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-2" style="--cloud-x:170%;--cloud-y:111%;--cloud-size:68;--turn:3deg;--flip:-1"></i>
+        <i class="xj-cloud xj-cloud--shape-3" style="--cloud-x:-55%;--cloud-y:158%;--cloud-size:66;--turn:-8deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-2" style="--cloud-x:12%;--cloud-y:155%;--cloud-size:65;--turn:2deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-4" style="--cloud-x:78%;--cloud-y:157%;--cloud-size:68;--turn:-4deg;--flip:-1"></i>
+        <i class="xj-cloud xj-cloud--shape-1" style="--cloud-x:143%;--cloud-y:155%;--cloud-size:66;--turn:7deg;--flip:1"></i>
+      </div>
+      <div class="xj-cloud-depth xj-cloud-depth--middle" data-flight-layer="middle">
+        <i class="xj-cloud xj-cloud--shape-3" style="--cloud-x:-25%;--cloud-y:96%;--cloud-size:62;--turn:-8deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-2" style="--cloud-x:14%;--cloud-y:98%;--cloud-size:58;--turn:-3deg;--flip:-1"></i>
+        <i class="xj-cloud xj-cloud--shape-4" style="--cloud-x:53%;--cloud-y:96%;--cloud-size:60;--turn:5deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-2" style="--cloud-x:90%;--cloud-y:102%;--cloud-size:62;--turn:-4deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-4" style="--cloud-x:125%;--cloud-y:95%;--cloud-size:62;--turn:7deg;--flip:-1"></i>
+        <i class="xj-cloud xj-cloud--shape-4" style="--cloud-x:-9%;--cloud-y:125%;--cloud-size:61;--turn:-5deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-1" style="--cloud-x:33%;--cloud-y:128%;--cloud-size:64;--turn:4deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-3" style="--cloud-x:74%;--cloud-y:126%;--cloud-size:61;--turn:-7deg;--flip:-1"></i>
+        <i class="xj-cloud xj-cloud--shape-2" style="--cloud-x:114%;--cloud-y:123%;--cloud-size:61;--turn:8deg;--flip:1"></i>
+      </div>
+      <div class="xj-cloud-depth xj-cloud-depth--wake" data-flight-layer="wake">
+        <i class="xj-cloud xj-cloud--shape-4" style="--cloud-x:30%;--cloud-y:94%;--cloud-size:70;--turn:-4deg;--flip:-1"></i>
+        <i class="xj-cloud xj-cloud--shape-4" style="--cloud-x:74%;--cloud-y:94%;--cloud-size:70;--turn:5deg;--flip:1"></i>
+      </div>
+      <div class="xj-cloud-depth xj-cloud-depth--near" data-flight-layer="near">
+        <i class="xj-cloud xj-cloud--shape-3" style="--cloud-x:15%;--cloud-y:70%;--cloud-size:56;--turn:-11deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-1" style="--cloud-x:52%;--cloud-y:73%;--cloud-size:56;--turn:4deg;--flip:-1"></i>
+        <i class="xj-cloud xj-cloud--shape-3" style="--cloud-x:88%;--cloud-y:72%;--cloud-size:56;--turn:-7deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-3" style="--cloud-x:-5%;--cloud-y:54%;--cloud-size:57;--turn:-8deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-1" style="--cloud-x:27%;--cloud-y:58%;--cloud-size:54;--turn:-10deg;--flip:-1"></i>
+        <i class="xj-cloud xj-cloud--shape-4" style="--cloud-x:68%;--cloud-y:60%;--cloud-size:55;--turn:8deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-3" style="--cloud-x:105%;--cloud-y:56%;--cloud-size:61;--turn:12deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-4" style="--cloud-x:-1%;--cloud-y:95%;--cloud-size:62;--turn:-4deg;--flip:-1"></i>
+        <i class="xj-cloud xj-cloud--shape-1" style="--cloud-x:34%;--cloud-y:98%;--cloud-size:58;--turn:5deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-3" style="--cloud-x:68%;--cloud-y:96%;--cloud-size:60;--turn:-7deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-2" style="--cloud-x:103%;--cloud-y:98%;--cloud-size:63;--turn:7deg;--flip:-1"></i>
+      </div>
+      <div class="xj-cloud-depth xj-cloud-depth--canopy" data-flight-layer="canopy">
+        <i class="xj-cloud xj-cloud--shape-1" style="--cloud-x:15%;--cloud-y:18%;--cloud-size:56;--turn:-6deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-3" style="--cloud-x:52%;--cloud-y:18%;--cloud-size:56;--turn:8deg;--flip:-1"></i>
+        <i class="xj-cloud xj-cloud--shape-1" style="--cloud-x:88%;--cloud-y:18%;--cloud-size:56;--turn:12deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-1" style="--cloud-x:-4%;--cloud-y:-9%;--cloud-size:60;--turn:-12deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-3" style="--cloud-x:31%;--cloud-y:-11%;--cloud-size:55;--turn:175deg;--flip:-1"></i>
+        <i class="xj-cloud xj-cloud--shape-1" style="--cloud-x:66%;--cloud-y:-8%;--cloud-size:57;--turn:7deg;--flip:1"></i>
+        <i class="xj-cloud xj-cloud--shape-4" style="--cloud-x:104%;--cloud-y:-7%;--cloud-size:59;--turn:165deg;--flip:1"></i>
+      </div>
     </div>
   </div>
 
   <img class="xj-leaf" src="../assets/images/projects/xuantian-jie/golden-bodhi-leaf.webp" width="256" height="256" alt="" aria-hidden="true">
 
   <header class="site-header xj-header xj-palette--neutral">
-    <a class="wordmark xj-project-mark" href="#main" aria-label="玄天劫，返回页首"><span lang="zh-Hans">玄天劫</span><small lang="en">XUANTIAN JIE</small></a>
+    <a class="wordmark xj-project-mark" href="#main" aria-label="玄天决，返回页首"><span lang="zh-Hans">玄天决</span><small lang="en">XUANTIAN JUE</small></a>
     <nav class="primary-nav" aria-label="项目导航"><a href="#full-film">观看剧集</a><a href="#worldbuilding">世界观</a><a href="#breakdown">创作方法</a><a href="../index.html">作品首页 <svg class="xj-link-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4 16 16 4M5 4h11v11"/></svg></a></nav>
   </header>
 
   <main id="main">
     <section class="xj-hero xj-palette--neutral" aria-labelledby="xj-title">
-      <img class="xj-hero__image" src="../assets/images/projects/xuantian-jie/xuantian-hero.jpg" width="3840" height="2160" fetchpriority="high" decoding="async" alt="《玄天劫》角色持剑迎战，身后浮现金色阵法">
+      <img class="xj-hero__image" src="../assets/images/projects/xuantian-jie/xuantian-hero.jpg" width="3840" height="2160" fetchpriority="high" decoding="async" alt="《玄天决》角色持剑迎战，身后浮现金色阵法">
       <div class="xj-hero__veil"></div>
       <div class="xj-hero__content">
         <div class="xj-hero__support project-tool-line">
@@ -53,7 +106,7 @@
           <span class="project-tool"><i class="project-tool-logo project-tool-logo--xinpianchang" aria-hidden="true"></i><span lang="zh-Hans">新片场</span> Shotlab</span>
         </div>
         <p class="xj-kicker">原创 AI 东方仙侠 · 真人质感剧集<span lang="en">Original AI Xianxia Film</span></p>
-        <h1 id="xj-title"><span lang="zh-Hans">玄天劫</span><small lang="en">XUANTIAN JIE</small></h1>
+        <h1 id="xj-title"><span lang="zh-Hans">玄天决</span><small lang="en">XUANTIAN JUE</small></h1>
         <p class="xj-hero__intro" lang="zh-Hans">一支原创 AI 东方仙侠剧集长篇。</p>
         <div class="xj-hero__actions">
           <a class="xj-button" href="#full-film"><span aria-hidden="true">▶</span> 观看剧集 <span class="xj-button__duration">预告片 01:40</span></a>
@@ -79,13 +132,15 @@
           <p class="xj-index">00 / 作品认可 <span lang="en">RECOGNITION</span></p>
           <h2 id="recognition-title">平台推荐</h2>
         </figcaption>
-        <img class="xj-recognition__desktop" src="../assets/images/projects/xuantian-jie/recognition-editorial.webp" width="2172" height="724" loading="lazy" decoding="async" alt="2026 年《玄天劫》作品认可：新片场编辑精选、首页 AIGC / 视觉探索推荐作品；抖音精选内容。银色编辑精选徽章与青色抖音精选标识。">
+        <img class="xj-recognition__desktop" src="../assets/images/projects/xuantian-jie/recognition-editorial.webp" width="2172" height="724" loading="lazy" decoding="async" alt="2026 年《玄天决》作品认可：新片场编辑精选、首页 AIGC / 视觉探索推荐作品；抖音精选内容。银色编辑精选徽章与青色抖音精选标识。">
+        <p class="xj-recognition__project-label">玄天决 · 作品认可</p>
         <div class="xj-recognition__mobile">
           <div class="xj-recognition__crop xj-recognition__crop--xpc">
             <img src="../assets/images/projects/xuantian-jie/recognition-editorial.webp" width="2172" height="724" loading="lazy" decoding="async" alt="2026 年，新片场编辑精选、首页 AIGC / 视觉探索推荐作品。">
           </div>
           <div class="xj-recognition__crop xj-recognition__crop--douyin">
             <img src="../assets/images/projects/xuantian-jie/recognition-editorial.webp" width="2172" height="724" loading="lazy" decoding="async" alt="2026 年，抖音精选内容。">
+            <p class="xj-recognition__project-label">玄天决 · 作品认可</p>
           </div>
         </div>
       </figure>
@@ -102,10 +157,10 @@
           </div>
         </header>
 
-      <figure id="trailer" class="xj-screening" aria-label="《玄天劫》预告片放映区">
+      <figure id="trailer" class="xj-screening" aria-label="《玄天决》预告片放映区">
         <div class="xj-video-shell" data-xj-player>
-          <video class="xj-video" controls playsinline webkit-playsinline x5-playsinline preload="metadata" src="../assets/videos/xuantian-jie/xuantian-jie-trailer.mp4" poster="../assets/images/projects/xuantian-jie/xuantian-hero.jpg" aria-label="《玄天劫》完整概念预告片"></video>
-          <button class="xj-video-play" type="button" aria-label="有声播放《玄天劫》完整预告片" hidden><svg class="xj-video-play__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="m5 3 12 7-12 7Z"/></svg><span class="xj-video-play__label"><b>播放完整预告</b><small>01:40 · 有声播放</small></span></button>
+          <video class="xj-video" controls playsinline webkit-playsinline x5-playsinline preload="metadata" src="../assets/videos/xuantian-jie/xuantian-jie-trailer.mp4" poster="../assets/images/projects/xuantian-jie/xuantian-hero.jpg" aria-label="《玄天决》完整概念预告片"></video>
+          <button class="xj-video-play" type="button" aria-label="有声播放《玄天决》完整预告片" hidden><svg class="xj-video-play__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="m5 3 12 7-12 7Z"/></svg><span class="xj-video-play__label"><b>播放完整预告</b><small>01:40 · 有声播放</small></span></button>
           <p class="xj-player-status" role="status" aria-live="polite" hidden></p>
           <div class="xj-player-help" hidden>
             <p class="xj-player-message" role="status" aria-live="polite"></p>
@@ -144,9 +199,9 @@
         <h2 id="statement-title" lang="zh-Hans"><span>从视觉生成，</span><span>走向完整叙事。</span></h2>
       </div>
       <div class="xj-statement__copy">
-        <p lang="zh-Hans">《玄天劫》是一支原创 AI 东方仙侠概念预告片。故事从人们对“仙界”的向往开始，随着天象异变、封印松动与域外骨舟压境，神圣的玄天宗逐渐成为一场仙界权力与机缘争夺的中心。</p>
+        <p lang="zh-Hans">《玄天决》是一支原创 AI 东方仙侠概念预告片。故事从人们对“仙界”的向往开始，随着天象异变、封印松动与域外骨舟压境，神圣的玄天宗逐渐成为一场仙界权力与机缘争夺的中心。</p>
         <p lang="zh-Hans">从世界观、人物与宗门视觉开发延伸至分镜、摄影机运动、生成式影像、声音及后期制作，探索 AI 如何成为完整电影叙事流程的一部分。</p>
-        <p class="xj-english" lang="en">XUANTIAN JIE is an original AI-driven xianxia concept trailer exploring generative filmmaking as a complete cinematic workflow rather than a collection of isolated AI visuals.</p>
+        <p class="xj-english" lang="en">XUANTIAN JUE is an original AI-driven xianxia concept trailer exploring generative filmmaking as a complete cinematic workflow rather than a collection of isolated AI visuals.</p>
       </div>
     </section>
 
@@ -255,9 +310,9 @@
       </ol>
     </section>
 
-    <section class="xj-end" aria-label="观看《玄天劫》">
+    <section class="xj-end" aria-label="观看《玄天决》">
       <img class="xj-end__image" src="../assets/images/projects/xuantian-jie/xuantian-sect-overview.jpg" width="1672" height="941" loading="lazy" decoding="async" alt="">
-      <p>玄天劫 / XUANTIAN JIE</p>
+      <p>玄天决 / XUANTIAN JUE</p>
       <h2>走进玄天世界。<small class="xj-heading-en" lang="en">Enter the immortal realm.</small></h2>
       <a class="xj-button" href="#full-film"><span aria-hidden="true">▶</span> 观看剧集 <span class="xj-button__duration">预告片 01:40</span></a>
       <div class="xj-watch-links">
@@ -273,6 +328,11 @@
     <span lang="en">© 2026 Steven Chen</span>
   </footer>
   <script src="../assets/xuantian-player.js?v=20260923-player-1"></script>
-  <script src="../assets/xuantian.js?v=20260923-player-1"></script>
+  <script src="../assets/xuantian-flight.js?v=20260923-mountain-80-9"></script>
+  <script src="../assets/xuantian-flight-renderer.js?v=20260923-studio-8"></script>
+<script src="../assets/xuantian-flight-volume-scene.js?v=20260924-volume-2"></script>
+<script src="../assets/xuantian-mountain-reference.js?v=20260924-reference-3"></script>
+<script src="../assets/xuantian-flight-volume.js?v=20260924-reference-3"></script>
+<script src="../assets/xuantian.js?v=20260924-jue-release"></script>
 </body>
 </html>

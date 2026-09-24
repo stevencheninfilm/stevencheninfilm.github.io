@@ -70,16 +70,69 @@
     configureMap();
   }
 
+  const preset = window.XuantianFlightPreset;
+  const legacyFlight = preset && window.XuantianFlight ? window.XuantianFlight.create(preset) : window.XuantianFlight;
+  // Approved production opening: 02, volumetric clouds + original 2D mountains.
+  // Keep explicit review overrides and the legacy renderer as a safe fallback.
+  // Saved Flight Studio settings are not overwritten.
+  const opening = /(?:\?|&)opening=(3d|hybrid|2d)(?:&|$)/.exec(window.location?.search || '')?.[1] || 'hybrid';
+  const try3D = opening !== '2d' && window.XuantianVolumeRenderer;
+  const mountainCards = opening !== '3d';
+  let flight = try3D ? window.XuantianVolumeScene : legacyFlight;
+  if (try3D && !reducedMotion.matches) body.classList.add('xj-volume-opening');
+  let flightFrame = 0;
+  let revealFinished = false;
+  let renderer = null;
+  const revealTimers = [];
+  const later = (callback,delay) => {
+    const id=window.setTimeout(callback,delay);
+    revealTimers.push(id);
+    return id;
+  };
   const finishReveal = () => {
+    if (revealFinished) return;
+    revealFinished = true;
+    revealTimers.forEach(id=>window.clearTimeout(id));
+    if (flightFrame) window.cancelAnimationFrame(flightFrame);
+    flightFrame = 0;
     body.classList.remove('is-revealing');
     cloud?.classList.add('is-gone');
+    renderer?.destroy();
   };
 
-  if (reducedMotion.matches) {
+  if (reducedMotion.matches || !flight || !window.XuantianFlightRenderer) {
     finishReveal();
   } else {
-    window.setTimeout(() => cloud?.classList.add('is-open'), 700);
-    window.setTimeout(finishReveal, 3500);
+    // Slow/failed textures must never leave a permanent loading curtain.
+    const prepareTimeout=later(finishReveal,try3D ? 5000 : 2500);
+    const prepare = try3D
+      ? window.XuantianVolumeRenderer(cloud, {mountains:mountainCards?'cards':'reference',onFailure:finishReveal}).catch(() => {
+          body.classList.remove('xj-volume-opening');
+          flight=legacyFlight;
+          return window.XuantianFlightRenderer(cloud, {flight,sprites:preset?.sprites});
+        })
+      : window.XuantianFlightRenderer(cloud, {flight,sprites:preset?.sprites});
+    prepare.then(ready => {
+      if (revealFinished) {ready.destroy();return;}
+      renderer=ready;
+      window.clearTimeout(prepareTimeout);
+      cloud.classList.add('is-ready');
+      later(() => {
+        if (revealFinished) return;
+        cloud.classList.add('is-open');
+        const start=window.performance.now();
+        const tick=now => {
+          if (revealFinished) return;
+          renderer.draw(now-start);
+          if (now-start<flight.endAt-flight.startDelay) flightFrame=window.requestAnimationFrame(tick);
+          else finishReveal();
+        };
+        flightFrame=window.requestAnimationFrame(tick);
+      },flight.startDelay);
+      // Timers begin only after all textures and the hero have decoded.
+      later(()=>body.classList.remove('is-revealing'),flight.titleAt);
+      later(finishReveal,flight.endAt);
+    }).catch(finishReveal);
   }
 
   const updateLeaf = () => {
