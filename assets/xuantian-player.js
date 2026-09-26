@@ -18,6 +18,9 @@
   const render = (next, copy = '') => {
     state = next;
     shell.dataset.playerState = next;
+    // Open on the first play request, then keep the screen stable through
+    // buffering, pause, retry and replay instead of pulsing back to cover size.
+    if (next === 'loading' || next === 'playing') shell.dataset.screenExpanded = 'true';
     playButton.hidden = next !== 'idle';
     status.hidden = next !== 'loading';
     status.textContent = next === 'loading' ? '正在准备播放…' : '';

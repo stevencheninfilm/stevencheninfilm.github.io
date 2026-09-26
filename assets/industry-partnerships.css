@@ -1,0 +1,48 @@
+.industry-partnerships {
+  padding: clamp(32px, 4vw, 72px) var(--pad);
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: 90px;
+}
+
+.industry-partnerships__viewport {
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--muted) transparent;
+}
+
+.industry-partnerships__viewport:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.industry-partnerships__image-link {
+  display: block;
+  width: 100%;
+  max-width: 1774px;
+  margin-inline: auto;
+}
+
+.industry-partnerships__image-link img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.industry-partnerships__hint {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .industry-partnerships__image-link {
+    width: 1040px;
+  }
+
+  .industry-partnerships__hint {
+    display: block;
+    margin: 16px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+}

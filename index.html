@@ -14,11 +14,15 @@
   <meta name="twitter:description" content="AI video, generative visual worlds, and selected films by Steven Chen.">
   <meta name="twitter:image" content="https://stevencheninfilm.com/assets/og.png">
   <title>Steven Chen — Generative Artist &amp; Filmmaker</title>
-  <link rel="stylesheet" href="assets/site.css?v=20260922-9">
+  <link rel="stylesheet" href="assets/site.css?v=20260925-1">
   <link rel="stylesheet" href="assets/home-v2.css?v=20260922-2">
-  <link rel="stylesheet" href="assets/home-v3.css?v=20260910-2">
+  <link rel="stylesheet" href="assets/home-opening.css?v=20260925-1">
   <link rel="stylesheet" href="assets/banner-v3.css?v=20260922-3">
+  <link rel="stylesheet" href="assets/portfolio.css?v=20260925-tvc-image-link-1">
+  <link rel="stylesheet" href="assets/tvc-transition.css?v=20260925-2">
+  <script src="assets/tvc-transition.js?v=20260925-2"></script>
   <script>try { sessionStorage.setItem('steven-home-loader', 'seen'); } catch {}</script>
+  <noscript><style>.v3-loader{display:none}.home-page.is-loading .home-interface,.home-v3.is-v3-loading .home-interface{opacity:1;visibility:visible;pointer-events:auto}</style></noscript>
 </head>
 <body class="home-page home-v2 home-v3 is-loading is-v3-loading" data-version="3.1">
   <a class="skip-link" href="#featured-work">Skip to work</a>
@@ -29,24 +33,41 @@
   </div>
 
   <div class="v3-loader" aria-label="Loading featured work">
-    <span class="v3-loader-percent" aria-hidden="true">0%</span>
+    <span class="v3-loader-percent" aria-hidden="true" hidden>0%</span>
     <div class="v3-loader-gallery" aria-hidden="true">
-      <img class="v3-loader-tile v3-loader-tile--lead" src="assets/images/home/grand-theft-art-poster.jpg" width="320" height="180" decoding="async" alt="">
-      <img class="v3-loader-tile" src="assets/images/projects/xuantian-jie/xuantian-thumb.jpg" width="960" height="540" decoding="async" alt="">
-      <img class="v3-loader-tile" src="assets/images/home/cybertruck-thumb.jpg" width="320" height="179" decoding="async" alt="">
-      <img class="v3-loader-tile" src="assets/images/home/motion-thumb.png" width="320" height="258" decoding="async" alt="">
-      <img class="v3-loader-tile" src="assets/images/projects/feel/netflix-thumb.jpg" width="1000" height="580" decoding="async" alt="">
-      <img class="v3-loader-tile" src="assets/images/home/tumbleweed-thumb.jpg" width="320" height="180" decoding="async" alt="">
-      <img class="v3-loader-tile" src="assets/images/home/everylook-thumb.jpg" width="320" height="180" decoding="async" alt="">
-      <img class="v3-loader-tile" src="assets/images/home/alone-thumb.jpg" width="320" height="180" decoding="async" alt="">
-      <img class="v3-loader-tile" src="assets/images/home/rene-thumb.jpg" width="320" height="180" decoding="async" alt="">
+      <div class="v3-loader-tile" data-column="-2" data-row="-2"><img src="assets/images/home/intro/everylook.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="-2" data-row="-1"><img src="assets/images/home/intro/reason.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="-2" data-row="0"><img src="assets/images/home/intro/arrival.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="-2" data-row="1"><img src="assets/images/home/intro/wuhan.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="-2" data-row="2"><img src="assets/images/home/intro/cube.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="-1" data-row="-2"><img src="assets/images/home/intro/alone.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="-1" data-row="-1"><img src="assets/images/home/intro/cybertruck.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="-1" data-row="0"><img src="assets/images/home/intro/rene.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="-1" data-row="1"><img src="assets/images/home/intro/healing.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="-1" data-row="2"><img src="assets/images/home/intro/feel.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="0" data-row="-2"><img src="assets/images/home/intro/invert.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="0" data-row="-1"><img src="assets/images/home/intro/xuantian.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile v3-loader-tile--lead" data-column="0" data-row="0"><img src="assets/images/home/grand-theft-art-poster.jpg" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="0" data-row="1"><img src="assets/images/home/intro/feihe.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="0" data-row="2"><img src="assets/images/home/intro/papa.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="1" data-row="-2"><img src="assets/images/home/intro/power.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="1" data-row="-1"><img src="assets/images/home/intro/feel.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="1" data-row="0"><img src="assets/images/home/intro/ge.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="1" data-row="1"><img src="assets/images/home/intro/tumbleweed.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="1" data-row="2"><img src="assets/images/home/intro/journey.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="2" data-row="-2"><img src="assets/images/home/intro/cube.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="2" data-row="-1"><img src="assets/images/home/intro/wuhan.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="2" data-row="0"><img src="assets/images/home/intro/papa.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="2" data-row="1"><img src="assets/images/home/intro/journey.webp" decoding="async" alt=""></div>
+      <div class="v3-loader-tile" data-column="2" data-row="2"><img src="assets/images/home/intro/everylook.webp" decoding="async" alt=""></div>
     </div>
+    <button class="v3-loader-skip" type="button">Skip intro</button>
   </div>
 
   <header class="site-header home-header home-interface">
     <nav class="primary-nav" aria-label="Primary navigation">
-      <a class="home-project-jump" href="projects/xuantian-jie.html">[Project 玄天决]</a>
-      <a class="is-active" href="index.html">Work</a>
+      <a class="home-project-jump" href="projects/xuantian-jie.html">Project 玄天诀</a>
+      <a class="is-active" href="index.html" data-home-replay>Work</a>
       <a href="about.html">About</a>
     </nav>
   </header>
@@ -65,7 +86,7 @@
             <div class="comparison-label comparison-label--after">AI RENDER</div>
 
             <div class="comparison-copy">
-              <p>WORKFLOW COMPARISON</p>
+              <p class="comparison-tool-line">WORKFLOW COMPARISON <i class="project-tool-logo project-tool-logo--dreamina" aria-hidden="true"></i>Seedance 2.0</p>
               <h1>3D Direct Camera x AI Rending</h1>
               <span>05/2026</span>
               <em>Drag to reveal</em>
@@ -88,13 +109,14 @@
         </div>
       </article>
 
-      <article class="deck-card" data-title="玄天决 / XUANTIAN JUE" data-page="1" data-link="projects/xuantian-jie.html">
+      <article class="deck-card" data-title="玄天诀 / XUANTIAN JUE" data-page="1" data-link="projects/xuantian-jie.html">
         <picture class="deck-picture">
           <img class="deck-media deck-media--xuantian" src="assets/images/projects/xuantian-jie/xuantian-hero.jpg" width="3840" height="2160" fetchpriority="high" decoding="async" alt="XUANTIAN JUE live-action fantasy battle between an immortal sword cultivator and an invading warrior">
         </picture>
         <a class="deck-project-link deck-project-link--meta deck-project-link--xuantian" href="projects/xuantian-jie.html">
           <span class="project-tool-line"><span>Support by</span><span class="project-tool"><i class="project-tool-logo project-tool-logo--dreamina" aria-hidden="true"></i>Seedance 2.5</span><span aria-hidden="true">/</span><span class="project-tool"><i class="project-tool-logo project-tool-logo--xinpianchang" aria-hidden="true"></i><span lang="zh-Hans">新片场</span> Shotlab</span></span>
-          <span class="deck-project-title deck-project-title--xuantian"><b lang="zh-Hans">玄天决</b><small>XUANTIAN JUE</small></span>
+          <span class="deck-project-title deck-project-title--xuantian"><b lang="zh-Hans">玄天诀</b><small>XUANTIAN JUE</small></span>
+          <span class="deck-project-category" lang="zh-Hans">影视级AI剧集</span>
           <time class="deck-project-date" datetime="2026-08">08/2026 — NOW</time>
         </a>
       </article>
@@ -104,7 +126,11 @@
           <source media="(max-width: 560px)" srcset="assets/images/home/cybertruck-mobile.jpg">
           <img class="deck-media" src="assets/images/projects/cybertruck/Cyber-Thumb-1.jpg" width="2912" height="1632" fetchpriority="high" decoding="async" alt="Cybertruck crossing the surface of Mars">
         </picture>
-        <a class="deck-project-link" href="ai/index.html#cybertruck"><span>Cybertruck: Mars</span></a>
+        <a class="deck-project-link deck-project-link--meta" href="ai/index.html#cybertruck">
+          <span class="project-tool-line"><span class="project-tool"><i class="project-tool-logo project-tool-logo--gemini" aria-hidden="true"></i>Gemini 2.5</span><span aria-hidden="true">/</span><span class="project-tool"><i class="project-tool-logo project-tool-logo--veo" aria-hidden="true"></i>Veo 3.1</span></span>
+          <span class="deck-project-title">Cybertruck: Mars</span>
+          <time class="deck-project-date" datetime="2026-04">04/2026</time>
+        </a>
       </article>
 
       <article class="deck-card" data-title="Feel Every Stories" data-page="3" data-link="ai/index.html#feel">
@@ -118,59 +144,57 @@
         </a>
       </article>
 
-      <article class="deck-card" data-title="Tumbleweed" data-page="4" data-link="film/Film.html">
+      <article class="deck-card" data-title="Healing Wings" data-page="4" data-link="film/Film.html#healing">
         <picture class="deck-picture">
-          <source media="(max-width: 560px)" data-srcset="assets/images/home/tumbleweed-mobile.jpg">
-          <img class="deck-media" src="assets/images/home/tumbleweed-thumb.jpg" data-src="film/images/tumbleweed_cover.jpg" width="1920" height="1080" decoding="async" alt="Still from Tumbleweed">
+          <img class="deck-media" src="film/images/healing_cover.jpg" width="2048" height="1080" decoding="async" alt="Interview frame from the documentary Healing Wings">
         </picture>
-        <a class="deck-project-link" href="film/Film.html"><span>Tumbleweed</span></a>
+        <a class="deck-project-link deck-project-link--meta" href="film/Film.html#healing">
+          <span class="project-tool-line">Documentary / Color &amp; Sound</span>
+          <span class="deck-project-title">Healing Wings</span>
+          <span class="deck-project-date">10/2024</span>
+        </a>
       </article>
 
-      <article class="deck-card" data-title="In Every Look" data-page="5" data-link="film/Film.html">
-        <picture class="deck-picture">
-          <source media="(max-width: 560px)" data-srcset="assets/images/home/everylook-mobile.jpg">
-          <img class="deck-media" src="assets/images/home/everylook-thumb.jpg" data-src="film/images/everylook_cover.jpg" width="1761" height="990" decoding="async" alt="Still from In Every Look">
-        </picture>
-        <a class="deck-project-link" href="film/Film.html"><span>In Every Look</span></a>
+      <article class="deck-card deck-card--alone" data-title="Alone" data-page="5" data-link="film/Film.html#alone">
+        <div class="alone-poster-frame">
+          <picture class="deck-picture">
+            <img class="deck-media deck-media--alone" src="assets/images/home/alone-poster-20260925.webp" width="3840" height="2160" decoding="async" alt="Alone official poster, written and directed by Steven Chen, with festival laurels">
+          </picture>
+          <a class="deck-project-link alone-recognition-link" href="film/Film.html#alone" aria-label="Alone — View film recognition"><span class="alone-recognition-label">View film recognition</span></a>
+          <figure class="alone-staff-picks alone-staff-picks--home"><picture><source media="(max-width: 560px)" srcset="assets/images/projects/alone/alone-staff-picks-2023-mobile.png" width="1920" height="640"><img src="assets/images/projects/alone/alone-staff-picks-2023-3840.png" width="3840" height="320" decoding="async" alt="新片场精选周榜：2023年第35期、2023年第34期 / Xinpianchang Staff Picks — 2023, Weeks 35 &amp; 34"></picture></figure>
+        </div>
       </article>
 
-      <article class="deck-card" data-title="Alone" data-page="6" data-link="film/Film.html">
-        <picture class="deck-picture">
-          <source media="(max-width: 560px)" data-srcset="assets/images/home/alone-mobile.jpg">
-          <img class="deck-media" src="assets/images/home/alone-thumb.jpg" data-src="film/images/alone_cover.jpg" width="2048" height="1152" decoding="async" alt="Still from Alone">
-        </picture>
-        <a class="deck-project-link" href="film/Film.html"><span>Alone</span></a>
-      </article>
-
-      <article class="deck-card" data-title="René Furterer" data-page="7" data-link="film/Film.html">
-        <picture class="deck-picture">
-          <source media="(max-width: 560px)" data-srcset="assets/images/home/rene-mobile.jpg">
-          <img class="deck-media" src="assets/images/home/rene-thumb.jpg" data-src="film/images/rene_cover.jpg" width="3457" height="1945" decoding="async" alt="Still from René Furterer">
-        </picture>
-        <a class="deck-project-link" href="film/Film.html"><span>René Furterer</span></a>
+      <article class="deck-card deck-card--tvc" data-title="TVC" data-page="6" data-link="tvc/index.html">
+        <div class="tvc-home-layout">
+          <a class="deck-picture tvc-image-link" href="tvc/index.html" aria-label="TVC — View commercial films" tabindex="-1">
+            <img class="deck-media deck-media--tvc-banner" src="assets/images/tvc/banner-editorial-20260925.webp" width="2114" height="744" decoding="async" alt="TVC — a montage of Wuhan Jiudao, René Furterer, GE HealthCare and Feihe project stills">
+          </a>
+          <a class="deck-project-link deck-project-link--meta" href="tvc/index.html" aria-label="TVC — Explore selected commercial work"><span class="project-tool-line">Commercial / Branded Films</span><span class="deck-project-date">Selected work · 2022—2025 ↗</span></a>
+        </div>
       </article>
     </div>
 
     <button class="stage-step stage-step--prev" type="button" aria-label="Previous project"><span aria-hidden="true">←</span></button>
     <button class="stage-step stage-step--next" type="button" aria-label="Next project"><span aria-hidden="true">→</span></button>
 
-    <button class="home-pagination" type="button" aria-label="Browse all 8 projects"><span id="current-slide">0</span><span aria-hidden="true">—</span><span>7</span></button>
+    <button class="home-pagination" type="button" aria-label="Browse all 7 projects"><span id="current-slide">0</span><span aria-hidden="true">—</span><span>6</span></button>
 
     <div class="thumbnail-dock" role="group" aria-label="Featured projects">
       <button class="is-active" type="button" data-slide="0" aria-label="Show Grand Theft Art comparison" aria-pressed="true"><img src="assets/images/home/grand-theft-art-poster.jpg" width="320" height="180" decoding="async" alt=""></button>
       <button type="button" data-slide="1" aria-label="Show XUANTIAN JUE" aria-pressed="false"><img src="assets/images/projects/xuantian-jie/xuantian-thumb.jpg" width="960" height="540" decoding="async" alt=""></button>
       <button type="button" data-slide="2" aria-label="Show Cybertruck Mars" aria-pressed="false"><img src="assets/images/home/cybertruck-thumb.jpg" width="320" height="179" decoding="async" alt=""></button>
       <button type="button" data-slide="3" aria-label="Show Feel Every Stories" aria-pressed="false"><img src="assets/images/projects/feel/netflix-thumb.jpg" width="1000" height="580" decoding="async" alt=""></button>
-      <button type="button" data-slide="4" aria-label="Show Tumbleweed" aria-pressed="false"><img src="assets/images/home/tumbleweed-thumb.jpg" width="320" height="180" decoding="async" alt=""></button>
-      <button type="button" data-slide="5" aria-label="Show In Every Look" aria-pressed="false"><img src="assets/images/home/everylook-thumb.jpg" width="320" height="180" decoding="async" alt=""></button>
-      <button type="button" data-slide="6" aria-label="Show Alone" aria-pressed="false"><img src="assets/images/home/alone-thumb.jpg" width="320" height="180" decoding="async" alt=""></button>
-      <button type="button" data-slide="7" aria-label="Show René Furterer" aria-pressed="false"><img src="assets/images/home/rene-thumb.jpg" width="320" height="180" decoding="async" alt=""></button>
+      <button type="button" data-slide="4" aria-label="Show Healing Wings" aria-pressed="false"><img src="assets/images/home/healing-thumb.webp" width="960" height="506" decoding="async" alt=""></button>
+      <button type="button" data-slide="5" aria-label="Show Alone" aria-pressed="false"><img src="assets/images/home/alone-thumb-20260925.webp" width="960" height="540" decoding="async" alt=""></button>
+      <button type="button" data-slide="6" aria-label="Show TVC" aria-pressed="false"><img src="assets/images/tvc/banner-editorial-thumb-20260925.webp" width="512" height="180" decoding="async" alt=""></button>
     </div>
   </main>
 
-  <script src="assets/site.js?v=20260910-5"></script>
+  <script src="assets/site.js?v=20260925-tvc-image-link-1"></script>
   <script src="assets/home-v2.js?v=20260908-1"></script>
-  <script src="assets/home-v3.js?v=20260910-2"></script>
+  <script src="assets/home-opening-motion.js?v=20260925-2"></script>
+  <script src="assets/home-opening.js?v=20260925-2"></script>
   <script src="assets/video-loader.js?v=20260911-5"></script>
   <script src="assets/banner-v3.js?v=20260911-4"></script>
 </body>

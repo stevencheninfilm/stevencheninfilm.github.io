@@ -1,0 +1,70 @@
+/* Only the homepage → TVC route opts into a shared-artwork transition. */
+@view-transition { navigation: auto; }
+
+html.tvc-transition-out .project-deck:not(.is-strip) .deck-card--tvc.is-active .deck-media--tvc-banner,
+html.tvc-transition-in .tvc-banner > img { view-transition-name: tvc-artwork; }
+
+/* Capture the artwork, not padding: both snapshots keep the exact same ratio. */
+.tvc-page .tvc-banner > img { padding: 0; margin: 24px auto; }
+
+::view-transition { background: #000; }
+::view-transition-group(tvc-artwork) {
+  z-index: 1;
+  animation-duration: 1050ms;
+  animation-timing-function: cubic-bezier(.22, .72, .16, 1);
+}
+::view-transition-image-pair(tvc-artwork) { isolation: isolate; }
+::view-transition-old(tvc-artwork),
+::view-transition-new(tvc-artwork) {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  mix-blend-mode: normal;
+  animation: none;
+}
+/* The same cached image stays solid; don't cross-fade two misaligned copies. */
+::view-transition-old(tvc-artwork) { opacity: 0; }
+::view-transition-new(tvc-artwork) { opacity: 1; }
+::view-transition-old(root) { animation: tvc-page-out 240ms ease-out both; }
+::view-transition-new(root) { animation: tvc-page-in 740ms 180ms cubic-bezier(.2, .6, .2, 1) both; }
+@keyframes tvc-page-out { to { opacity: 0; } }
+@keyframes tvc-page-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* Geometry fallback, installed in the head before the destination can flash. */
+html.tvc-fallback-pending .tvc-banner > img { visibility: hidden; }
+html.tvc-fallback-pending::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483645;
+  background: #000;
+  pointer-events: none;
+}
+html.tvc-fallback-pending::after {
+  content: "";
+  position: fixed;
+  left: var(--tvc-from-x);
+  top: var(--tvc-from-y);
+  width: var(--tvc-from-width);
+  height: var(--tvc-from-height);
+  z-index: 2147483646;
+  background: var(--tvc-artwork-url) center / 100% 100% no-repeat;
+  transform-origin: 0 0;
+  pointer-events: none;
+}
+html.tvc-fallback-running::before { animation: tvc-page-out 740ms 180ms ease both; }
+html.tvc-fallback-running::after { animation: tvc-artwork-move 1050ms cubic-bezier(.22, .72, .16, 1) both; }
+@keyframes tvc-artwork-move {
+  from { transform: matrix(1, 0, 0, 1, 0, 0); }
+  to { transform: var(--tvc-to-transform); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition { navigation: none; }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
+  html.tvc-fallback-pending .tvc-banner > img { visibility: visible; }
+  html.tvc-fallback-pending::before,
+  html.tvc-fallback-pending::after { display: none; }
+}

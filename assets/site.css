@@ -229,6 +229,10 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 .section-heading .project-number { grid-column: 1 / -1; }
 .section-heading h2 { margin-bottom: 0; }
 .section-heading > p { margin: 0 0 5px; }
+.section-heading--project h2 { margin: 20px 0 16px; }
+.section-heading--project .project-date { margin-bottom: 0; }
+.project-summary { min-width: 0; }
+.project-summary > p { margin: 0; max-width: 48ch; color: var(--muted); font-size: 16px; line-height: 1.7; }
 .visual-grid { display: grid; grid-template-columns: repeat(12, 1fr); grid-auto-rows: min(26vw, 390px); gap: 10px; }
 .visual-tile { grid-column: span 4; margin: 0; min-height: 0; overflow: hidden; background: #151515; }
 .visual-tile--wide { grid-column: span 8; }

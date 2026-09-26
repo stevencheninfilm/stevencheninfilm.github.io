@@ -1,0 +1,290 @@
+/* Portfolio content edition — 25 Sep 2026. Existing home motion stays unchanged. */
+.home-page { --home-project-title-size: clamp(44px, 4.4vw, 78px); --home-project-meta-size: clamp(11px, .82vw, 14px); }
+.home-page .deck-project-title,
+.home-page .comparison-copy h1 { font-size: var(--home-project-title-size); white-space: normal; text-wrap: balance; }
+.home-page .deck-project-link { max-width: min(72vw, 1050px); }
+/* Lay titles out for the expanded viewport before the card starts growing. */
+@media (min-width: 1025px) {
+  .home-page .deck-card > .deck-project-link--meta { width: max-content; }
+}
+.project-deck.is-strip .deck-card > .deck-project-link--meta { transform: translate(-50%, -50%); }
+.home-page .comparison-copy { width: min(calc((100vw - 2 * clamp(8px, 1.05vw, 18px)) * .86), 820px); }
+@media (orientation: portrait) and (max-width: 900px) {
+  .home-page .deck-card--comparison .comparison-copy {
+    width: calc((100vw - max(8px, env(safe-area-inset-right)) - max(8px, env(safe-area-inset-left))) * .82);
+  }
+}
+.home-page .deck-project-link .project-tool-line,
+.home-page .deck-project-link .deck-project-date,
+.home-page .comparison-copy p,
+.home-page .comparison-copy > span { font-size: var(--home-project-meta-size); }
+.comparison-tool-line .project-tool-logo {
+  width: 14px;
+  height: 14px;
+  margin: 0 5px 0 10px;
+  vertical-align: -3px;
+}
+.deck-project-link--xuantian .deck-project-category {
+  margin-block: 8px 4px;
+  font-size: clamp(20px, 1.8vw, 28px);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: .12em;
+}
+.deck-card--alone { background: #090909; container-type: size; }
+.deck-media--alone { object-fit: contain; }
+/* Keep the hotspot registered to the 16:9 artwork, including its letterboxing. */
+.alone-poster-frame {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100cqw, 177.777778cqh);
+  aspect-ratio: 16 / 9;
+  transform: translate(-50%, -50%);
+  container-type: inline-size;
+}
+.home-page .deck-card--alone .alone-recognition-link {
+  left: 3%;
+  top: 38%;
+  width: 45%;
+  max-width: none;
+  height: 20%;
+  min-height: 44px;
+  padding: 8px 12px;
+  transform: none;
+  border-radius: 0;
+  background: rgba(0, 0, 0, .156);
+  font-size: clamp(13px, 2.3cqw, 30px);
+  line-height: 1.25;
+  letter-spacing: .015em;
+  white-space: normal;
+  transition: background-color .4s ease, opacity .25s ease;
+}
+.alone-recognition-label {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  /* Leave the poster's festival laurels visible between the box and caption. */
+  padding: 6.5cqw 0 8px;
+  font-size: clamp(12px, 1.4cqw, 20px);
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity .4s ease, transform .4s ease;
+}
+.home-page .alone-recognition-link:is(:hover, :focus-visible) { background: rgba(0, 0, 0, .552); }
+.alone-recognition-link:is(:hover, :focus-visible) .alone-recognition-label { opacity: 1; transform: none; }
+.project-deck.is-strip .alone-recognition-link { visibility: hidden; pointer-events: none; }
+/* The previous-project hit area must not intercept the poster title link. */
+.home-page .home-stage:has(.deck-card--alone.is-active) > .stage-step {
+  top: calc(50% + min(14.0625vw, 25dvh));
+  height: 44px;
+}
+/* Keep only the left arrow clear of the new strip; the right stays off credits. */
+.home-page .home-stage:has(.deck-card--alone.is-active) > .stage-step--prev { top: calc(50% + min(19.6875vw, 35dvh)); }
+@media (hover: none), (pointer: coarse) {
+  .home-page .deck-card--alone .alone-recognition-link { background: rgba(0, 0, 0, .516); }
+  .alone-recognition-label { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-page .deck-card--alone .alone-recognition-link,
+  .alone-recognition-label { transition: none; }
+  .alone-recognition-label { transform: none; }
+}
+.deck-card--tvc { background: #000; }
+.deck-media--tvc-banner { object-fit: contain; }
+.tvc-home-layout { display: contents; }
+.project-deck:not(.is-strip) .tvc-home-layout {
+  position: absolute;
+  inset: max(110px, 15%) 10% max(100px, 14%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(24px, 4dvh, 48px);
+}
+.project-deck:not(.is-strip) .tvc-home-layout .deck-project-link {
+  position: static;
+  flex: none;
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  transform: none;
+}
+.project-deck:not(.is-strip) .tvc-home-layout .deck-picture {
+  position: relative;
+  inset: auto;
+  flex: 0 1 auto;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 2114 / 744;
+}
+.project-deck:not(.is-strip) .deck-media--tvc-banner { padding: 0; }
+.tvc-image-link { text-decoration: none; }
+.tvc-image-link:focus-visible { outline: 2px solid #eee; outline-offset: 6px; }
+/* Overview clicks expand the card; the expanded image opens the TVC page. */
+.project-deck.is-strip .tvc-image-link { pointer-events: none; }
+/* In the overview, fill the card vertically and crop the artwork at its sides. */
+.project-deck.is-strip .alone-poster-frame {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  transform: none;
+}
+.project-deck.is-strip .deck-media { object-fit: cover; }
+.project-deck.is-strip .deck-media--tvc-banner { padding: 0; }
+.thumbnail-dock button[data-slide="6"] img { object-fit: contain; background: #000; }
+
+/* A fifth navigation item has its own row on small screens, not smaller targets. */
+.content-page .primary-nav { flex-shrink: 0; }
+.content-page .primary-nav a { white-space: nowrap; }
+.section-heading > div > p { max-width: 44ch; color: var(--muted); line-height: 1.7; }
+/* Match the other AI project credits; wrap between intact brand names on narrow screens. */
+.content-page #xuantian .project-tool-line--detail { max-width: 100%; flex-wrap: wrap; line-height: 1.5; }
+/* Workflow footage needs its complete horizontal frame, including on hover. */
+.project-feature__media.project-feature__media--uncropped { min-height: 0; aspect-ratio: auto; }
+.project-feature__media--uncropped video { display: block; position: static; width: 100%; height: auto; object-fit: contain; }
+.project-feature__media--uncropped video,
+.project-feature:hover .project-feature__media--uncropped video { transform: none; transition: none; }
+/* This source has 90px black pillars on each side of its 720px encoded frame.
+   Keep all 540px of content and the full height; SAR 118:81 gives DAR 295:216.
+   The poster uses the same full-frame geometry, so loading does not change the crop. */
+.project-feature__media.project-feature__media--trim-bars { aspect-ratio: 295 / 216; }
+.project-feature__media--trim-bars video {
+  position: absolute;
+  inset: 0 auto 0 calc(-100% / 6);
+  width: calc(100% * 4 / 3);
+  max-width: none;
+  height: 100%;
+}
+/* Recognition stays in the reading column, below the copy and above project facts. */
+.project-award--feel { width: min(100%, 320px); margin: 20px 0 0; }
+.project-award--feel img { display: block; width: 100%; height: auto; object-fit: contain; }
+.project-award--feel + .meta-list { margin-top: 20px; }
+/* One high-resolution, transparent strip; never crop the two ranking labels. */
+.alone-staff-picks { margin: 0; background: transparent; }
+.alone-staff-picks img { display: block; width: 100%; height: auto; object-fit: contain; background: transparent; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .1)); }
+.alone-staff-picks--detail { width: min(100%, 620px); margin-top: 28px; }
+.alone-staff-picks--home {
+  position: absolute;
+  z-index: 3;
+  left: 3%;
+  top: 72%;
+  width: 45%;
+  max-width: 640px;
+  padding: 4px 8px;
+  background: transparent;
+  pointer-events: none;
+}
+.project-deck.is-strip .alone-staff-picks--home { display: none; }
+@media (max-width: 700px), (orientation: portrait) {
+  .alone-staff-picks--home { top: calc(100% + 20px); left: 4%; width: 92%; max-width: none; padding: 0; background: none; }
+}
+.film-card { text-decoration: none; }
+.film-card--poster > img { object-fit: contain; background: #050505; }
+.film-card__meta { grid-template-columns: 26px minmax(0, 1fr); }
+.film-card__meta em { grid-column: 2; line-height: 1.8; color: #ddd; }
+.film-card__meta strong { line-height: 1.05; }
+.film-card__meta strong small { display: block; margin-top: 12px; font-size: clamp(12px, 1.2vw, 17px); font-weight: 400; letter-spacing: .06em; line-height: 1.5; }
+
+/* Full artwork and portrait posters are never forced into a landscape crop. */
+.dialog-hero { height: auto; min-height: 120px; background: #050505; }
+.dialog-hero img { display: block; height: auto; max-height: 78svh; object-fit: contain; }
+.dialog-copy { gap: 32px 6vw; grid-template-columns: minmax(0, 1.5fr) minmax(0, .7fr); }
+.dialog-copy .project-number { grid-column: 1 / -1; line-height: 1.8; margin: 0; }
+.dialog-copy h2 { margin: 0 0 12px; font-size: clamp(42px, 7vw, 104px); line-height: 1.02; letter-spacing: -.055em; overflow-wrap: anywhere; }
+.project-description p { margin: 0; max-width: 60ch; font-size: clamp(16px, 1.3vw, 19px); line-height: 1.75; color: #c9c9c5; }
+.project-description p + p { margin-top: 24px; font-size: 15px; line-height: 1.95; color: #aaa; }
+.project-facts { margin: 0; }
+.project-facts > div { border-top: 1px solid var(--line); padding: 14px 0 20px; }
+.project-facts dt { margin-bottom: 10px; font-size: 10px; text-transform: uppercase; letter-spacing: .14em; color: #888; }
+.project-facts dd { margin: 0; font-size: 14px; line-height: 1.6; }
+.project-recognition, .dialog-copy .text-links { grid-column: 1 / -1; }
+.project-recognition h3 { font-size: 11px; text-transform: uppercase; letter-spacing: .14em; font-weight: 400; }
+.project-recognition ul { padding-left: 18px; margin: 18px 0 0; color: #bbb; font-size: 14px; line-height: 1.8; }
+.film-recognition-list { margin: 32px 0 0; padding: 0; list-style: none; }
+.film-recognition-list > li { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 18px; padding: 18px 0; border-top: 1px solid var(--line); }
+.film-recognition-list__year { padding-top: 4px; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.film-recognition-list p { margin: 0; max-width: 76ch; color: #d4d4d0; font-size: clamp(14px, 1.35vw, 18px); line-height: 1.65; overflow-wrap: break-word; }
+.film-recognition-list p[lang="zh-Hans"] { margin-top: 6px; color: #aaa; font-size: 14px; line-height: 1.85; }
+.viewing-note { margin: 0; font-size: 13px; line-height: 1.6; color: #999; }
+.dialog-gallery { align-items: start; gap: 28px 18px; margin-top: 12px; }
+.dialog-gallery figure { margin: 0; min-width: 0; }
+.dialog-gallery img { display: block; height: auto; aspect-ratio: auto; object-fit: contain; background: #080808; }
+.dialog-gallery figcaption { padding-top: 10px; color: #888; font-size: 10px; letter-spacing: .04em; }
+.dialog-gallery .gallery-portrait { grid-column: 1 / -1; width: min(100%, 520px); justify-self: center; }
+.award-list strong { max-width: 30ch; line-height: 1.7; }
+.profile-biography { margin-top: 30px; max-width: 52ch; font-size: 15px; color: var(--muted); line-height: 1.8; }
+
+/* TVC: a brand-led opening followed by a compact, image-first case-study index. */
+.tvc-hero { padding: clamp(148px, 15vw, 240px) var(--pad) 0; background: #000; }
+.tvc-hero__heading { display: grid; grid-template-columns: 1.15fr .85fr; align-items: end; gap: 10vw; }
+.tvc-hero h1 { margin: 30px 0 0; font-size: clamp(48px, 6vw, 88px); line-height: 1.04; letter-spacing: -.055em; font-weight: 400; }
+.tvc-hero__intro > p { max-width: 42ch; color: #b3b3b0; font-size: 16px; line-height: 1.7; }
+.tvc-hero__intro > p[lang] { font-size: 14px; line-height: 1.9; }
+.tvc-explore { display: inline-flex; min-height: 44px; align-items: center; gap: 32px; margin-top: 16px; text-decoration: none; font-size: 13px; }
+.tvc-explore span { font-size: 22px; }
+.tvc-banner { margin: clamp(60px, 8vw, 120px) 0 0; border-top: 1px solid #222; }
+.tvc-banner img { display: block; width: 100%; height: auto; margin: auto; padding: 24px 0; }
+.tvc-banner figcaption { display: flex; justify-content: space-between; padding: 22px 0; border-top: 1px solid #222; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: #888; }
+.tvc-archive { padding-top: clamp(70px, 9vw, 140px); }
+.tvc-page .film-grid { gap: 44px 24px; }
+.tvc-page .film-card { display: flex; flex-direction: column; min-height: 0; background: transparent; overflow: visible; }
+.tvc-page .film-card > img { position: static; aspect-ratio: 16 / 9; height: auto; filter: none; object-fit: cover; }
+.tvc-page .film-card__shade { display: none; }
+.tvc-page .film-card__meta { position: static; padding: 22px 0 0; }
+.tvc-page .film-card__meta strong { font-size: clamp(26px, 3vw, 48px); }
+.tvc-page .film-card__meta em { color: #aaa; }
+.tvc-brand-portfolio { margin: 0 var(--pad) clamp(64px, 8vw, 120px); padding: clamp(24px, 4vw, 56px) 0; background: #000; }
+.tvc-brand-portfolio img { display: block; width: 100%; max-width: 1366px; height: auto; margin: auto; }
+.tvc-services { padding: 0 var(--pad) clamp(90px, 10vw, 150px); }
+.tvc-services > div { display: flex; gap: 40px; justify-content: space-between; align-items: end; padding: 35px 0; border-bottom: 1px solid var(--line); }
+.tvc-services h2 { font-size: clamp(42px, 6vw, 90px); line-height: .98; letter-spacing: -.06em; font-weight: 400; margin: 0; }
+.tvc-services p { font-size: 16px; line-height: 1.9; color: #aaa; }
+.tvc-services > a { display: inline-flex; min-height: 44px; align-items: center; margin-top: 20px; font-size: 13px; text-decoration: none; }
+
+@media (max-width: 960px) {
+  .tvc-hero__heading { gap: 6vw; }
+  .dialog-copy { grid-template-columns: 1fr; }
+  .dialog-copy h2, .dialog-gallery { grid-column: 1 / -1; }
+  .project-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+  .tvc-page .film-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 680px) {
+  .content-page .site-header { display: grid; grid-template-columns: 1fr; gap: 0; padding: max(12px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) 16px max(18px, env(safe-area-inset-left)); background: linear-gradient(#0b0b0b 70%, transparent); }
+  .content-page .wordmark { font-size: 12px; }
+  .content-page .wordmark-role { display: none; }
+  .content-page .primary-nav { justify-content: space-between; width: 100%; gap: clamp(4px, 2vw, 10px); font-size: 11px; letter-spacing: .045em; }
+  .content-page .primary-nav a { min-width: 44px; min-height: 44px; justify-content: center; padding: 0 3px; }
+  .content-page section[id] { scroll-margin-top: max(132px, calc(env(safe-area-inset-top) + 120px)); }
+  .about-page .about-hero, .content-page .page-intro { padding-top: max(140px, calc(env(safe-area-inset-top) + 128px)); }
+  .tvc-hero { padding-top: 150px; }
+  .tvc-hero__heading { grid-template-columns: 1fr; gap: 32px; }
+  .tvc-hero h1 { font-size: clamp(44px, 11vw, 72px); }
+  .tvc-hero__intro > p { max-width: none; }
+  .tvc-banner { margin-top: 40px; }
+  .tvc-banner img { padding: 24px 0; }
+  .tvc-banner figcaption { font-size: 8px; gap: 12px; }
+  .tvc-page .film-grid { grid-template-columns: 1fr; }
+  .tvc-page .film-card__meta strong { font-size: 32px; }
+  .tvc-services > div { align-items: start; flex-direction: column; gap: 22px; }
+  .project-facts { grid-template-columns: 1fr 1fr; gap: 16px; }
+  .project-facts > div:first-child { grid-column: 1 / -1; }
+  .dialog-hero { padding-top: 62px; }
+  .dialog-copy { padding: 32px 20px 48px; }
+  .dialog-copy h2 { font-size: clamp(38px, 10vw, 68px); }
+  .dialog-gallery { grid-template-columns: 1fr; }
+  .project-deck:not(.is-strip) .tvc-home-layout { inset: max(110px, 15%) 12% max(130px, 17%); }
+}
+@media (max-width: 560px) {
+  .home-page .deck-project-link { width: calc(100vw - 96px); max-width: calc(100vw - 96px); padding-inline: 0; }
+  .home-page .stage-step { width: 44px; min-width: 44px; }
+  .home-page .stage-step--prev { left: 0; }
+  .home-page .stage-step--next { right: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .film-card > img { transition: none; }
+  .film-card:hover > img, .film-card:focus-visible > img { transform: none; }
+}

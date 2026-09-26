@@ -104,7 +104,7 @@
   const updateInterface = () => {
     cards.forEach((card, index) => {
       const selected = index === active;
-      const projectLink = card.querySelector('.deck-project-link');
+      const projectLinks = card.querySelectorAll('.deck-project-link, .tvc-image-link');
       card.classList.toggle('is-active', selected);
       card.classList.toggle('is-strip-selected', selected && mode === 'strip');
       card.tabIndex = mode === 'strip' && selected ? 0 : -1;
@@ -117,11 +117,11 @@
         card.removeAttribute('role');
         card.removeAttribute('aria-label');
       }
-      if (projectLink) {
+      projectLinks.forEach((projectLink) => {
         projectLink.tabIndex = mode === 'expanded' && selected ? 0 : -1;
         if (mode === 'strip') projectLink.setAttribute('aria-hidden', 'true');
         else projectLink.removeAttribute('aria-hidden');
-      }
+      });
     });
     thumbnails.forEach((thumbnail, index) => {
       const selected = index === active;

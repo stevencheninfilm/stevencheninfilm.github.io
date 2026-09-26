@@ -1,0 +1,158 @@
+/* Two cinematic plates, with live text placed in each image's approved negative space. */
+.xj-statement.xj-project-story {
+  --story-ease: cubic-bezier(.22, .61, .36, 1);
+  display: block;
+  position: relative;
+  padding: 0;
+  background: #07090b;
+  isolation: isolate;
+}
+.xj-project-story__stage { display: grid; position: relative; }
+.xj-project-story__pin { position: relative; background: #07090b; }
+.is-scroll-story .xj-project-story__pin { position: sticky; top: var(--story-top, 88px); }
+.is-scroll-story .xj-project-story__stage { width: var(--story-frame-width, 100%); max-width: 100%; margin-inline: auto; }
+.is-scroll-story .xj-project-story__controls { width: calc(var(--story-frame-width) * .852); margin-inline: auto; }
+.xj-project-story:not(.is-scroll-story) .xj-project-story__stage { display: block; }
+.xj-project-story:not(.is-scroll-story) .xj-project-story__scene { opacity: 1; visibility: visible; pointer-events: auto; }
+.xj-project-story:not(.is-scroll-story) .xj-project-story__copy { opacity: 1; transform: none; }
+.xj-project-story__scene {
+  grid-area: 1 / 1;
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 3 / 2;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .6s var(--story-ease), visibility 0s 1s;
+}
+.xj-project-story__scene.is-active {
+  z-index: 1;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 1s var(--story-ease), visibility 0s;
+}
+.xj-project-story__art { position: absolute; inset: 0 0 auto; aspect-ratio: 3 / 2; overflow: hidden; }
+.xj-project-story__art img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.xj-project-story__reading {
+  position: relative;
+  width: 33.5%;
+  margin-left: 7.4%;
+  padding-top: 28%;
+  padding-bottom: 5%;
+}
+[data-story-scene="1"] .xj-project-story__reading { margin-left: 60.8%; padding-top: 25.7%; }
+.xj-project-story__copy {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity .25s ease, transform .6s var(--story-ease);
+  text-shadow: 0 2px 16px rgba(0, 0, 0, .48);
+}
+.is-active .xj-project-story__copy {
+  opacity: 1;
+  transform: none;
+  transition: opacity .65s .3s var(--story-ease), transform .8s .3s var(--story-ease);
+}
+.xj-project-story__copy p {
+  margin: 0 0 1.15em;
+  color: rgba(243, 240, 232, .83);
+  font-family: var(--xj-sans);
+  font-size: clamp(17px, 1.23vw, 21px);
+  font-weight: 400;
+  line-height: 1.95;
+  letter-spacing: .015em;
+}
+.xj-project-story__copy p:first-child { color: #f3f0e8; }
+.xj-project-story__copy p[lang="zh-Hans"] + p[lang="zh-Hans"] { text-indent: 2em; }
+.xj-project-story__copy p.xj-project-story__english {
+  margin: 1.6em 0 0;
+  padding-top: 1.3em;
+  border-top: 1px solid rgba(211, 195, 165, .24);
+  color: rgba(243, 240, 232, .62);
+  font-size: clamp(13px, 1vw, 15px);
+  line-height: 1.8;
+  letter-spacing: .005em;
+}
+/* The pinned artwork is height-fitted, so type follows its width, not the viewport. */
+.is-scroll-story .xj-project-story__reading { padding-bottom: 3%; }
+.is-scroll-story .xj-project-story__copy p {
+  font-size: clamp(16px, calc(var(--story-frame-width) * .015), 20px);
+  line-height: 1.85;
+}
+.is-scroll-story .xj-project-story__copy p.xj-project-story__english {
+  font-size: clamp(12px, calc(var(--story-frame-width) * .0115), 14px);
+  line-height: 1.8;
+}
+.xj-project-story__mobile-heading { display: none; }
+.xj-project-story__controls {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 0 7.4%;
+  padding: 14px 0 20px;
+  border-top: 1px solid rgba(211, 195, 165, .18);
+}
+.xj-project-story__controls[hidden] { display: none; }
+.is-scroll-story .xj-project-story__controls::before { content: ""; position: absolute; top: -1px; left: 0; width: 100%; height: 1px; background: #ac9674; transform-origin: left; transform: scaleX(var(--story-progress, 0)); }
+.xj-project-story__scroll-hint { margin: 0; color: #a9a399; font: 400 12px / 1.6 var(--xj-sans); letter-spacing: .035em; }
+.xj-project-story__chapters { display: flex; gap: clamp(12px, 3vw, 44px); }
+.xj-project-story__controls button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: #b0b0aa;
+  font: 400 13px / 1.6 var(--xj-sans);
+  letter-spacing: .035em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color .2s ease, border-color .2s ease;
+}
+.xj-project-story__controls button span { font-size: 11px; font-variant-numeric: tabular-nums; color: #aaa18e; }
+.xj-project-story__controls button[aria-pressed="true"] { color: #f3f0e8; border-color: #ac9674; }
+.xj-project-story__controls button:hover { color: #fff; }
+.xj-project-story__controls button:focus-visible { outline: 2px solid #c3ad89; outline-offset: 5px; }
+.xj-project-story__controls button:disabled { opacity: .45; cursor: default; }
+.xj-project-story__controls button[hidden] { display: none; }
+.xj-project-story .xj-story-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+/* Narrow viewports use the scene's image half and real, reflowable typography. */
+@media (max-width: 900px) {
+  .xj-project-story__scene { aspect-ratio: auto; }
+  .xj-project-story__art { position: relative; height: auto; aspect-ratio: 5 / 6; }
+  .xj-project-story__art img { position: absolute; top: 0; right: 0; width: 180%; max-width: none; height: auto; }
+  [data-story-scene="1"] .xj-project-story__art img { right: auto; left: 0; }
+  .xj-project-story__art::after { content: ""; position: absolute; inset: 65% 0 -1px; background: linear-gradient(transparent, #07090b); }
+  .xj-project-story__reading,
+  [data-story-scene="1"] .xj-project-story__reading { width: auto; margin: -12vw 0 0; padding: 0 max(24px, 7.4vw) 36px; }
+  .xj-project-story__mobile-heading { display: block; position: relative; margin-bottom: 30px; }
+  .xj-project-story__mobile-heading p { margin: 0 0 20px; color: #bbaa8c; font: 400 12px / 1.6 var(--xj-sans); letter-spacing: .15em; }
+  .xj-project-story__mobile-heading h3 { margin: 0; font-family: "Songti SC", "STSong", "SimSun", serif; font-weight: 500; font-size: clamp(32px, 7vw, 48px); line-height: 1.5; letter-spacing: .015em; }
+  .xj-project-story__mobile-heading h3 span { display: block; white-space: nowrap; }
+  .xj-project-story__copy p { font-size: 17px; }
+  .xj-project-story__copy p.xj-project-story__english { font-size: 14px; }
+  .xj-project-story__controls { margin-inline: max(24px, 7.4vw); gap: 12px; flex-wrap: wrap; }
+  .xj-project-story__controls button { font-size: 12px; gap: 7px; }
+  .xj-project-story__scroll-hint { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .xj-project-story__scene, .xj-project-story__scene.is-active,
+  .xj-project-story__copy, .is-active .xj-project-story__copy { transition: none; transform: none; }
+}

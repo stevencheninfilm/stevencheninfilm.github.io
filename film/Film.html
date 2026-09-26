@@ -4,20 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#090909">
-  <meta name="description" content="Selected narrative films, documentaries, commercials, and awards by Steven Chen.">
+  <meta name="description" content="Narrative films and documentaries by Steven Chen. Explore directing, producing, editing, color, sound and recognition.">
   <meta property="og:title" content="Film — Steven Chen">
-  <meta property="og:description" content="Selected narrative films, documentaries, commercials, and awards by Steven Chen.">
+  <meta property="og:description" content="Narrative films and documentaries by Steven Chen, with credits, stills and recognition.">
   <meta property="og:image" content="https://stevencheninfilm.com/assets/og.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="https://stevencheninfilm.com/assets/og.png">
   <title>Film — Steven Chen</title>
   <link rel="stylesheet" href="../assets/site.css?v=20260908-1">
+  <link rel="stylesheet" href="../assets/portfolio.css?v=20260925-staff-picks-2">
 </head>
 <body class="content-page film-page">
   <a class="skip-link" href="#films">Skip to films</a>
   <header class="site-header">
     <a class="wordmark" href="../index.html"><span>Steven Chen</span><span class="wordmark-role">Generative Artist / Filmmaker</span></a>
-    <nav class="primary-nav" aria-label="Primary navigation"><a href="../index.html">Work</a><a href="../ai/index.html">AI Visuals</a><a class="is-active" href="Film.html">Film</a><a href="../about.html">About</a></nav>
+    <nav class="primary-nav" aria-label="Primary navigation"><a href="../index.html">Work</a><a href="../ai/index.html">AI Visuals</a><a class="is-active" aria-current="page" href="Film.html">Film</a><a href="../tvc/index.html">TVC</a><a href="../about.html">About</a></nav>
   </header>
 
   <main>
@@ -27,22 +28,18 @@
         <img src="images/tumbleweed_cover.jpg" width="1920" height="1080" fetchpriority="high" decoding="async" alt="Tumbleweed film still">
       </picture>
       <div class="film-hero__shade"></div>
-      <div class="film-hero__copy"><p class="eyebrow">Film archive / 2020—2025</p><h1>Stories made<br>with people.</h1><p>Directing, producing, editing, color, documentary, and commercial work.</p></div>
+      <div class="film-hero__copy"><p class="eyebrow">Narrative / Documentary</p><h1>Stories made<br>with people.</h1><p>Directing, producing, editing, color and sound — from narrative shorts to feature documentary.</p></div>
       <span class="scroll-cue">Scroll to explore ↓</span>
     </section>
 
     <section class="awards-section" aria-labelledby="awards-title">
-      <p class="eyebrow">Awards & recognition</p>
-      <h2 id="awards-title">Selected honors</h2>
-      <div class="award-list">
-        <div><span>01</span><p>53rd USA Film Festival</p><strong>Finalist</strong></div>
-        <div><span>02</span><p>NY International Film Awards</p><strong>Grand Jury Prize</strong></div>
-        <div><span>03</span><p>Festival Circuit</p><strong>Official Selections</strong></div>
-      </div>
+      <p class="eyebrow">Recognition / <span lang="zh-Hans">荣誉</span></p>
+      <h2 id="awards-title">Alone / 孤</h2>
+      <ol class="film-recognition-list" data-project-recognition="alone"></ol>
     </section>
 
     <section class="film-archive" id="films">
-      <header class="section-heading section-heading--film"><div><p class="eyebrow">Selected work</p><h2>Film / Commercial</h2></div><p>Choose a project for details, credits, stills, and viewing links.</p></header>
+      <header class="section-heading section-heading--film"><div><p class="eyebrow">Selected work</p><h2>Film / Documentary</h2></div><div><p>Choose a project for the story, credits, stills and viewing links.</p><div class="text-links"><a href="../tvc/index.html">Explore TVC &amp; branded films ↗</a><a href="https://www.xinpianchang.com/a13261070?from=webShare&amp;channel=copyLink" target="_blank" rel="noreferrer">Color grading reel ↗</a></div></div></header>
       <div class="film-grid" id="film-grid"></div>
     </section>
   </main>
@@ -53,13 +50,15 @@
     <div class="dialog-copy">
       <p class="project-number" id="dialog-role"></p>
       <h2 id="dialog-title"></h2>
-      <p id="dialog-description"></p>
+      <div class="project-description" id="dialog-description"></div>
+      <dl class="project-facts" id="dialog-facts"></dl>
+      <section class="project-recognition" id="dialog-recognition" hidden></section>
       <div class="text-links" id="dialog-links"></div>
       <div class="dialog-gallery" id="dialog-gallery"></div>
     </div>
   </dialog>
 
   <footer class="site-footer"><a href="mailto:kieen1454@gmail.com">Start a project ↗</a><span>© 2026 Steven Chen</span></footer>
-  <script src="film.js?v=20260922-lossless-1"></script>
+  <script src="film.js?v=20260925-director"></script>
 </body>
 </html>
