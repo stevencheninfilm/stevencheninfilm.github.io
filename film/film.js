@@ -122,6 +122,7 @@ visibleProjects.forEach((project, index) => {
 function openProject(project) {
   if (dialog.open && currentProject === project.id) return;
   currentProject = project.id;
+  dialog.dataset.project = project.id;
   document.title = `${project.title} — Steven Chen`;
   dialogTitle.textContent = project.title;
   dialogRole.textContent = `${project.chinese} / ${project.type}`;
@@ -154,6 +155,7 @@ function openProject(project) {
   if (!dialog.open) dialog.showModal();
   dialog.scrollTop = 0;
   document.body.classList.add('dialog-open');
+  document.dispatchEvent(new Event('portfolio:project-ready'));
 }
 
 function closeProject() {
@@ -168,6 +170,8 @@ document.querySelector('#dialog-close').addEventListener('click', closeProject);
 dialog.addEventListener('click', (event) => { if (event.target === dialog) closeProject(); });
 dialog.addEventListener('cancel', event => { event.preventDefault(); closeProject(); });
 dialog.addEventListener('close', () => {
+  document.dispatchEvent(new Event('portfolio:project-closed'));
+  delete dialog.dataset.project;
   document.body.classList.remove('dialog-open');
   dialogHero.removeAttribute('src');
   dialogGallery.replaceChildren();

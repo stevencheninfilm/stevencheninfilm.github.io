@@ -7,16 +7,19 @@ const root = path.resolve(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const source = read('assets/tvc-transition.js');
 
-function harness({ home = true, reduced = false, ready = true, saved = null } = {}) {
+function harness({ home = true, reduced = false, ready = true, saved = null, route = 'tvc', modalReady = true } = {}) {
   const windowEvents = {}, documentEvents = {}, classes = new Set();
   const styles = new Map(), storage = new Map(), frames = [], timers = new Map();
-  if (saved) storage.set('steven-tvc-transition-v1', JSON.stringify(saved));
+  const attributes = new Map(), preloads = [];
+  if (saved) storage.set('steven-project-transition-v2', JSON.stringify(saved));
   const preference = { matches: reduced, addEventListener(type, fn) { this.change = fn; } };
   const image = { complete: ready, naturalWidth: ready ? 2114 : 0,
     addEventListener: () => {},
+    setAttribute: (name, value) => attributes.set(name, value), removeAttribute: name => attributes.delete(name),
     getBoundingClientRect: () => ({ x: 20, y: 500, width: 960, height: 338 }) };
-  const location = { href: `https://example.test/${home ? 'index.html' : 'tvc/index.html'}`, origin: 'https://example.test' };
-  const link = { href: 'https://example.test/tvc/index.html', target: '', hasAttribute: () => false };
+  const destination = `https://example.test/${route === 'tvc' ? 'tvc/index.html' : `film/Film.html#${route}`}`;
+  const location = { href: home ? 'https://example.test/index.html' : destination, origin: 'https://example.test' };
+  const link = { href: destination, target: '', hasAttribute: () => false };
   vm.runInNewContext(source, {
     URL, Date, location, innerWidth: 1000, innerHeight: 900,
     sessionStorage: { getItem: key => storage.get(key) || null, setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key) },
@@ -25,10 +28,13 @@ function harness({ home = true, reduced = false, ready = true, saved = null } = 
     window: { matchMedia: () => preference, addEventListener: (name, fn) => { windowEvents[name] = fn; } },
     document: {
       currentScript: { src: 'https://example.test/assets/tvc-transition.js' },
+      createElement: () => ({}), head: { appendChild: element => preloads.push(element) },
       documentElement: { style: { setProperty: (name, value) => styles.set(name, value) }, classList: {
         add: name => classes.add(name), remove: (...names) => names.forEach(name => classes.delete(name))
       } },
-      querySelector: selector => (selector.startsWith('.project-deck') === home ? image : null),
+      querySelector: selector => selector.startsWith('.project-deck')
+        ? (home && selector.includes(`data-shared-project="${route}"`) ? image : null)
+        : (!home && modalReady ? image : null),
       addEventListener: (name, fn) => { documentEvents[name] = fn; }
     }
   });
@@ -39,15 +45,15 @@ function harness({ home = true, reduced = false, ready = true, saved = null } = 
       skipTransition() { this.skipped = true; }, finish: () => finish() };
     return result;
   };
-  return { windowEvents, documentEvents, classes, preference, click, transition, link, styles, storage, timers,
+  return { windowEvents, documentEvents, classes, preference, click, transition, link, styles, storage, timers, attributes, preloads,
     render: () => { for (let i = 0; i < 4; i++) frames.splice(0).forEach(fn => fn()); } };
 }
 
-test('both documents load the same small transition before their first render', () => {
-  for (const file of ['index.html', 'index-v3.html', 'tvc/index.html']) {
+test('all participating documents load the shared transition before their first render', () => {
+  for (const file of ['index.html', 'index-v3.html', 'tvc/index.html', 'film/Film.html']) {
     const head = read(file).split('</head>')[0];
-    assert.match(head, /<link rel="stylesheet" href="(?:\.\.\/)?assets\/tvc-transition.css\?v=20260925-2">/);
-    assert.match(head, /<script src="(?:\.\.\/)?assets\/tvc-transition.js\?v=20260925-2"><\/script>/);
+    assert.match(head, /<link rel="stylesheet" href="(?:\.\.\/)?assets\/tvc-transition.css\?v=20260925-3">/);
+    assert.match(head, /<script src="(?:\.\.\/)?assets\/tvc-transition.js\?v=20260925-3"><\/script>/);
     assert.doesNotMatch(head.match(/<script[^>]*tvc-transition.js[^>]*>/)[0], /defer|async|type="module"/);
   }
   assert.equal(read('index.html'), read('index-v3.html'));
@@ -57,7 +63,7 @@ test('both documents load the same small transition before their first render', 
 test('the image moves at full opacity with matching unpadded aspect ratios', () => {
   const css = read('assets/tvc-transition.css');
   assert.match(css, /@view-transition \{ navigation: auto; \}/);
-  assert.match(css, /\.deck-card--tvc.is-active \.deck-media--tvc-banner,[\s\S]*view-transition-name: tvc-artwork/);
+  assert.match(css, /html.tvc-transition-out \[data-shared-artwork\],[\s\S]*view-transition-name: tvc-artwork/);
   assert.match(css, /\.tvc-page \.tvc-banner > img \{ padding: 0; margin: 24px auto; \}/);
   assert.match(css, /animation-duration: 1050ms;/);
   assert.match(css, /cubic-bezier\(\.22, \.72, \.16, 1\)/);
@@ -144,7 +150,10 @@ test('repeat-visit native abort uses a one-use prepaint geometry handoff', () =>
   assert.equal(h.storage.size, 0);
   h.windowEvents.pagereveal({}); h.render();
   assert.ok(h.classes.has('tvc-fallback-running'));
-  assert.match(h.styles.get('--tvc-to-transform'), /^matrix\(1.2, 0, 0, [\d.]+, -80, 200\)$/);
+  assert.equal(h.styles.get('--tvc-to-x'), '20px');
+  assert.equal(h.styles.get('--tvc-to-y'), '500px');
+  assert.equal(h.styles.get('--tvc-to-width'), '960px');
+  assert.equal(h.styles.get('--tvc-to-height'), '338px');
   h.windowEvents.resize();
   assert.ok(h.classes.has('tvc-fallback-running'), 'same-size viewport notifications must not cancel the handoff');
   for (const fn of h.timers.keys()) fn();
@@ -173,4 +182,60 @@ test('stale geometry is ignored, and input or missing images cannot trap the pag
   const interrupted = harness({ home: false, saved: handoff() });
   interrupted.windowEvents.pagereveal({}); interrupted.render(); interrupted.windowEvents.wheel();
   assert.equal(interrupted.classes.size, 0);
+});
+
+for (const route of ['alone', 'healing']) {
+  test(`${route}: image and text links share the correct film hero, including modal fallback`, async () => {
+    const home = harness({ route }); home.click();
+    const outgoing = home.transition(); home.windowEvents.pageswap({ viewTransition: outgoing });
+    assert.equal(outgoing.skipped, false);
+    assert.ok(home.attributes.has('data-shared-artwork'));
+    const saved = JSON.parse(home.storage.get('steven-project-transition-v2'));
+    assert.equal(saved.to, `https://example.test/film/Film.html#${route}`);
+    const destination = harness({ home: false, route, saved });
+    assert.ok(destination.classes.has('tvc-fallback-film'));
+    assert.equal(destination.preloads.length, 1);
+    const expected = route === 'alone' ? 'assets/images/home/alone-poster-20260925.webp' : 'film/images/healing_cover.jpg';
+    assert.equal(destination.preloads[0].href, `https://example.test/${expected}`);
+    assert.ok(destination.styles.get('--tvc-artwork-url').includes(expected));
+    destination.documentEvents['portfolio:project-ready'](); destination.render();
+    assert.ok(destination.classes.has('tvc-fallback-running'));
+    destination.documentEvents['portfolio:project-closed']();
+    assert.equal(destination.classes.size, 0);
+    const native = harness({ home: false, route, saved }); const incoming = native.transition();
+    native.windowEvents.pagereveal({ viewTransition: incoming });
+    assert.ok(native.attributes.has('data-shared-artwork'));
+    await incoming.ready;
+    incoming.finish(); await incoming.finished;
+    assert.equal(native.classes.size, 0);
+    assert.equal(native.attributes.size, 0);
+  });
+}
+
+test('film transition waits for the actual modal, while a missing film script cannot trap the page', () => {
+  const saved = { ...handoff(), to: 'https://example.test/film/Film.html#alone' };
+  const h = harness({ home: false, route: 'alone', saved, modalReady: false });
+  h.windowEvents.pagereveal({}); h.render();
+  assert.equal(h.classes.has('tvc-fallback-running'), false);
+  for (const fn of h.timers.keys()) fn();
+  assert.equal(h.classes.size, 0);
+});
+
+test('both film images are native links, and the modal keeps its existing content and close behavior', () => {
+  for (const page of ['index.html', 'index-v3.html']) {
+    const html = read(page);
+    for (const id of ['alone', 'healing']) {
+      assert.match(html, new RegExp(`class="deck-picture project-image-link" href="film/Film.html#${id}"`));
+      assert.ok(html.includes(`data-shared-project="${id}"`));
+    }
+  }
+  const film = read('film/film.js');
+  assert.match(film, /dialog.dataset.project = project.id/);
+  assert.match(film, /dialog.scrollTop = 0;[\s\S]*portfolio:project-ready/);
+  assert.match(film, /portfolio:project-closed/);
+  assert.match(film, /dialog.addEventListener\('cancel'/);
+  const css = read('assets/tvc-transition.css');
+  assert.match(css, /html.tvc-fallback-film .project-dialog\[open\]::after/);
+  assert.match(css, /center \/ cover no-repeat/);
+  assert.doesNotMatch(css, /scale\(|matrix\(/);
 });

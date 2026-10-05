@@ -1,0 +1,26 @@
+/* The selected episode owns both the primary player and its external destinations. */
+.xj-episode-embed { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #050707; outline: 1px solid rgba(223,207,173,.2); box-shadow: 0 0 80px 24px transparent; transition: box-shadow var(--xj-screen-duration) var(--xj-screen-ease); }
+.xj-episode-embed[data-screen-expanded="true"] { box-shadow: 0 0 80px 24px rgba(0,0,0,.8); }
+.xj-episode-embed[data-embed-open="true"] { aspect-ratio: auto; }
+/* Douyin's responsive mode=pc keeps landscape even on phones. Its 35px
+   control strip sits below the 16:9 picture and needs its own space. */
+.xj-episode-embed__mount { position: relative; width: 100%; aspect-ratio: 16 / 9; padding-bottom: 35px; box-sizing: content-box; }
+.xj-episode-embed iframe { position: absolute; inset: 0; display: block; width: 100%; height: 100%; border: 0; background: #050707; }
+.xj-episode-embed [hidden], .xj-episode-embed__help[hidden] { display: none; }
+.xj-episode-embed__help { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; padding: 12px 0; border-bottom: 1px solid #b89b6633; color: #b7b8af; font: 400 11px/1.8 var(--xj-sans); }
+.xj-episode-embed__help p { margin: 0; }
+.xj-episode-embed__help > div { display: flex; flex-wrap: wrap; gap: 18px; }
+.xj-episode-embed__help button, .xj-episode-embed__help a { padding: 6px 0; border: 0; background: none; color: #ddc394; font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 4px; }
+.xj-platforms__heading--episode h3 { margin: 0; color: #c9c2b2; font: 400 13px/1.6 var(--xj-sans); }
+.xj-platforms__heading--episode > small { color: #aaa491; font: 400 10px/1.5 var(--xj-sans); white-space: nowrap; }
+.xj-episode-embed iframe:focus-visible, .xj-episode-embed__help :focus-visible { outline: 2px solid #f2d493; outline-offset: 5px; }
+@container (max-width: 600px) {
+  .xj-platforms__heading--episode { flex-wrap: wrap; gap: 8px; }
+}
+@media (max-width: 700px) {
+  .xj-episode-embed { box-shadow: 0 0 36px 12px transparent; }
+  .xj-episode-embed[data-screen-expanded="true"] { box-shadow: 0 0 36px 12px #000; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .xj-episode-embed { transition: none; }
+}

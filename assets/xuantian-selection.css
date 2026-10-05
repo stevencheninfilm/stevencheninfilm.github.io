@@ -1,0 +1,204 @@
+/* Card and button styling sits over the existing Golden Terrace backdrop.
+   Generated landscape details are confined to individual episode cards. */
+.xj-viewing__lounge {
+  position: relative;
+  isolation: isolate;
+  container-type: inline-size;
+  margin-top: 24px;
+  padding: 24px 0 16px;
+}
+.xj-viewing__lounge .xj-viewing__row { display: block; margin-inline: 0; }
+.xj-viewing__lounge .xj-viewing__episodes { margin-top: 0; padding-top: 0; border-top: 0; }
+.xj-selection__heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 22px;
+  margin-bottom: 17px;
+}
+.xj-selection__heading h3,
+.xj-platforms__heading h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 13px;
+  margin: 0;
+  color: #f0e6d3;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: .05em;
+  white-space: nowrap;
+}
+.xj-selection__heading h3 small,
+.xj-platforms__heading h3 small {
+  color: #bdb09a;
+  font: 400 10px/1.5 Georgia, serif;
+  letter-spacing: .1em;
+}
+.xj-selection__intro {
+  margin: 0;
+  padding-left: 20px;
+  border-left: 1px solid rgba(194,161,104,.42);
+  color: #c5c0b4;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.xj-selection__intro span { display: block; color: #9e9c91; font-size: 10px; letter-spacing: .04em; }
+.xj-viewing__lounge .xj-selection__trailer {
+  gap: 8px;
+  padding: 5px 0;
+  color: #dbc79e;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.xj-selection__trailer[aria-current] { border-bottom-color: #dcc28d; color: #fff0cd; }
+.xj-viewing__lounge .xj-episode-list {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 10px;
+}
+.xj-episode-list:focus-visible { outline: 1px solid #dec38b; outline-offset: 5px; }
+.xj-episode-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 92px;
+  padding: 13px 14px;
+  overflow: hidden;
+  border: 1px solid rgba(172,153,121,.6);
+  border-radius: 5px;
+  background: #121a1c;
+  color: #d8d4ca;
+  text-decoration: none;
+}
+.xj-episode-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(10,17,20,.89), rgba(14,22,25,.38)),
+    url("images/projects/xuantian-jie/selection-cloud-gold-v1.png") 86% 44% / auto 270%;
+  opacity: .74;
+}
+.xj-episode-card:nth-child(3)::before { background-position: center, 99% 25%; }
+.xj-episode-card:nth-child(4)::before { background-position: center, 6% 60%; }
+.xj-episode-card:nth-child(5)::before { background-position: center, 91% 82%; }
+.xj-viewing__lounge a.xj-episode-card {
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 13px 12px;
+  border: 1px solid rgba(172,153,121,.65);
+  background: #192126;
+  color: #f0e8d7;
+  transition: border-color .2s ease, box-shadow .2s ease, background-color .2s ease;
+}
+.xj-viewing__lounge a.xj-episode-card[aria-current] {
+  border-color: #d4ab70;
+  background: #4a3c2a;
+  box-shadow: inset 0 0 22px rgba(227,180,104,.14), 0 0 16px rgba(215,165,88,.13);
+}
+.xj-viewing__lounge a.xj-episode-card[aria-current]::before {
+  background: linear-gradient(90deg, rgba(81,57,29,.45), rgba(29,30,27,.23)),
+    url("images/projects/xuantian-jie/selection-cloud-gold-v1.png") 92% 20% / auto 260%;
+  opacity: .82;
+}
+.xj-viewing__lounge a.xj-episode-card:hover { border-color: #f3d195; box-shadow: 0 0 18px rgba(215,165,88,.2); }
+.xj-viewing__lounge .xj-episode-card__play {
+  display: grid;
+  place-items: center;
+  flex: 0 0 25px;
+  width: 25px;
+  height: 25px;
+  padding-left: 2px;
+  border: 1px solid #ac9875;
+  border-radius: 50%;
+  background: #222a2a;
+  color: #e4d4b6;
+  font-size: 10px;
+}
+.xj-viewing__lounge [aria-current] .xj-episode-card__play {
+  border-color: #e5c48d;
+  background: #e5c48d;
+  color: #2b271d;
+  box-shadow: 0 0 12px rgba(236,189,107,.28);
+}
+.xj-viewing__lounge .xj-episode-card__text { display: grid; gap: 3px; min-width: 0; color: inherit; }
+.xj-episode-card__index { color: #d7cbb6; font: 400 12px/1.35 var(--xj-sans); }
+.xj-episode-card strong { font: 500 16px/1.5 "Songti SC", "STSong", "SimSun", serif; white-space: nowrap; letter-spacing: .015em; }
+.xj-episode-card small { color: #aab0ae; font: 400 10px/1.4 var(--xj-sans); letter-spacing: .04em; }
+.xj-episode-card[aria-current] small { color: #e0c79e; }
+.xj-episode-card.is-upcoming { cursor: pointer; font: inherit; text-align: left; transition: border-color .2s ease, box-shadow .2s ease; }
+.xj-episode-card.is-upcoming:hover { border-color: #d4b77e; box-shadow: inset 0 0 20px rgba(213,176,110,.08); }
+.xj-selection__scroll-hint { display: none; }
+.xj-viewing__lounge .xj-viewing__platforms { margin-top: 32px; }
+.xj-platforms__heading { display: flex; align-items: center; gap: 18px; margin-bottom: 16px; }
+.xj-platforms__rule { height: 1px; flex: 1; background: linear-gradient(90deg, rgba(187,155,102,.65), rgba(187,155,102,.15)); }
+.xj-platforms__heading p { margin: 0; color: #b5b3a8; font: 400 12px/1.6 "Songti SC", "STSong", "SimSun", serif; }
+.xj-viewing__lounge .xj-viewing__platforms .xj-viewing__options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.xj-viewing__lounge #trailer-platforms .xj-viewing__options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.xj-viewing__lounge .xj-viewing__platforms .xj-viewing__choice {
+  justify-content: flex-start;
+  gap: 10px;
+  min-height: 58px;
+  padding: 12px 16px;
+  border: 1px solid rgba(172,153,121,.55);
+  border-radius: 5px;
+  background: linear-gradient(130deg, rgba(44,51,49,.84), rgba(18,24,25,.9));
+  color: #e7e6df;
+  font-size: 14px;
+  line-height: 1.5;
+  box-shadow: inset 0 1px 0 rgba(255,242,215,.04);
+}
+.xj-viewing__lounge .xj-viewing__platforms .xj-viewing__choice:hover,
+.xj-viewing__lounge .xj-viewing__platforms .xj-viewing__choice[aria-current] { border-color: #d5b880; background: linear-gradient(130deg, #383a30, #182226); color: #fff7e8; }
+.xj-viewing__lounge .xj-platform-logo { width: 24px; height: 24px; flex-basis: 24px; filter: grayscale(1) brightness(0) invert(.94); }
+.xj-viewing__lounge .xj-platform-logo[src$="xinpianchang-mark.svg"] { filter: grayscale(1) invert(1) brightness(1.8); }
+.xj-viewing__lounge .xj-viewing__platforms .xj-viewing__choice > span,
+.xj-viewing__lounge .xj-viewing__platforms .xj-link-icon { margin-left: auto; color: #d7ba83; }
+.xj-selection__signature { display: flex; align-items: center; justify-content: center; gap: 20px; margin: 28px 0 0; color: #a99773; font: 400 9px/1.7 Georgia, "Songti SC", serif; letter-spacing: .23em; }
+.xj-selection__signature::before,
+.xj-selection__signature::after { content: ""; width: 52px; height: 1px; background: linear-gradient(90deg, transparent, #8b7957); }
+.xj-selection__signature::after { transform: rotate(180deg); }
+@container (max-width: 760px) {
+  .xj-selection__heading { gap: 14px; }
+  .xj-selection__heading h3, .xj-platforms__heading h3 { gap: 9px; font-size: 21px; }
+  .xj-selection__heading h3 small, .xj-platforms__heading h3 small { font-size: 9px; }
+  .xj-selection__intro { padding-left: 14px; font-size: 11px; }
+  .xj-episode-card strong { font-size: 14px; }
+  .xj-episode-card, .xj-viewing__lounge a.xj-episode-card { padding-inline: 10px; gap: 7px; }
+  .xj-viewing__lounge .xj-viewing__platforms .xj-viewing__choice { padding-inline: 12px; font-size: 13px; }
+  .xj-viewing__lounge .xj-platform-logo { width: 21px; height: 21px; flex-basis: 21px; }
+}
+@container (max-width: 650px) {
+  .xj-selection__heading { grid-template-columns: 1fr auto; gap: 10px 16px; }
+  .xj-selection__intro { grid-row: 2; grid-column: 1 / -1; padding: 0; border: 0; }
+  .xj-selection__trailer { grid-row: 1; grid-column: 2; }
+  .xj-viewing__lounge .xj-episode-list { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 144px; overflow-x: auto; padding: 3px 2px 10px; margin-inline: -2px; scroll-snap-type: x proximity; scrollbar-width: thin; scrollbar-color: #8a7350 rgba(34,39,38,.8); }
+  .xj-episode-card { scroll-snap-align: start; }
+  .xj-selection__scroll-hint { display: flex; justify-content: space-between; margin: 7px 0 0; color: #a99e89; font-size: 10px; letter-spacing: .08em; }
+  .xj-viewing__lounge .xj-viewing__platforms .xj-viewing__options,
+  .xj-viewing__lounge #trailer-platforms .xj-viewing__options { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .xj-platforms__heading p { display: none; }
+  .xj-platforms__heading { gap: 12px; }
+}
+@media (max-width: 700px) {
+  .xj-viewing__lounge { margin-top: 24px; padding-top: 22px; }
+  .xj-viewing__lounge .xj-viewing__platforms { margin-top: 26px; }
+  .xj-selection__signature { gap: 12px; letter-spacing: .15em; }
+  .xj-selection__signature::before, .xj-selection__signature::after { width: 32px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .xj-episode-card.is-upcoming,
+  .xj-viewing__lounge a.xj-episode-card,
+  .xj-viewing__lounge .xj-viewing__platforms .xj-viewing__choice { transition: none; }
+}

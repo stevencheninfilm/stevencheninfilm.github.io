@@ -1,0 +1,58 @@
+/* Supplied project artwork, kept in its original colors and transparent PNG.
+   Use the full emblem at display sizes; navigation and prose stay typographic. */
+.xj-brand-art {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1672 / 941;
+  object-fit: contain;
+}
+
+.xj-page .xj-hero { padding-top: max(150px, 18svh); }
+/* A smaller title stays on the left; the hero's bottom-aligned content keeps
+   the controls in place while naturally lowering the emblem. */
+.xj-page .xj-hero__title { width: min(400px, 38vw, 44svh); margin: 12px 0 20px; }
+.xj-hero__title .xj-brand-art { width: 100%; filter: drop-shadow(0 6px 16px rgba(0, 0, 0, .3)); }
+.xj-page .xj-hero__title small {
+  align-self: center;
+  margin-top: 2px;
+  font-size: clamp(14px, 1.1vw, 18px);
+  letter-spacing: .3em;
+}
+.xj-page .xj-end__brand { width: min(280px, 66vw); margin: 0 0 28px; }
+.xj-page .xj-end h2 { width: 100%; max-width: none; margin-inline: auto; text-align: center; }
+/* Center the six Chinese characters, not the full-width punctuation box. */
+.xj-end__title-line { position: relative; display: inline-block; white-space: nowrap; }
+.xj-end__period { position: absolute; left: 100%; top: 0; }
+
+/* Keep the existing project link, below the character's eyes, with the support
+   credit above and English metadata below, without adding a box or plate. */
+.home-page .deck-card > .deck-project-link--xuantian { top: 60%; }
+.home-page .deck-project-title--xuantian { width: min(560px, 58vw, 64svh); max-width: 100%; gap: 4px; }
+.home-page .deck-project-title--xuantian .xj-brand-art { width: 75%; }
+.home-page .deck-project-title--xuantian small { font-size: clamp(12px, 1.1vw, 17px); letter-spacing: .28em; }
+
+.content-page #xuantian .xj-feature-title { width: min(440px, 100%); margin: 12px 0 20px; }
+.xj-feature-title .xj-brand-art { width: 100%; }
+.content-page #xuantian .xj-feature-title small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font: 400 12px/1.6 Arial, Helvetica, sans-serif;
+  letter-spacing: .22em;
+  text-align: center;
+}
+
+@media (max-width: 700px) {
+  .xj-page .xj-hero { padding-top: max(184px, 24svh); }
+  .xj-page .xj-hero__title { width: min(280px, 78%); margin-top: 10px; }
+  .xj-page .xj-hero__title small { margin-top: 4px; font-size: 14px; letter-spacing: .25em; }
+  .home-page .deck-project-title--xuantian { width: min(72vw, 58svh); }
+  .content-page #xuantian .xj-feature-title { width: min(360px, 100%); }
+}
+
+@media (max-height: 650px) and (orientation: landscape) {
+  .xj-page .xj-hero__title { width: min(340px, 38vw, 52svh); }
+  .home-page .deck-card > .deck-project-link--xuantian { top: 54%; }
+  .home-page .deck-project-title--xuantian { width: min(440px, 54vw, 62svh); }
+}

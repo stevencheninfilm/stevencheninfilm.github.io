@@ -85,9 +85,11 @@ body.xj-page { overflow-x: clip; background: var(--xj-black); color: var(--xj-in
 /* The hidden DOM is scene data only. One decoded canvas renders the perspective,
    avoiding oversized 3D/filter surfaces and inherited-style writes each frame. */
 .xj-cloud-reveal { --cloud-unit: max(1vw, .62vh); position: fixed; z-index: 100; inset: 0; overflow: hidden; pointer-events: none; background: rgba(10,15,21,.38); transition: background-color 2.8s cubic-bezier(.42,0,.58,1), opacity .2s ease, visibility .2s ease; }
-.xj-cloud-reveal::before { content: ""; position: absolute; inset: 0; background: #111920 url("images/projects/xuantian-jie/cloud-flight-4.webp") 50% 65% / max(220vw, 220vh) auto no-repeat; opacity: 1; transition: opacity .3s ease; }
+/* A neutral curtain covers preparation. Never substitute a different cloud
+   photograph: its scale/layout cannot match the first volumetric frame. */
+.xj-cloud-reveal::before { content: ""; position: absolute; z-index: 1; inset: 0; background: #111920; opacity: 1; transition: opacity .3s ease; }
 .xj-cloud-reveal.is-ready::before { opacity: 0; }
-.xj-flight-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity .3s ease; }
+.xj-flight-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
 .xj-cloud-reveal.is-ready .xj-flight-canvas { opacity: 1; }
 .xj-cloud-stage { display: none; }
 .xj-cloud-depth, .xj-mountain-depth { --flight-progress: 0; --flight-y: 0vh; --sprite-scale: 1; --flight-alpha: 1; position: absolute; inset: 0; transform-origin: 53% 43%; transform: translate3d(0,var(--flight-y),var(--flight-z)); opacity: var(--flight-alpha); will-change: transform, opacity; }
@@ -139,7 +141,7 @@ body.xj-page { overflow-x: clip; background: var(--xj-black); color: var(--xj-in
 .xj-volume-opening .xj-hero__image { transition-duration: 1.5s; }
 .xj-volume-opening .xj-header { transition-duration: .416667s, .25s; }
 .xj-volume-opening .xj-cloud-reveal { transition-duration: 2.333333s, .166667s, .166667s; }
-.xj-volume-opening .xj-flight-canvas, .xj-volume-opening .xj-cloud-reveal::before { transition-duration: .25s; }
+.xj-volume-opening .xj-cloud-reveal::before { transition-duration: .25s; }
 .xj-hero__support { justify-content: flex-start; gap: 8px 10px; margin-bottom: 24px; color: var(--xj-ink); font-size: 12px; line-height: 1.5; flex-wrap: wrap; white-space: normal; }
 .xj-hero__support .project-tool-logo { width: 15px; height: 15px; flex-basis: 15px; }
 .xj-kicker, .xj-index { margin: 0; font-size: 12px; line-height: 1.6; letter-spacing: .12em; text-transform: uppercase; color: var(--xj-dim); }
@@ -452,23 +454,36 @@ body.xj-page { overflow-x: clip; background: var(--xj-black); color: var(--xj-in
 /* Golden Dawn is the entrance to a dark screening space. The player and
    controls flow independently of the artwork's original empty slots. */
 .xj-film-section.xj-viewing { --xj-black: #000; padding: 0; }
-.xj-viewing__stage { --xj-screen-duration: .9s; --xj-screen-ease: cubic-bezier(.45,0,.18,1); position: relative; isolation: isolate; overflow-anchor: none; width: 100%; max-width: 1800px; margin: 0 auto; padding-bottom: clamp(64px, 7vw, 112px); }
-.xj-viewing__backdrop { position: absolute; z-index: -1; inset: 0 0 auto; width: 100%; pointer-events: none; }
+/* The artwork includes a screen opening (x: 219, y: 338, width: 1049 / 1448).
+   Limit its whole coordinate space, not just the video: independent height caps
+   used to leave a second, oversized black frame behind the compact player. */
+.xj-viewing__stage { --xj-screen-duration: .9s; --xj-screen-ease: cubic-bezier(.45,0,.18,1); --xj-screen-max: min(1440px, max(480px, calc((100svh - 190px) * 16 / 9))); --xj-art-width: min(100%, calc(var(--xj-screen-max) * .81 / .7244)); position: relative; isolation: isolate; overflow-anchor: none; width: 100%; max-width: 1800px; margin: 0 auto; padding-bottom: clamp(64px, 7vw, 112px); }
+.xj-viewing__backdrop { position: absolute; z-index: -1; top: 0; left: 0; right: 0; width: var(--xj-art-width); margin-inline: auto; pointer-events: none; -webkit-mask-image: linear-gradient(#000 88%, transparent); mask-image: linear-gradient(#000 88%, transparent); }
 .xj-viewing__art { display: block; width: 100%; height: auto; }
 /* Keep the original landscape intact until play. Animate the opacity of a
    separate dark field rather than switching non-interpolable image masks. */
 .xj-viewing__backdrop::before { content: ""; position: absolute; z-index: 2; inset: 0; background: linear-gradient(transparent 25%, rgba(0,0,0,.5) 28%, #000 31%); opacity: 0; transition: opacity var(--xj-screen-duration) var(--xj-screen-ease); }
-/* Hide the artwork's baked-in selector labels beneath the live controls. */
-.xj-viewing__backdrop::after { content: ""; position: absolute; z-index: 1; top: 81.675%; bottom: 0; left: 15.12%; width: 72.44%; background: #000; }
-.xj-viewing__stage:has([data-screen-expanded="true"]) .xj-viewing__backdrop::before { opacity: 1; }
-.xj-viewing__heading { position: relative; width: 100%; aspect-ratio: 1448 / 330; }
-/* Cover only the baked-in chapter label, keeping the approved artwork title. */
-.xj-viewing__index { position: absolute; top: 12%; left: 32.5%; display: flex; align-items: center; width: 15.54%; min-height: 2.8vw; max-height: 50px; margin: 0; padding: .25em .6em; background: rgba(25,29,27,.7); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); color: #eee5d4; font-size: clamp(12px, 1.4vw, 24px); line-height: 1.5; letter-spacing: .08em; white-space: nowrap; }
+/* A feathered dark field keeps live controls readable while the new corner
+   scenery remains visible around the screening space. */
+.xj-viewing__backdrop::after { content: ""; position: absolute; z-index: 1; top: 81.675%; bottom: 0; left: 15.12%; width: 72.44%; background: linear-gradient(180deg, #000, rgba(0,0,0,.88) 45%, rgba(0,0,0,.74)); -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+.xj-viewing__stage:has(.xj-screening:not([hidden]) [data-screen-expanded="true"]) .xj-viewing__backdrop::before { opacity: 1; }
+.xj-viewing__heading { position: relative; container-type: inline-size; width: var(--xj-art-width); margin-inline: auto; aspect-ratio: 1448 / 338; }
+/* Cover the baked-in chapter label, keeping the approved artwork title.
+   Fit the text rather than squeezing it into a percentage-width box; different
+   Chinese fallback fonts and short landscape viewports need a little latitude. */
+.xj-viewing__index { position: absolute; top: 12%; left: 32.5%; display: inline-flex; align-items: center; width: max-content; min-width: 15.54%; max-width: calc(67.5% - 16px); min-height: 2.8cqw; margin: 0; padding: .25em .6em; background: rgba(25,29,27,.7); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); color: #eee5d4; font-size: clamp(12px, 1.93cqw, 24px); line-height: 1.5; letter-spacing: .08em; white-space: nowrap; }
+/* Override the general paragraph wrapping policy as well as white-space. */
+.xj-page .xj-viewing__index { text-wrap: nowrap; overflow-wrap: normal; word-break: keep-all; }
+/* Height-capped landscape artwork is narrow even on a wide viewport. Keep the
+   readable 12px floor, but leave room above the title baked into that artwork. */
+@container (max-width: 650px) {
+  .xj-viewing__index { padding-block: 0; }
+}
 .xj-viewing__live-copy { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-.xj-viewing__cinema { --xj-screen-max: min(1440px, max(760px, calc((100svh - 190px) * 16 / 9))); position: relative; left: 1.34%; width: 72.44%; max-width: calc(var(--xj-screen-max) * .81); margin: -2.28125% auto 0; transition: width var(--xj-screen-duration) var(--xj-screen-ease), max-width var(--xj-screen-duration) var(--xj-screen-ease), left var(--xj-screen-duration) var(--xj-screen-ease), margin-top var(--xj-screen-duration) var(--xj-screen-ease); }
+.xj-viewing__cinema { position: relative; left: calc(var(--xj-art-width) * .0134); width: calc(var(--xj-art-width) * .7244); margin: 0 auto; transition: width var(--xj-screen-duration) var(--xj-screen-ease), max-width var(--xj-screen-duration) var(--xj-screen-ease), left var(--xj-screen-duration) var(--xj-screen-ease), margin-top var(--xj-screen-duration) var(--xj-screen-ease); }
 /* Animate layout rather than scaling pixels, keeping 16:9 and native controls
    sharp. The expansion latch is not reset by pause or network buffering. */
-.xj-viewing__cinema:has([data-screen-expanded="true"]) { left: 0; width: calc(100% - 2 * clamp(20px, 5vw, 88px)); max-width: var(--xj-screen-max); margin-top: clamp(28px, 3.4vw, 56px); }
+.xj-viewing__cinema:has(.xj-screening:not([hidden]) [data-screen-expanded="true"]) { left: 0; width: calc(100% - 2 * clamp(20px, 5vw, 88px)); max-width: var(--xj-screen-max); margin-top: 0; }
 .xj-viewing .xj-screening { position: relative; width: 100%; margin: 0; scroll-margin-top: 112px; }
 .xj-viewing .xj-video-shell { isolation: isolate; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #000; outline: 1px solid rgba(223,207,173,.2); box-shadow: 0 0 80px 24px transparent; transition: box-shadow var(--xj-screen-duration) var(--xj-screen-ease); }
 .xj-viewing [data-screen-expanded="true"].xj-video-shell { box-shadow: 0 0 80px 24px rgba(0,0,0,.8); }
@@ -488,7 +503,7 @@ body.xj-page { overflow-x: clip; background: var(--xj-black); color: var(--xj-in
 @media (hover: hover) {
   .xj-viewing .xj-video-play:hover .xj-video-play__disc { transform: scale(1.06); background: #eee1c6; color: #151410; }
 }
-.xj-viewing .xj-screening__caption { position: relative; padding: 20px 0 0; color: #ede6d8; }
+.xj-viewing .xj-screening__caption { position: relative; padding: 20px 0 0; color: #ede6d8; text-shadow: 0 1px 5px #000, 0 1px 12px #000; }
 .xj-viewing .xj-screening__caption > p { gap: 8px 14px; font-size: 14px; letter-spacing: .04em; }
 .xj-viewing .xj-screening__caption > p span { color: #a59f94; font-size: 11px; }
 .xj-viewing .xj-screening__duration { font-variant-numeric: tabular-nums; }
@@ -497,6 +512,8 @@ body.xj-page { overflow-x: clip; background: var(--xj-black); color: var(--xj-in
 .xj-viewing__row > h3 { margin: 0; color: #d0c6b3; font-family: var(--xj-sans); font-size: 14px; font-weight: 400; line-height: 1.6; letter-spacing: .08em; white-space: nowrap; }
 .xj-viewing__episodes { margin-top: 38px; padding-top: 22px; border-top: 1px solid rgba(238,229,212,.18); }
 .xj-viewing__platforms { margin-top: 20px; }
+.xj-platform-logo { display: block; width: 18px; height: 18px; flex: 0 0 18px; object-fit: contain; }
+.xj-viewing__platforms .xj-viewing__choice, .xj-watch-links a:has(.xj-platform-logo) { gap: 8px; white-space: nowrap; }
 .xj-viewing__options { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 28px; }
 .xj-viewing__choice { display: inline-flex; align-items: center; justify-content: center; gap: 14px; min-height: 44px; padding: 10px 0; border: 0; border-bottom: 1px solid transparent; background: transparent; color: #bdb6a9; font-size: 14px; line-height: 1.5; text-decoration: none; transition: border-color .2s ease, color .2s ease; }
 .xj-viewing__choice[aria-current] { border-bottom-color: #b59a63; color: #f0dfbc; }
@@ -505,19 +522,37 @@ body.xj-page { overflow-x: clip; background: var(--xj-black); color: var(--xj-in
 .xj-viewing__choice > span { color: #bca985; font-size: 11px; font-variant-numeric: tabular-nums; }
 .xj-viewing__note { margin: 0; color: #9f998f; font-size: 12px; line-height: 1.7; }
 
+/* Episode artwork links to the published film; the native trailer remains a
+   separate selection with its original playback and recovery behavior. */
+.xj-viewing [data-episode-panel][hidden], .xj-viewing [data-episode-platforms][hidden] { display: none; }
+.xj-episode-cover { position: relative; isolation: isolate; display: block; width: 100%; aspect-ratio: 16 / 9; background: #000; outline: 1px solid rgba(223,207,173,.2); text-decoration: none; }
+.xj-episode-cover img { display: block; width: 100%; height: 100%; object-fit: contain; }
+/* The idle episode uses the trailer's play-disc language. The cover and veil
+   leave together when the real player mounts; no fake video controls. */
+.xj-episode-cover::after { content: ""; position: absolute; z-index: 0; inset: 0; background: radial-gradient(ellipse at center, rgba(0,0,0,.38), rgba(0,0,0,.24)); pointer-events: none; }
+.xj-episode-cover__action { position: absolute; z-index: 1; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 14px 24px; color: #fff8ea; font: 500 16px/1.5 var(--xj-sans); }
+.xj-episode-cover__action b { font-size: 16px; font-weight: 500; letter-spacing: .12em; }
+.xj-episode-cover__action small { color: #e0d9ce; font-size: 11px; font-weight: 400; letter-spacing: .08em; font-variant-numeric: tabular-nums; }
+.xj-viewing .xj-episode-cover__action .xj-video-play__label { text-align: center; }
+.xj-episode-cover:focus-visible .xj-video-play__disc { transform: scale(1.06); background: #eee1c6; color: #151410; }
+@media (hover: hover) {
+  .xj-episode-cover:hover .xj-video-play__disc { transform: scale(1.06); background: #eee1c6; color: #151410; }
+}
+.xj-episode-cover:focus-visible { outline: 2px solid #f0d9aa; outline-offset: 5px; }
+
 /* Phones retain the tree/cloud backdrop, with live readable text and touch targets. */
 @media (max-width: 700px) {
   .xj-viewing__stage { padding-bottom: 64px; }
   .xj-viewing__backdrop { display: none; }
-  .xj-viewing__heading { width: auto; aspect-ratio: auto; padding: 48px 24px 0; isolation: isolate; background: linear-gradient(180deg, rgba(0,0,0,.5), rgba(0,0,0,.72) 55%, #000), url("images/projects/xuantian-jie/series-golden-dawn.webp") left top / 350% auto no-repeat; }
+  .xj-viewing__heading { width: auto; aspect-ratio: auto; padding: 48px 24px 0; isolation: isolate; background: linear-gradient(180deg, rgba(0,0,0,.5), rgba(0,0,0,.72) 55%, #000), url("images/projects/xuantian-jie/series-a-golden-terrace-v2.png") left top / 350% auto no-repeat; }
   .xj-viewing__heading::before { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(transparent, rgba(0,0,0,.2) 60%, #000); opacity: 0; pointer-events: none; transition: opacity var(--xj-screen-duration) var(--xj-screen-ease); }
-  .xj-viewing__stage:has([data-screen-expanded="true"]) .xj-viewing__heading::before { opacity: 1; }
-  .xj-viewing__index { position: static; display: block; width: auto; min-height: 0; max-height: none; padding: 0; margin: 0 0 24px; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; color: #dec38b; font-size: 12px; }
+  .xj-viewing__stage:has(.xj-screening:not([hidden]) [data-screen-expanded="true"]) .xj-viewing__heading::before { opacity: 1; }
+  .xj-viewing__index { position: static; display: block; width: max-content; min-width: 0; max-width: 100%; min-height: 0; padding: 0; margin: 0 0 24px; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; color: #dec38b; font-size: 12px; }
   .xj-viewing__live-copy, .xj-viewing__row > h3 { position: static; width: auto; height: auto; padding: 0; margin: 0; overflow: visible; clip-path: none; white-space: normal; }
   .xj-page .xj-viewing__live-copy h2 { margin: 0; font-family: "Songti SC", "STSong", "SimSun", serif; font-size: clamp(26px, 7.5vw, 46px); font-weight: 500; line-height: 1.5; letter-spacing: .035em; }
   .xj-viewing__live-copy p { max-width: 40ch; margin: 16px 0 0; color: #bcb5a7; font-family: var(--xj-sans); font-size: var(--xj-type-note); line-height: 1.7; letter-spacing: .005em; }
   .xj-viewing__cinema { left: 0; width: calc(100% - 48px); max-width: none; margin-top: 36px; }
-  .xj-viewing__cinema:has([data-screen-expanded="true"]) { width: calc(100% - 32px); max-width: none; margin-top: 36px; }
+  .xj-viewing__cinema:has(.xj-screening:not([hidden]) [data-screen-expanded="true"]) { width: calc(100% - 32px); max-width: none; margin-top: 36px; }
   .xj-viewing .xj-video-shell { box-shadow: 0 0 36px 12px transparent; }
   .xj-viewing [data-screen-expanded="true"].xj-video-shell { box-shadow: 0 0 36px 12px #000; }
   .xj-viewing.xj-palette--neutral .xj-video-play { flex-direction: row; gap: 12px; padding: 12px; top: 43%; }
@@ -536,6 +571,8 @@ body.xj-page { overflow-x: clip; background: var(--xj-black); color: var(--xj-in
   .xj-viewing__row > h3 { margin-bottom: 10px; font-size: 13px; }
   .xj-viewing__options { gap: 8px 24px; }
   .xj-viewing__note { font-size: 12px; }
+  .xj-episode-cover__action { gap: 10px; padding: 12px; }
+  .xj-episode-cover__action b { font-size: 13px; letter-spacing: .06em; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -546,6 +583,7 @@ body.xj-page { overflow-x: clip; background: var(--xj-black); color: var(--xj-in
   .xj-reveal { opacity: 1; }
   .xj-atlas__viewport img { transition: none !important; }
   .xj-viewing .xj-video-play__disc, .xj-viewing__choice { transition: none; }
+  .xj-episode-cover__action { transition: none; }
   .xj-viewing__cinema { transition: none; }
   .xj-viewing__backdrop::before, .xj-viewing__heading::before, .xj-viewing .xj-video-shell { transition: none; }
   .xj-leaf { display: none; }

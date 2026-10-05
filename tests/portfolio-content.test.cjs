@@ -56,7 +56,9 @@ test('Alone poster exposes one accessible recognition link tied to its artwork',
   const html = read('index.html');
   const card = html.match(/<article class="deck-card deck-card--alone"[\s\S]*?<\/article>/)[0];
   assert.match(card, /class="alone-poster-frame"/);
-  assert.equal((card.match(/<a\s/g) || []).length, 1);
+  assert.equal((card.match(/alone-recognition-link/g) || []).length, 1);
+  assert.equal((card.match(/<a\s/g) || []).length, 2);
+  assert.match(card, /class="deck-picture project-image-link" href="film\/Film.html#alone"/);
   assert.match(card, /class="deck-project-link alone-recognition-link" href="film\/Film.html#alone" aria-label="Alone — View film recognition"/);
   assert.match(card, />View film recognition<\/span>/);
   const css = read('assets/portfolio.css');
@@ -85,7 +87,7 @@ test('TVC image links navigate when expanded and preserve overview selection', (
     assert.equal((card.match(/href="tvc\/index.html"/g) || []).length, 2);
   }
   const controller = read('assets/site.js');
-  assert.ok(controller.includes("querySelectorAll('.deck-project-link, .tvc-image-link')"));
+  assert.ok(controller.includes("querySelectorAll('.deck-project-link, .tvc-image-link, .project-image-link')"));
   assert.match(controller, /projectLinks\.forEach\(\(projectLink\) => \{\s*projectLink.tabIndex = mode === 'expanded' && selected \? 0 : -1;/);
   assert.match(read('assets/portfolio.css'), /\.project-deck\.is-strip \.tvc-image-link \{ pointer-events: none; \}/);
 });

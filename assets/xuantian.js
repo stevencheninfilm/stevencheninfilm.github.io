@@ -115,23 +115,27 @@
     prepare.then(ready => {
       if (revealFinished) {ready.destroy();return;}
       renderer=ready;
-      window.clearTimeout(prepareTimeout);
-      cloud.classList.add('is-ready');
-      later(() => {
+      // Draw the attached, correctly sized canvas before lifting the curtain.
+      // Keep repainting the same real first frame throughout the opening hold,
+      // rather than exposing an unrelated CSS cloud image or a stale GPU buffer.
+      flightFrame=window.requestAnimationFrame(() => {
         if (revealFinished) return;
-        cloud.classList.add('is-open');
-        const start=window.performance.now();
+        renderer.draw(0);
+        window.clearTimeout(prepareTimeout);
+        cloud.classList.add('is-ready');
+        const start=window.performance.now()+flight.startDelay;
         const tick=now => {
           if (revealFinished) return;
-          renderer.draw(now-start);
+          renderer.draw(Math.max(0,now-start));
           if (now-start<flight.endAt-flight.startDelay) flightFrame=window.requestAnimationFrame(tick);
           else finishReveal();
         };
         flightFrame=window.requestAnimationFrame(tick);
-      },flight.startDelay);
-      // Timers begin only after all textures and the hero have decoded.
-      later(()=>body.classList.remove('is-revealing'),flight.titleAt);
-      later(finishReveal,flight.endAt);
+        later(()=>cloud.classList.add('is-open'),flight.startDelay);
+        // Timers begin only after decoded textures have reached the canvas.
+        later(()=>body.classList.remove('is-revealing'),flight.titleAt);
+        later(finishReveal,flight.endAt);
+      });
     }).catch(finishReveal);
   }
 

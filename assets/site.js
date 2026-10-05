@@ -104,7 +104,7 @@
   const updateInterface = () => {
     cards.forEach((card, index) => {
       const selected = index === active;
-      const projectLinks = card.querySelectorAll('.deck-project-link, .tvc-image-link');
+      const projectLinks = card.querySelectorAll('.deck-project-link, .tvc-image-link, .project-image-link');
       card.classList.toggle('is-active', selected);
       card.classList.toggle('is-strip-selected', selected && mode === 'strip');
       card.tabIndex = mode === 'strip' && selected ? 0 : -1;

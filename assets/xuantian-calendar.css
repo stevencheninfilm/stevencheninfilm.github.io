@@ -1,0 +1,109 @@
+/* A non-modal companion: native details works without JS, and never locks
+   scrolling, covers the full viewport, or crops the supplied calendar. */
+.xj-calendar {
+  --calendar-gold: #d4bd88;
+  --calendar-tab-width: 82px;
+  position: fixed;
+  z-index: 80;
+  right: max(0px, env(safe-area-inset-right));
+  top: 50%;
+  transform: translateY(-50%);
+  color: #f0e8d8;
+  font-family: var(--xj-sans);
+  transition: opacity .25s ease, visibility .25s ease;
+}
+.xj-page.is-revealing .xj-calendar { opacity: 0; visibility: hidden; pointer-events: none; }
+.xj-calendar__trigger {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-rows: 26px 1fr 18px 16px;
+  justify-items: center;
+  align-items: center;
+  gap: 8px;
+  width: var(--calendar-tab-width);
+  height: 278px;
+  padding: 38px 9px 32px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 8px 0 0 8px;
+  background: #0b171b url("images/projects/xuantian-jie/calendar-side-background-v2.png") center / 100% 100% no-repeat;
+  box-shadow: -5px 8px 28px rgba(0,0,0,.5), -2px 0 18px rgba(218,170,79,.12), inset 1px 0 0 rgba(255,229,170,.18);
+  list-style: none;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+.xj-calendar__trigger::-webkit-details-marker { display: none; }
+.xj-calendar__trigger::marker { content: ""; }
+.xj-calendar__trigger::after { content: ""; position: absolute; z-index: 2; top: -50%; left: -90%; width: 55%; height: 200%; transform: rotate(24deg); background: linear-gradient(90deg, transparent, rgba(255,233,175,.2), transparent); pointer-events: none; animation: xj-calendar-glint 1.6s 1.2s both; }
+.xj-calendar__trigger:hover, .xj-calendar[open] .xj-calendar__trigger { border-color: #f0d298; box-shadow: -5px 8px 30px rgba(0,0,0,.5), -3px 0 25px rgba(229,180,88,.25), inset 1px 0 0 rgba(255,229,170,.3); }
+@media (hover: hover) { .xj-calendar__trigger:hover { transform: translateX(-3px); } }
+.xj-calendar__badge { padding: 2px 0 5px; border-bottom: 1px solid rgba(224,188,117,.4); color: #edcb87; font-size: 9px; line-height: 1.5; letter-spacing: .12em; text-align: center; text-shadow: 0 1px 4px #061016; }
+.xj-calendar__label { writing-mode: vertical-rl; text-orientation: upright; color: #f6e0ad; font: 500 23px/1.25 "Songti SC", "STSong", "SimSun", serif; letter-spacing: .15em; text-shadow: 0 2px 5px #061016, 0 0 16px rgba(237,185,91,.2); }
+.xj-calendar__schedule { display: flex; align-items: center; gap: 4px; color: #d3c5a5; font-size: 9px; line-height: 1.5; letter-spacing: 0; white-space: nowrap; }
+.xj-calendar__indicator { flex: 0 0 4px; width: 4px; height: 4px; border-radius: 50%; background: #f1c97b; box-shadow: 0 0 7px rgba(241,201,123,.75); }
+.xj-calendar__chevron { width: 16px; height: 16px; fill: none; stroke: #c7ab74; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s ease; }
+.xj-calendar[open] .xj-calendar__chevron { transform: rotate(180deg); }
+.xj-calendar__panel {
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  width: min(360px, calc(100vw - var(--calendar-tab-width) - 32px - env(safe-area-inset-right)));
+  max-height: min(740px, calc(100svh - 48px));
+  overflow: hidden;
+  border: 1px solid rgba(212,189,136,.6);
+  border-radius: 9px;
+  background: linear-gradient(150deg, rgba(28,39,40,.98), rgba(8,19,24,.98) 45%);
+  -webkit-backdrop-filter: blur(22px);
+  backdrop-filter: blur(22px);
+  box-shadow: 0 14px 48px rgba(0,0,0,.45);
+}
+.xj-calendar:not([open]) .xj-calendar__panel { display: none; }
+.xj-calendar[open] .xj-calendar__panel { animation: xj-calendar-in .24s cubic-bezier(.2,.7,.2,1); }
+.xj-calendar__header { display: flex; align-items: center; gap: 12px; flex-shrink: 0; padding: 13px 10px 13px 14px; border-bottom: 1px solid rgba(212,189,136,.25); }
+.xj-calendar__header p { margin: 0 0 6px; color: #a99d82; font-size: 9px; line-height: 1.4; letter-spacing: .13em; }
+.xj-page .xj-calendar__header h2 { display: flex; align-items: baseline; gap: 13px; margin: 0; font: 500 17px/1.5 var(--xj-sans); letter-spacing: .08em; }
+.xj-calendar__header h2 span { color: #b5b7b0; font-size: 10px; font-weight: 400; letter-spacing: .03em; }
+.xj-calendar__close { display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px; margin-left: auto; padding: 0; border: 0; border-radius: 4px; background: transparent; color: #d3c6ac; cursor: pointer; }
+.xj-calendar__close[hidden] { display: none; }
+.xj-calendar__close:hover { color: #fff6de; background: rgba(212,189,136,.1); }
+.xj-calendar__close svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; }
+.xj-calendar__body { min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; scrollbar-color: #8b7a55 #102027; padding: 10px; }
+.xj-calendar__poster { display: block; width: 100%; height: auto; border-radius: 3px; }
+.xj-calendar__footer { flex-shrink: 0; padding: 12px 16px 15px; border-top: 1px solid rgba(212,189,136,.18); }
+.xj-calendar__footer p { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin: 0 0 10px; color: #d0c3a7; font-size: 11px; line-height: 1.6; }
+.xj-calendar__footer p span:last-child { color: #a9b3af; }
+.xj-calendar__watch { display: flex; align-items: center; gap: 9px; min-height: 44px; padding: 10px 12px; border: 1px solid #dfc38d; border-radius: 4px; background: linear-gradient(120deg, #e5cea0, #bea16c); color: #17211f; font-size: 13px; font-weight: 500; text-decoration: none; box-shadow: 0 3px 14px rgba(213,171,96,.12); }
+.xj-calendar__watch span { color: #454b40; font-size: 11px; }
+.xj-calendar__watch svg { width: 18px; height: 18px; margin-left: auto; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.xj-calendar__watch:hover { background: linear-gradient(120deg, #f6dfb0, #d5b478); border-color: #f8dfaa; }
+.xj-calendar :is(summary, button, a, [tabindex]):focus-visible { outline: 2px solid var(--calendar-gold); outline-offset: -3px; }
+@keyframes xj-calendar-in { from { opacity: 0; transform: translate(12px, -50%); } to { opacity: 1; transform: translate(0, -50%); } }
+@keyframes xj-calendar-glint { from { left: -90%; } to { left: 150%; } }
+@media (max-width: 700px) {
+  .xj-calendar { --calendar-tab-width: 54px; }
+  .xj-calendar__trigger { height: 206px; grid-template-rows: 18px 1fr 12px 12px; padding: 26px 4px 22px; gap: 6px; border-radius: 6px 0 0 6px; }
+  .xj-calendar__label { font-size: 17px; letter-spacing: .1em; }
+  .xj-calendar__badge { font-size: 8px; letter-spacing: .02em; }
+  .xj-calendar__schedule { gap: 0; font-size: 8px; }
+  .xj-calendar__indicator { display: none; }
+  .xj-calendar__chevron { width: 14px; height: 14px; }
+  .xj-calendar__panel { right: calc(100% + 8px); width: min(328px, calc(100vw - var(--calendar-tab-width) - 32px - env(safe-area-inset-right))); max-height: min(680px, calc(100svh - 32px)); }
+  .xj-calendar__header { gap: 8px; padding: 10px 6px 10px 10px; }
+  .xj-page .xj-calendar__header h2 { gap: 7px; font-size: 15px; }
+  .xj-calendar__header p { font-size: 8px; letter-spacing: .06em; }
+  .xj-calendar__footer { padding-inline: 10px; }
+  .xj-calendar__watch { gap: 6px; padding-inline: 9px; font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .xj-calendar, .xj-calendar__trigger, .xj-calendar__chevron { transition: none; }
+  .xj-calendar__trigger::after { animation: none; display: none; }
+  .xj-calendar[open] .xj-calendar__panel { animation: none; }
+}

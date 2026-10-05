@@ -1,11 +1,19 @@
-/* Only the homepage → TVC route opts into a shared-artwork transition. */
+/* Shared artwork: homepage → TVC, Alone, or Healing Wings. */
 @view-transition { navigation: auto; }
 
-html.tvc-transition-out .project-deck:not(.is-strip) .deck-card--tvc.is-active .deck-media--tvc-banner,
-html.tvc-transition-in .tvc-banner > img { view-transition-name: tvc-artwork; }
+html.tvc-transition-out [data-shared-artwork],
+html.tvc-transition-in [data-shared-artwork] { view-transition-name: tvc-artwork; }
 
 /* Capture the artwork, not padding: both snapshots keep the exact same ratio. */
 .tvc-page .tvc-banner > img { padding: 0; margin: 24px auto; }
+.film-page .project-dialog:is([data-project="alone"], [data-project="healing"]) #dialog-hero {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+}
+.project-image-link { text-decoration: none; }
+.project-deck.is-strip .project-image-link { pointer-events: none; }
 
 ::view-transition { background: #000; }
 ::view-transition-group(tvc-artwork) {
@@ -18,7 +26,7 @@ html.tvc-transition-in .tvc-banner > img { view-transition-name: tvc-artwork; }
 ::view-transition-new(tvc-artwork) {
   height: 100%;
   width: 100%;
-  object-fit: contain;
+  object-fit: cover;
   mix-blend-mode: normal;
   animation: none;
 }
@@ -31,8 +39,11 @@ html.tvc-transition-in .tvc-banner > img { view-transition-name: tvc-artwork; }
 @keyframes tvc-page-in { from { opacity: 0; } to { opacity: 1; } }
 
 /* Geometry fallback, installed in the head before the destination can flash. */
-html.tvc-fallback-pending .tvc-banner > img { visibility: hidden; }
-html.tvc-fallback-pending::before {
+html.tvc-fallback-pending .tvc-banner > img,
+html.tvc-fallback-pending .film-page #dialog-hero { visibility: hidden; }
+/* Modal pseudo-elements live in the top layer, above the dialog backdrop. */
+html.tvc-fallback-pending::before,
+html.tvc-fallback-film .project-dialog[open]::before {
   content: "";
   position: fixed;
   inset: 0;
@@ -40,7 +51,8 @@ html.tvc-fallback-pending::before {
   background: #000;
   pointer-events: none;
 }
-html.tvc-fallback-pending::after {
+html.tvc-fallback-pending::after,
+html.tvc-fallback-film .project-dialog[open]::after {
   content: "";
   position: fixed;
   left: var(--tvc-from-x);
@@ -48,15 +60,18 @@ html.tvc-fallback-pending::after {
   width: var(--tvc-from-width);
   height: var(--tvc-from-height);
   z-index: 2147483646;
-  background: var(--tvc-artwork-url) center / 100% 100% no-repeat;
+  background: var(--tvc-artwork-url) center / cover no-repeat;
   transform-origin: 0 0;
   pointer-events: none;
 }
-html.tvc-fallback-running::before { animation: tvc-page-out 740ms 180ms ease both; }
-html.tvc-fallback-running::after { animation: tvc-artwork-move 1050ms cubic-bezier(.22, .72, .16, 1) both; }
+html.tvc-fallback-film:has(.project-dialog[open])::after { display: none; }
+html.tvc-fallback-running::before,
+html.tvc-fallback-running .project-dialog[open]::before { animation: tvc-page-out 740ms 180ms ease both; }
+html.tvc-fallback-running::after,
+html.tvc-fallback-running .project-dialog[open]::after { animation: tvc-artwork-move 1050ms cubic-bezier(.22, .72, .16, 1) both; }
 @keyframes tvc-artwork-move {
-  from { transform: matrix(1, 0, 0, 1, 0, 0); }
-  to { transform: var(--tvc-to-transform); }
+  from { left: var(--tvc-from-x); top: var(--tvc-from-y); width: var(--tvc-from-width); height: var(--tvc-from-height); }
+  to { left: var(--tvc-to-x); top: var(--tvc-to-y); width: var(--tvc-to-width); height: var(--tvc-to-height); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -64,7 +79,10 @@ html.tvc-fallback-running::after { animation: tvc-artwork-move 1050ms cubic-bezi
   ::view-transition-group(*),
   ::view-transition-old(*),
   ::view-transition-new(*) { animation: none !important; }
-  html.tvc-fallback-pending .tvc-banner > img { visibility: visible; }
+  html.tvc-fallback-pending .tvc-banner > img,
+  html.tvc-fallback-pending .film-page #dialog-hero { visibility: visible; }
   html.tvc-fallback-pending::before,
-  html.tvc-fallback-pending::after { display: none; }
+  html.tvc-fallback-pending::after,
+  html.tvc-fallback-film .project-dialog[open]::before,
+  html.tvc-fallback-film .project-dialog[open]::after { display: none; }
 }

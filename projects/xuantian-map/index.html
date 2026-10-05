@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+ <meta name="theme-color" content="#142a2c">
+ <title>玄天决 · 仙界舆图</title>
+ <meta name="description" content="探索玄天决的六边形立体仙界地图：四大宗门、上仙院、山川与海域。">
+ <link rel="stylesheet" href="map.css?v=4">
+ <script type="importmap">{"imports":{"three":"../../assets/vendor/three-0.160.0/three.module.js"}}</script>
+</head>
+<body>
+ <main id="map-stage" tabindex="0" aria-label="可交互的仙界三维地图，拖动平移，滚轮缩放，方向键移动，Home 恢复全图" aria-describedby="map-help">
+  <div id="map-labels"></div><div class="map-vignette"></div>
+ </main>
+ <header class="topbar">
+  <a class="brand" href="../xuantian-jie.html" aria-label="返回玄天项目页"><span class="seal">玄</span><span><strong>玄天决</strong><small>XUANTIAN · WORLD ATLAS</small></span></a>
+  <div class="edition"><span class="live-dot"></span>仙界舆图 <span class="slash">/</span> 山海全境</div>
+  <nav class="views" aria-label="地图视图"><button data-view="overview" class="active" aria-pressed="true">全境</button><button data-view="territory" aria-pressed="false">宗门</button><button data-view="terrain" aria-pressed="false">地貌</button></nav>
+  <a class="return" href="../xuantian-jie.html">返回项目 <span>↗</span></a>
+ </header>
+ <aside class="atlas-index panel" aria-label="宗门定位">
+  <div class="panel-heading"><span>山河志</span><small>EXPLORE THE REALM</small></div>
+  <p class="index-intro">四宗并峙，山海相连。</p>
+  <div class="destinations">
+   <button data-region="xuantian"><span class="region-icon jade">玄</span><span><strong>玄天宗</strong><small>西北 · 青岚林海</small></span><span class="locate">↗</span></button>
+   <button data-region="tianyan"><span class="region-icon sky">衍</span><span><strong>天衍宗</strong><small>东北 · 星辰云海</small></span><span class="locate">↗</span></button>
+   <button data-region="diyuan"><span class="region-icon ember">元</span><span><strong>地元宗</strong><small>西南 · 赤炎群山</small></span><span class="locate">↗</span></button>
+   <button data-region="huangting"><span class="region-icon sand">庭</span><span><strong>黄庭宗</strong><small>东南 · 大漠绿洲</small></span><span class="locate">↗</span></button>
+   <button data-region="academy"><span class="region-icon ivory">仙</span><span><strong>上仙院</strong><small>中央 · 群峰之上</small></span><span class="locate">↗</span></button>
+  </div>
+  <div class="index-footer"><span>五处地标</span><span>点击 · 飞往</span></div>
+ </aside>
+ <aside class="selection panel" aria-label="当前地块信息" hidden>
+  <button id="close-selection" aria-label="关闭地块信息">×</button>
+  <p class="eyebrow" id="selection-eyebrow">REGION / 地域</p><h1 id="selection-title">上仙院</h1>
+  <div class="selection-rule"></div><p id="selection-description"></p>
+  <dl><div><dt>地貌</dt><dd id="selection-type"></dd></div><div><dt>所属</dt><dd id="selection-region"></dd></div><div><dt>坐标</dt><dd id="selection-coordinates"></dd></div></dl>
+  <p class="related" id="selection-places"></p>
+  <p id="miniature-notes" hidden>连续山地 · 多格宗门<br>右键环绕，滚轮靠近查看屋瓦与山阶。</p>
+  <button id="inspect-xuantian" class="inspect-button" hidden>近观玄天宗 <span aria-hidden="true">↗</span></button>
+ </aside>
+ <section class="map-tools" aria-label="地图工具">
+  <button id="home" title="恢复全图 (Home)" aria-label="恢复全图"><svg viewBox="0 0 24 24"><path d="m3 8 6-4 6 4 6-4v15l-6 3-6-4-6 4V8Zm6-4v14m6-10v14"/></svg></button>
+  <div class="tool-divider"></div>
+  <button id="zoom-in" title="放大 (+)" aria-label="放大地图">+</button><button id="zoom-out" title="缩小 (−)" aria-label="缩小地图">−</button>
+  <div class="tool-divider"></div>
+  <button id="tilt" title="切换俯视 / 立体" aria-label="切换俯视地图" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="m3 15 5-8 4 5 4-8 5 11-9 6-9-6Z"/></svg></button>
+  <button id="help" title="操作说明" aria-label="打开操作说明">?</button>
+ </section>
+ <section class="minimap panel" aria-label="全境导航">
+  <div class="minimap-head"><span>全境一览</span><button id="reset-mini" aria-label="通过小地图恢复全图">⌖</button></div>
+  <canvas id="minimap" width="400" height="240" tabindex="0" role="button" aria-label="全境小地图，点击定位，按 Enter 恢复全图"></canvas>
+  <span class="minimap-north">N</span>
+ </section>
+ <div class="compass" aria-hidden="true"><span>N</span><svg id="compass-rose" viewBox="0 0 80 80"><circle cx="40" cy="40" r="30"/><path d="M40 4 46 34 76 40 46 46 40 76 34 46 4 40 34 34Z"/><path class="needle" d="m40 4 6 30-6 6-6-6Z"/></svg></div>
+ <footer class="bottom-bar">
+  <div class="map-caption"><span class="caption-line"></span><div><strong>一隅山河，万里仙途</strong><small>AN ATLAS OF THE IMMORTAL REALM</small></div></div>
+  <div class="layers" aria-label="显示图层"><button id="grid" aria-pressed="true"><span>⬡</span> 六边格</button><button id="borders" aria-pressed="true"><span>╱</span> 疆界</button><button id="labels" aria-pressed="true"><span>文</span> 地名</button></div>
+  <div class="map-scale"><span id="zoom-value">100%</span><span class="scale-line"></span><small>立体舆图 · 探索版</small></div>
+ </footer>
+ <div class="gesture-hint" id="map-help">拖动平移 <i>·</i> 滚轮缩放 <i>·</i> 右键旋转 <i>·</i> 点击探索</div>
+ <div class="loading" id="loading" role="status"><span class="loading-emblem">山</span><h2>山河正在展开</h2><p id="loading-text">正在构筑六边形地貌与宗门…</p><span class="loading-line"></span></div>
+ <dialog id="help-dialog"><button id="close-help" aria-label="关闭操作说明">×</button><p class="eyebrow">HOW TO EXPLORE</p><h2>观山海，行四方。</h2><dl><div><dt>拖动 / 单指</dt><dd>平移地图</dd></div><div><dt>滚轮 / 双指</dt><dd>缩放地图</dd></div><div><dt>右键拖动</dt><dd>环绕旋转</dd></div><div><dt>方向键 / ＋ −</dt><dd>移动 / 缩放</dd></div><div><dt>Home</dt><dd>恢复全境视角</dd></div></dl><p>点击地块查看地貌；点击左侧宗门可飞往对应位置。地图依照提供的世界图制作，地形高度为视觉重建，不代表设定中的实际海拔。</p></dialog>
+ <noscript><div class="no-script">此三维地图需要 JavaScript。<a href="../xuantian-jie.html">返回项目</a></div></noscript>
+ <script type="module">
+  import('./map.js?v=4').catch(error => {
+   console.error('Atlas initialization failed', error);
+   document.querySelector('#loading h2').textContent='地图暂时无法展开';
+   document.querySelector('#loading-text').textContent='请通过网站地址打开，并使用支持 WebGL 的浏览器。刷新页面可重试。';
+   const link=document.createElement('a'); link.href='../xuantian-jie.html'; link.textContent='返回项目'; document.querySelector('#loading').append(link);
+   document.querySelector('.loading-line').hidden=true;
+  });
+ </script>
+</body></html>
