@@ -1,0 +1,55 @@
+{
+  "source": {
+    "filename": "EP-01-三角色灵根展示.mov",
+    "bytes": 96265585,
+    "width": 3840,
+    "height": 2160,
+    "fps": 24
+  },
+  "web": [
+    {
+      "file": "characters-spirit-roots.mp4",
+      "bytes": 7485424,
+      "width": 1920,
+      "height": 1080,
+      "crf": 25
+    },
+    {
+      "file": "characters-spirit-roots-mobile.mp4",
+      "bytes": 3707135,
+      "width": 1280,
+      "height": 720,
+      "crf": 26
+    }
+  ],
+  "cues": [
+    {
+      "character": "路昭",
+      "frame_index": 65,
+      "time_seconds": 2.7083333333333335,
+      "still": "../../images/projects/xuantian-jie/character-lu-zhao.webp"
+    },
+    {
+      "character": "沈照微",
+      "frame_index": 198,
+      "time_seconds": 8.25,
+      "still": "../../images/projects/xuantian-jie/character-shen-zhaowei.webp"
+    },
+    {
+      "character": "燕云升",
+      "frame_index": 304,
+      "time_seconds": 12.666666666666666,
+      "still": "../../images/projects/xuantian-jie/character-yan-yunsheng.webp"
+    }
+  ],
+  "encoding": {
+    "video_codec": "H.264",
+    "pixel_format": "yuv420p",
+    "audio": false,
+    "fps": 24,
+    "gop": 24,
+    "faststart": true,
+    "duration_seconds": 12.75,
+    "note": "Trimmed only footage after the final held frame. Original MOV is unchanged. Frame indices are zero-based; cue portraits are extracted from the original."
+  }
+}

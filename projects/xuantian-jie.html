@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#080a0d">
   <meta name="description" content="《玄天诀》是 Steven Chen 创作的原创 AI 东方仙侠项目。从世界观、角色与宗门视觉开发，到导演、生成式影像、剪辑与声音设计，探索完整的电影叙事流程。">
   <meta property="og:title" content="玄天诀 / XUANTIAN JUE — Steven Chen">
-  <meta property="og:description" content="原创 AI 东方仙侠剧集《玄天诀》，第一集《初入仙界》现已上线。观看剧集与预告片，探索世界观与创作幕后。">
+  <meta property="og:description" content="原创 AI 东方仙侠剧集《玄天诀》，第二集《初入玄门》现已上线。观看剧集与预告片，探索世界观与创作幕后。">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:type" content="video.movie">
   <meta property="og:image" content="https://stevencheninfilm.com/assets/images/projects/xuantian-jie/xuantian-hero.jpg">
@@ -18,9 +18,10 @@
   <link rel="preload" href="../assets/fonts/xuantian-jue-8bc0-500.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../assets/images/projects/xuantian-jie/mountain-left.webp" as="image" media="(prefers-reduced-motion: no-preference)">
   <link rel="stylesheet" href="../assets/xuantian.css?v=20261005-episode-play-guide-1">
-  <link rel="stylesheet" href="../assets/xuantian-selection.css?v=20261004-selection-3">
+  <link rel="stylesheet" href="../assets/xuantian-selection.css?v=20261005-selection-compact-1">
   <link rel="stylesheet" href="../assets/xuantian-episode-player.css?v=20261005-episode-expand-1">
   <link rel="stylesheet" href="../assets/xuantian-project-story.css?v=20260925-story-scroll-2">
+  <link rel="stylesheet" href="../assets/xuantian-characters.css?v=20261005-characters-1">
   <link rel="preload" href="../assets/images/projects/xuantian-jie/xuantian-jue-logo.png" as="image">
   <link rel="stylesheet" href="../assets/xuantian-brand.css?v=20260927-logo-2">
   <link rel="stylesheet" href="../assets/xuantian-calendar.css?v=20261005-calendar-fullplate-3">
@@ -115,7 +116,7 @@
         <h1 id="xj-title" class="xj-hero__title"><img class="xj-brand-art" src="../assets/images/projects/xuantian-jie/xuantian-jue-logo.png" width="1672" height="941" fetchpriority="high" decoding="async" alt="玄天诀" lang="zh-Hans"><small lang="en">XUANTIAN JUE</small></h1>
         <p class="xj-hero__intro" lang="zh-Hans">一支原创 AI 东方仙侠剧集长篇。</p>
         <div class="xj-hero__actions">
-          <a class="xj-button" href="#full-film"><span aria-hidden="true">▶</span> 观看剧集 <span class="xj-button__duration">更新至第一集</span></a>
+          <a class="xj-button" href="#full-film"><span aria-hidden="true">▶</span> 观看剧集 <span class="xj-button__duration">更新至第二集</span></a>
           <a class="xj-text-link" href="#worldbuilding">探索世界观 <span aria-hidden="true">↓</span></a>
         </div>
         <dl class="xj-hero__meta">
@@ -128,8 +129,9 @@
     <nav class="xj-chapters xj-palette--neutral" aria-label="项目章节">
       <a href="#recognition"><span>00</span> 平台推荐 <span aria-hidden="true">↓</span></a>
       <a href="#full-film"><span>01</span> 观看剧集 <span aria-hidden="true">↓</span></a>
-      <a href="#worldbuilding"><span>03</span> 世界观与场景 <span aria-hidden="true">↓</span></a>
-      <a href="#breakdown"><span>05</span> 创作方法 <span aria-hidden="true">↓</span></a>
+      <a href="#characters"><span>03</span> 角色介绍 <span aria-hidden="true">↓</span></a>
+      <a href="#worldbuilding"><span>04</span> 世界观与场景 <span aria-hidden="true">↓</span></a>
+      <a href="#breakdown"><span>06</span> 创作方法 <span aria-hidden="true">↓</span></a>
     </nav>
 
     <section id="recognition" class="xj-recognition xj-palette--neutral" aria-labelledby="recognition-title">
@@ -152,7 +154,7 @@
       </figure>
     </section>
 
-    <section id="full-film" class="xj-film-section xj-viewing xj-palette--neutral" aria-labelledby="viewing-title">
+    <section id="full-film" data-default-episode="episode-2" class="xj-film-section xj-viewing xj-palette--neutral" aria-labelledby="viewing-title">
       <div class="xj-viewing__stage">
         <div class="xj-viewing__backdrop" aria-hidden="true">
           <img class="xj-viewing__art" src="../assets/images/projects/xuantian-jie/series-a-golden-terrace-v2.png" width="1448" height="1086" loading="lazy" decoding="async" alt="">
@@ -166,7 +168,7 @@
         </header>
 
         <div class="xj-viewing__cinema">
-          <figure id="episode-1" class="xj-screening" data-episode-panel="episode-1" aria-label="《玄天诀》第一集：初入仙界">
+          <figure id="episode-1" class="xj-screening" data-episode-panel="episode-1" aria-label="《玄天诀》第一集：初入仙界" hidden>
             <div class="xj-episode-embed" data-episode-embed data-embed-src="https://open.douyin.com/player/video?vid=7691998330158599459&amp;autoplay=1&amp;mode=pc">
             <a class="xj-episode-cover" data-episode-play href="https://v.douyin.com/LOKPgxiyZMI/" target="_blank" rel="noopener noreferrer" aria-label="在抖音观看《玄天诀》第一集：初入仙界（新窗口）">
               <img src="../assets/images/projects/xuantian-jie/episode-01-immortal-realm.png" width="1672" height="941" loading="lazy" decoding="async" alt="《玄天诀》第一集《初入仙界》封面：陆昭与同伴置身金色古树和云海仙山之间。">
@@ -184,6 +186,26 @@
             <div class="xj-episode-embed__help" data-episode-help hidden>
               <p data-episode-status role="status" aria-live="polite"></p>
               <div><button type="button" data-episode-reload>重新加载</button><a href="https://v.douyin.com/LOKPgxiyZMI/" target="_blank" rel="noopener noreferrer">无法播放？前往抖音 ↗</a></div>
+            </div>
+          </figure>
+          <figure id="episode-2" class="xj-screening" data-episode-panel="episode-2" aria-label="《玄天诀》第二集：初入玄门">
+            <div class="xj-episode-embed" data-episode-embed data-embed-src="https://open.douyin.com/player/video?vid=7694831533504466212&amp;autoplay=1&amp;mode=pc">
+            <a class="xj-episode-cover" data-episode-play href="https://v.douyin.com/RHkZTwsiRpQ/" target="_blank" rel="noopener noreferrer" aria-label="在抖音观看《玄天诀》第二集：初入玄门（新窗口）">
+              <img src="../assets/images/projects/xuantian-jie/episode-02-xuanmen.webp" width="1672" height="941" loading="lazy" decoding="async" alt="《玄天诀》第二集《初入玄门》封面：少年与同伴、长者置身玄天宗云海仙山之间。">
+              <span class="xj-episode-cover__action">
+                <span class="xj-video-play__disc" aria-hidden="true"><svg class="xj-video-play__icon" viewBox="0 0 20 20" focusable="false"><path d="m5 3 12 7-12 7Z"/></svg></span>
+                <span class="xj-video-play__label"><b>播放第二集正片</b><small>正片 · <span data-episode-source>抖音观看 ↗</span></small></span>
+              </span>
+            </a>
+            <div class="xj-episode-embed__mount" data-episode-mount hidden></div>
+            </div>
+            <figcaption class="xj-screening__caption">
+              <p>第二集 · 初入玄门 <span lang="en">EPISODE 02</span></p>
+              <p class="xj-screening__duration">正片 <span>现已上线</span></p>
+            </figcaption>
+            <div class="xj-episode-embed__help" data-episode-help hidden>
+              <p data-episode-status role="status" aria-live="polite"></p>
+              <div><button type="button" data-episode-reload>重新加载</button><a href="https://v.douyin.com/RHkZTwsiRpQ/" target="_blank" rel="noopener noreferrer">无法播放？前往抖音 ↗</a></div>
             </div>
           </figure>
           <figure id="trailer" class="xj-screening" data-episode-panel="trailer" aria-label="《玄天诀》预告片放映区" hidden>
@@ -218,13 +240,14 @@
               <a class="xj-viewing__choice xj-selection__trailer" href="#trailer" data-episode-select="trailer" aria-controls="trailer trailer-platforms">预告片 <span>01:40</span><svg class="xj-link-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M3 10h13m-5-5 5 5-5 5"/></svg></a>
             </header>
             <div class="xj-viewing__options xj-episode-list" role="group" aria-labelledby="episode-label" tabindex="0">
-              <a class="xj-viewing__choice xj-episode-card" href="#episode-1" data-episode-select="episode-1" aria-controls="episode-1 episode-1-platforms" aria-current="true">
+              <a class="xj-viewing__choice xj-episode-card" href="#episode-1" data-episode-select="episode-1" aria-controls="episode-1 episode-1-platforms">
                 <span class="xj-episode-card__play" aria-hidden="true">▶</span>
                 <span class="xj-episode-card__text"><span class="xj-episode-card__index">第一集</span><strong>初入仙界</strong><small>现已上线</small></span>
               </a>
-              <button type="button" class="xj-episode-card is-upcoming" data-xj-calendar-open aria-controls="xj-calendar-panel" aria-expanded="false" aria-label="第二集，10月10日更新，查看追剧日历">
-                <span class="xj-episode-card__text"><span class="xj-episode-card__index">第二集</span><strong><time datetime="2026-10-10">10 月 10 日</time></strong><small>待更新 · 查看日历</small></span>
-              </button>
+              <a class="xj-viewing__choice xj-episode-card" href="#episode-2" data-episode-select="episode-2" aria-controls="episode-2 episode-2-platforms" aria-current="true">
+                <span class="xj-episode-card__play" aria-hidden="true">▶</span>
+                <span class="xj-episode-card__text"><span class="xj-episode-card__index">第二集</span><strong>初入玄门</strong><small>现已上线</small></span>
+              </a>
               <button type="button" class="xj-episode-card is-upcoming" data-xj-calendar-open aria-controls="xj-calendar-panel" aria-expanded="false" aria-label="第三集，10月17日更新，查看追剧日历">
                 <span class="xj-episode-card__text"><span class="xj-episode-card__index">第三集</span><strong><time datetime="2026-10-17">10 月 17 日</time></strong><small>待更新 · 查看日历</small></span>
               </button>
@@ -237,21 +260,30 @@
             </div>
             <p class="xj-selection__scroll-hint">左右滑动查看选集 <span aria-hidden="true">↔</span></p>
           </div>
-          <div id="episode-1-platforms" class="xj-viewing__row xj-viewing__platforms" data-episode-platforms="episode-1">
+          <div id="episode-1-platforms" class="xj-viewing__row xj-viewing__platforms" data-episode-platforms="episode-1" hidden>
             <header class="xj-platforms__heading xj-platforms__heading--episode"><h3 id="episode-1-platform-label">在其他平台观看第一集</h3><span class="xj-platforms__rule" aria-hidden="true"></span><small>新窗口打开 ↗</small></header>
             <nav class="xj-viewing__options" aria-labelledby="episode-1-platform-label">
-              <a class="xj-viewing__choice" href="https://www.xinpianchang.com/a13833846?channel=copyLink&amp;from=webShare" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/xinpianchang-mark.svg" width="18" height="18" alt="" aria-hidden="true">新片场 <span aria-hidden="true">↗</span></a>
               <a class="xj-viewing__choice" href="https://v.douyin.com/LOKPgxiyZMI/" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/douyin-mark.svg" width="18" height="18" alt="" aria-hidden="true">抖音 <span aria-hidden="true">↗</span></a>
               <a class="xj-viewing__choice" href="https://www.bilibili.com/video/BV1QjH86bEvj/?share_source=copy_web&amp;vd_source=017fe2b77e3ee35441400db7b7543f59" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/bilibili-mark.svg" width="18" height="18" alt="" aria-hidden="true">哔哩哔哩 <span aria-hidden="true">↗</span></a>
+              <a class="xj-viewing__choice" href="https://www.xinpianchang.com/a13833846?channel=copyLink&amp;from=webShare" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/xinpianchang-mark.svg" width="18" height="18" alt="" aria-hidden="true">新片场 <span aria-hidden="true">↗</span></a>
               <a class="xj-viewing__choice" href="https://weixin.qq.com/sph/AMsaXUkv0" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/wechat-channels-mark.svg" width="18" height="18" alt="" aria-hidden="true">微信视频号 <span aria-hidden="true">↗</span></a>
+            </nav>
+          </div>
+          <div id="episode-2-platforms" class="xj-viewing__row xj-viewing__platforms" data-episode-platforms="episode-2">
+            <header class="xj-platforms__heading xj-platforms__heading--episode"><h3 id="episode-2-platform-label">在其他平台观看第二集</h3><span class="xj-platforms__rule" aria-hidden="true"></span><small>新窗口打开 ↗</small></header>
+            <nav class="xj-viewing__options" aria-labelledby="episode-2-platform-label">
+              <a class="xj-viewing__choice" href="https://v.douyin.com/RHkZTwsiRpQ/" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/douyin-mark.svg" width="18" height="18" alt="" aria-hidden="true">抖音 <span aria-hidden="true">↗</span></a>
+              <a class="xj-viewing__choice" href="https://www.bilibili.com/video/BV1bfpe6gERD/?share_source=copy_web" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/bilibili-mark.svg" width="18" height="18" alt="" aria-hidden="true">哔哩哔哩 <span aria-hidden="true">↗</span></a>
+              <a class="xj-viewing__choice" href="https://www.xinpianchang.com/a13838463?from=webShare&amp;channel=copyLink" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/xinpianchang-mark.svg" width="18" height="18" alt="" aria-hidden="true">新片场 <span aria-hidden="true">↗</span></a>
+              <a class="xj-viewing__choice" href="https://weixin.qq.com/sph/AzXlPGCqp" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/wechat-channels-mark.svg" width="18" height="18" alt="" aria-hidden="true">微信视频号 <span aria-hidden="true">↗</span></a>
             </nav>
           </div>
           <div id="trailer-platforms" class="xj-viewing__row xj-viewing__platforms" data-episode-platforms="trailer" hidden>
             <header class="xj-platforms__heading"><h3 id="platform-label">预告片播放平台 <small lang="en">TRAILER</small></h3><span class="xj-platforms__rule" aria-hidden="true"></span></header>
             <nav class="xj-viewing__options" aria-labelledby="platform-label">
-              <a class="xj-viewing__choice" href="#trailer" aria-current="true"><svg class="xj-platform-logo" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m10 8 6 4-6 4Z" fill="currentColor"/></svg>本站播放</a>
-              <a class="xj-viewing__choice" href="https://www.xinpianchang.com/a13797765?from=webShare&amp;channel=copyLink" target="_blank" rel="noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/xinpianchang-mark.svg" width="18" height="18" alt="" aria-hidden="true">新片场 <svg class="xj-link-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4 16 16 4M5 4h11v11"/></svg></a>
               <a class="xj-viewing__choice" href="https://v.douyin.com/xd9IZhTjrTY/" target="_blank" rel="noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/douyin-mark.svg" width="18" height="18" alt="" aria-hidden="true">抖音 <svg class="xj-link-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4 16 16 4M5 4h11v11"/></svg></a>
+              <a class="xj-viewing__choice" href="https://www.xinpianchang.com/a13797765?from=webShare&amp;channel=copyLink" target="_blank" rel="noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/xinpianchang-mark.svg" width="18" height="18" alt="" aria-hidden="true">新片场 <svg class="xj-link-icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4 16 16 4M5 4h11v11"/></svg></a>
+              <a class="xj-viewing__choice" href="#trailer" aria-current="true"><svg class="xj-platform-logo" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="m10 8 6 4-6 4Z" fill="currentColor"/></svg>本站播放</a>
             </nav>
           </div>
           <p class="xj-selection__signature"><span>玄天诀 · XUANTIAN JUE</span></p>
@@ -308,9 +340,63 @@
       </div>
     </section>
 
+    <section id="characters" class="xj-characters" aria-labelledby="characters-title" data-character="0" data-phase="held">
+      <div class="xj-characters__pin">
+        <header class="xj-characters__heading">
+          <p class="xj-characters__eyebrow">03 / 角色介绍 <span lang="en">CHARACTERS</span></p>
+          <h2 id="characters-title">三人同行，仙途各异。</h2>
+        </header>
+        <div class="xj-characters__art" aria-hidden="true">
+          <video muted playsinline preload="none" data-src="../assets/videos/xuantian-jie/characters-spirit-roots.mp4" data-mobile-src="../assets/videos/xuantian-jie/characters-spirit-roots-mobile.mp4" poster="../assets/images/projects/xuantian-jie/character-lu-zhao.webp" tabindex="-1"></video>
+          <img class="xj-characters__still is-active" data-character-still src="../assets/images/projects/xuantian-jie/character-lu-zhao.webp" width="1280" height="720" loading="lazy" decoding="async" alt="">
+          <img class="xj-characters__still" data-character-still src="../assets/images/projects/xuantian-jie/character-shen-zhaowei.webp" width="1280" height="720" loading="lazy" decoding="async" alt="">
+          <img class="xj-characters__still" data-character-still src="../assets/images/projects/xuantian-jie/character-yan-yunsheng.webp" width="1280" height="720" loading="lazy" decoding="async" alt="">
+        </div>
+        <div class="xj-characters__copy">
+          <article class="xj-character is-active" data-character-cue="2.7083333333" data-character-name="路昭">
+            <img class="xj-character__fallback" src="../assets/images/projects/xuantian-jie/character-lu-zhao.webp" width="1280" height="720" loading="lazy" alt="路昭身着白衣，清澈的水灵息环绕周身。">
+            <div class="xj-character__content">
+              <p class="xj-character__root">水灵根 · 初入仙界</p>
+              <h3>路昭</h3><p class="xj-character__roman" lang="en">LU ZHAO</p>
+              <p class="xj-character__intro">初入仙界的少年，在陌生天地中摸索修行之道。水灵根初显，清澈灵流随身而起，未知的力量也正悄然苏醒。</p>
+              <p class="xj-character__line">以凡人之心，叩问仙途。</p>
+            </div>
+          </article>
+          <article class="xj-character" data-character-cue="8.25" data-character-name="沈照微">
+            <img class="xj-character__fallback" src="../assets/images/projects/xuantian-jie/character-shen-zhaowei.webp" width="1280" height="720" loading="lazy" alt="沈照微身着紫衣，金红色火灵息在身边流转。">
+            <div class="xj-character__content">
+              <p class="xj-character__root">火灵根 · 灵动率真</p>
+              <h3>沈照微</h3><p class="xj-character__roman" lang="en">SHEN ZHAOWEI</p>
+              <p class="xj-character__intro">与路昭一同踏入玄天宗，灵动直率，面对未知仍保有好奇。火属性灵根迸发，炽烈灵息与她的鲜活锋芒相映。</p>
+              <p class="xj-character__line">心有明焰，自照前路。</p>
+            </div>
+          </article>
+          <article class="xj-character" data-character-cue="12.6666666667" data-character-name="燕云升">
+            <img class="xj-character__fallback" src="../assets/images/projects/xuantian-jie/character-yan-yunsheng.webp" width="1280" height="720" loading="lazy" alt="燕云升身着青衣，绿色藤蔓般的木灵息盘绕周身。">
+            <div class="xj-character__content">
+              <p class="xj-character__root">木灵根 · 沉静内敛</p>
+              <h3>燕云升</h3><p class="xj-character__roman" lang="en">YAN YUNSHENG</p>
+              <p class="xj-character__intro">与同伴同行，却在接引之际走向另一座宗门。青衣沉静，木系灵息盘绕周身；相同的起点，展开了不同的仙途。</p>
+              <p class="xj-character__line">静守其心，向远而生。</p>
+            </div>
+          </article>
+        </div>
+        <button class="xj-characters__resume" type="button" data-character-resume hidden>▶ 播放角色片段</button>
+        <footer class="xj-characters__controls" hidden>
+          <div class="xj-characters__steps" role="group" aria-label="选择角色">
+            <button type="button" data-character-select="0" aria-pressed="true"><span>01</span> 路昭</button>
+            <button type="button" data-character-select="1" aria-pressed="false"><span>02</span> 沈照微</button>
+            <button type="button" data-character-select="2" aria-pressed="false"><span>03</span> 燕云升</button>
+          </div>
+          <p class="xj-characters__hint" data-character-hint>继续下滑 · 认识沈照微</p>
+        </footer>
+        <span class="xj-characters__status" data-character-status role="status" aria-live="polite"></span>
+      </div>
+    </section>
+
     <section id="worldbuilding" class="xj-world" aria-labelledby="world-title">
       <header class="xj-section-head xj-section-head--world">
-        <p class="xj-index">03 / 世界观与场景 <span lang="en">WORLDBUILDING</span></p>
+        <p class="xj-index">04 / 世界观与场景 <span lang="en">WORLDBUILDING</span></p>
         <h2 id="world-title"><span class="xj-title-line">两种秩序，</span><span class="xj-title-line">同一片<span class="xj-phrase">天地。</span></span><small class="xj-heading-en" lang="en">Two systems of power. One contested sky.</small></h2>
         <p>玄天宗与天衍宗的场景、建筑与空间设计。</p>
       </header>
@@ -359,7 +445,7 @@
 
     <section id="atlas" class="xj-atlas" aria-labelledby="atlas-title">
       <div class="xj-atlas__copy">
-        <p class="xj-index">04 / 空间逻辑 <span lang="en">SPATIAL LOGIC</span></p>
+        <p class="xj-index">05 / 空间逻辑 <span lang="en">SPATIAL LOGIC</span></p>
         <h2 id="atlas-title" lang="zh-Hans">玄天宗<br>全境图</h2>
         <p lang="zh-Hans">地图用于把山门、外门、通玄天阶、内门、各功能峰与最高处的玄天殿组织成可持续拍摄的空间系统。宏大感来自尺度关系、留白、云海与动线，而不是单纯堆叠特效。</p>
         <p class="xj-english" lang="en">The atlas turns the sect from a single spectacular image into a navigable production world—one in which geography, ceremony, movement, and narrative continuity share the same logic.</p>
@@ -375,7 +461,7 @@
 
     <section id="breakdown" class="xj-breakdown" aria-labelledby="breakdown-title">
       <header>
-        <p class="xj-index">05 / 创作方法 <span lang="en">BREAKDOWN</span></p>
+          <p class="xj-index">06 / 创作方法 <span lang="en">BREAKDOWN</span></p>
         <h2 id="breakdown-title"><span class="xj-title-line">从<span class="xj-phrase">单一画面，</span></span><span class="xj-title-line">到完整<span class="xj-phrase">电影叙事。</span></span><small class="xj-heading-en" lang="en">A cinematic system, not isolated images.</small></h2>
       </header>
       <div class="xj-breakdown__columns">
@@ -400,7 +486,7 @@
 
     <section id="role" class="xj-role" aria-labelledby="role-title">
       <div class="xj-role__lead">
-        <p class="xj-index">06 / 创作职责 <span lang="en">ROLE &amp; SCOPE</span></p>
+      <p class="xj-index">07 / 创作职责 <span lang="en">ROLE &amp; SCOPE</span></p>
         <h2 id="role-title"><span class="xj-title-line"><span class="xj-phrase">导演 /</span> <span class="xj-phrase">创作者 /</span></span><span class="xj-title-line"><span class="xj-phrase">生成式艺术家</span></span><small class="xj-heading-en" lang="en">Director / Creator / Generative Artist</small></h2>
         <p>导演、世界观构建、视觉开发、生成式影像、剪辑与声音设计。</p>
       </div>
@@ -423,12 +509,12 @@
       <img class="xj-end__image" src="../assets/images/projects/xuantian-jie/xuantian-sect-overview.jpg" width="1672" height="941" loading="lazy" decoding="async" alt="">
       <img class="xj-brand-art xj-end__brand" src="../assets/images/projects/xuantian-jie/xuantian-jue-logo.png" width="1672" height="941" loading="lazy" decoding="async" alt="玄天诀 / XUANTIAN JUE">
       <h2><span class="xj-end__title-line">走进<span class="xj-phrase">玄天世界</span><span class="xj-end__period">。</span></span><small class="xj-heading-en" lang="en">Enter the immortal realm.</small></h2>
-      <a class="xj-button" href="#episode-1"><span aria-hidden="true">▶</span> 观看剧集 <span class="xj-button__duration">第一集 · 初入仙界</span></a>
+      <a class="xj-button" href="#episode-2"><span aria-hidden="true">▶</span> 观看剧集 <span class="xj-button__duration">第二集 · 初入玄门</span></a>
       <div class="xj-watch-links">
-        <a href="https://www.xinpianchang.com/a13833846?channel=copyLink&amp;from=webShare" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/xinpianchang-mark.svg" width="18" height="18" alt="" aria-hidden="true">新片场 ↗</a>
-        <a href="https://v.douyin.com/LOKPgxiyZMI/" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/douyin-mark.svg" width="18" height="18" alt="" aria-hidden="true">抖音 ↗</a>
-        <a href="https://www.bilibili.com/video/BV1QjH86bEvj/?share_source=copy_web&amp;vd_source=017fe2b77e3ee35441400db7b7543f59" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/bilibili-mark.svg" width="18" height="18" alt="" aria-hidden="true">哔哩哔哩 ↗</a>
-        <a href="https://weixin.qq.com/sph/AMsaXUkv0" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/wechat-channels-mark.svg" width="18" height="18" alt="" aria-hidden="true">微信视频号 ↗</a>
+        <a href="https://v.douyin.com/RHkZTwsiRpQ/" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/douyin-mark.svg" width="18" height="18" alt="" aria-hidden="true">抖音 ↗</a>
+        <a href="https://www.bilibili.com/video/BV1bfpe6gERD/?share_source=copy_web" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/bilibili-mark.svg" width="18" height="18" alt="" aria-hidden="true">哔哩哔哩 ↗</a>
+        <a href="https://www.xinpianchang.com/a13838463?from=webShare&amp;channel=copyLink" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/xinpianchang-mark.svg" width="18" height="18" alt="" aria-hidden="true">新片场 ↗</a>
+        <a href="https://weixin.qq.com/sph/AzXlPGCqp" target="_blank" rel="noopener noreferrer"><img class="xj-platform-logo" src="../assets/images/logos/wechat-channels-mark.svg" width="18" height="18" alt="" aria-hidden="true">微信视频号 ↗</a>
       </div>
     </section>
   </main>
@@ -451,18 +537,19 @@
         <button class="xj-calendar__close" type="button" aria-label="收起追剧日历" hidden><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="m5 5 10 10M15 5 5 15"/></svg></button>
       </header>
       <div class="xj-calendar__body" tabindex="0" role="region" aria-label="追剧日历海报，可滚动查看">
-        <img class="xj-calendar__poster" src="../assets/images/projects/xuantian-jie/release-calendar-2026-10.jpg" width="1086" height="1448" loading="lazy" decoding="async" alt="《玄天诀》追剧日历（北京时间）：第一集 10 月 2 日 17:30 已上线；第二集 10 月 10 日（周六）；第三集 10 月 17 日；第四集 10 月 24 日；第五集 10 月 31 日。关注账号，准时追更。">
+        <img class="xj-calendar__poster" src="../assets/images/projects/xuantian-jie/release-calendar-2026-10-ep02.jpg" width="1086" height="1448" loading="lazy" decoding="async" alt="《玄天诀》追剧日历（北京时间）：第一集 10 月 2 日 17:30 已上线；第二集 10 月 10 日（周六）已上线；第三集 10 月 17 日；第四集 10 月 24 日；第五集 10 月 31 日。关注账号，准时追更。">
       </div>
       <footer class="xj-calendar__footer">
-        <p><span>第一集 · 已上线</span><span>后续每周六更新</span></p>
-        <a class="xj-calendar__watch" href="#episode-1">观看第一集 <span>初入仙界</span><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></a>
+        <p><span>更新至第二集 · 已上线</span><span>后续每周六更新</span></p>
+        <a class="xj-calendar__watch" href="#episode-2">观看第二集 <span>初入玄门</span><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4 10h12m-5-5 5 5-5 5"/></svg></a>
       </footer>
     </aside>
   </details>
   <script src="../assets/xuantian-calendar.js?v=20261004-calendar-2"></script>
   <script src="../assets/xuantian-player.js?v=20260924-screening-expand-2"></script>
-  <script src="../assets/xuantian-episodes.js?v=20261005-episode-play-guide-1"></script>
-  <script src="../assets/xuantian-project-story.js?v=20260925-story-scroll-2"></script>
+  <script src="../assets/xuantian-episodes.js?v=20261010-episode-2"></script>
+  <script src="../assets/xuantian-project-story.js?v=20261005-character-next-3"></script>
+  <script src="../assets/xuantian-characters.js?v=20261005-characters-1"></script>
   <script src="../assets/xuantian-flight.js?v=20260923-mountain-80-9"></script>
   <script src="../assets/xuantian-flight-renderer.js?v=20260923-studio-8"></script>
 <script src="../assets/xuantian-flight-volume-scene.js?v=20260924-volume-2"></script>

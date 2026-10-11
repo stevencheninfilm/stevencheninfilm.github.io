@@ -123,5 +123,6 @@
 
   window.addEventListener('hashchange', () => select(window.location.hash.slice(1)));
   const initialKey = window.location.hash.slice(1);
-  select(panels.some(panel => panel.dataset.episodePanel === initialKey) ? initialKey : 'episode-1');
+  const defaultKey = section.dataset?.defaultEpisode || 'episode-1';
+  select(panels.some(panel => panel.dataset.episodePanel === initialKey) ? initialKey : defaultKey);
 })();

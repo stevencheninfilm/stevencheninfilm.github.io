@@ -67,8 +67,8 @@
   align-items: center;
   gap: 10px;
   min-width: 0;
-  min-height: 92px;
-  padding: 13px 14px;
+  min-height: 72px;
+  padding: 8px 14px;
   overflow: hidden;
   border: 1px solid rgba(172,153,121,.6);
   border-radius: 5px;
@@ -92,7 +92,7 @@
 .xj-viewing__lounge a.xj-episode-card {
   justify-content: flex-start;
   gap: 10px;
-  padding: 13px 12px;
+  padding: 8px 12px;
   border: 1px solid rgba(172,153,121,.65);
   background: #192126;
   color: #f0e8d7;
@@ -128,9 +128,9 @@
   color: #2b271d;
   box-shadow: 0 0 12px rgba(236,189,107,.28);
 }
-.xj-viewing__lounge .xj-episode-card__text { display: grid; gap: 3px; min-width: 0; color: inherit; }
+.xj-viewing__lounge .xj-episode-card__text { display: grid; gap: 1px; min-width: 0; color: inherit; }
 .xj-episode-card__index { color: #d7cbb6; font: 400 12px/1.35 var(--xj-sans); }
-.xj-episode-card strong { font: 500 16px/1.5 "Songti SC", "STSong", "SimSun", serif; white-space: nowrap; letter-spacing: .015em; }
+.xj-episode-card strong { font: 500 16px/1.35 "Songti SC", "STSong", "SimSun", serif; white-space: nowrap; letter-spacing: .015em; }
 .xj-episode-card small { color: #aab0ae; font: 400 10px/1.4 var(--xj-sans); letter-spacing: .04em; }
 .xj-episode-card[aria-current] small { color: #e0c79e; }
 .xj-episode-card.is-upcoming { cursor: pointer; font: inherit; text-align: left; transition: border-color .2s ease, box-shadow .2s ease; }

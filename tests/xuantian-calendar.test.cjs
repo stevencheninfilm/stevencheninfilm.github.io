@@ -26,8 +26,8 @@ test('complete supplied poster and all five release dates remain accessible', ()
   for (const date of ['10 月 2 日 17:30 已上线', '10 月 10 日（周六）', '10 月 17 日', '10 月 24 日', '10 月 31 日']) {
     assert.ok(widgetHTML.includes(date), date);
   }
-  assert.ok(fs.statSync(path.join(root, 'assets/images/projects/xuantian-jie/release-calendar-2026-10.jpg')).size > 0);
-  assert.match(widgetHTML, /class="xj-calendar__watch" href="#episode-1"/);
+  assert.ok(fs.statSync(path.join(root, 'assets/images/projects/xuantian-jie/release-calendar-2026-10-ep02.jpg')).size > 0);
+  assert.match(widgetHTML, /class="xj-calendar__watch" href="#episode-2"/);
   assert.match(widgetHTML, /tabindex="0" role="region" aria-label="追剧日历海报，可滚动查看"/);
 });
 

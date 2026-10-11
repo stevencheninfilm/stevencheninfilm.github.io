@@ -36,7 +36,7 @@
   });
   watch.addEventListener('click', event => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    // Keep the native #episode-1 link and existing episode-selection logic.
+    // Keep the native latest-episode link and existing episode-selection logic.
     close(true);
   });
 })();

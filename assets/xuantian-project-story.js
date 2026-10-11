@@ -48,7 +48,7 @@
       status.textContent = scenes[index].getAttribute('aria-label');
       hint.textContent = index < scenes.length - 1
         ? '向下滚动 · 进入' + selectors[index + 1].textContent.trim().replace(/^\d+\s*/, '')
-        : '继续向下 · 探索世界观';
+        : '继续向下 · 认识三位主角';
     };
 
     const measure = () => {

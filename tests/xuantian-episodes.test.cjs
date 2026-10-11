@@ -8,17 +8,29 @@ const html = fs.readFileSync(path.join(root, 'projects/xuantian-jie.html'), 'utf
 const css = fs.readFileSync(path.join(root, 'assets/xuantian.css'), 'utf8');
 const script = fs.readFileSync(path.join(root, 'assets/xuantian-episodes.js'), 'utf8');
 const episodeURLs = [
-  'https://www.xinpianchang.com/a13833846?channel=copyLink&from=webShare',
   'https://v.douyin.com/LOKPgxiyZMI/',
   'https://www.bilibili.com/video/BV1QjH86bEvj/?share_source=copy_web&vd_source=017fe2b77e3ee35441400db7b7543f59',
+  'https://www.xinpianchang.com/a13833846?channel=copyLink&from=webShare',
   'https://weixin.qq.com/sph/AMsaXUkv0'
 ];
 
-test('episode one and closing links use all four supplied destinations, independently of the trailer', () => {
+const episodeTwoURLs = [
+  'https://v.douyin.com/RHkZTwsiRpQ/',
+  'https://www.bilibili.com/video/BV1bfpe6gERD/?share_source=copy_web',
+  'https://www.xinpianchang.com/a13838463?from=webShare&channel=copyLink',
+  'https://weixin.qq.com/sph/AzXlPGCqp'
+];
+
+test('published episodes retain distinct destinations and closing links point to the latest episode', () => {
   const platforms = html.split('id="episode-1-platforms"')[1].split('</nav>')[0].replaceAll('&amp;', '&');
   const ending = html.split('<section class="xj-end"')[1].split('</section>')[0].replaceAll('&amp;', '&');
   for (const url of episodeURLs) {
     assert.ok(platforms.includes(`href="${url}"`), url);
+
+  }
+  const second = html.split('id="episode-2-platforms"')[1].split('</nav>')[0].replaceAll('&amp;', '&');
+  for (const url of episodeTwoURLs) {
+    assert.ok(second.includes(`href="${url}"`), url);
     assert.ok(ending.includes(`href="${url}"`), url);
   }
   for (const link of platforms.matchAll(/<a\b[^>]+>/g)) {
@@ -27,13 +39,36 @@ test('episode one and closing links use all four supplied destinations, independ
   }
   assert.doesNotMatch(platforms, /a13797765|xd9IZhTjrTY/);
   assert.doesNotMatch(html, /xj-watch-context|data-episode-play-label/);
-  assert.equal((html.match(/\sdata-episode-play(?:\s|>)/g) || []).length, 1, 'only the cover launches onsite playback');
+  assert.equal((html.match(/\sdata-episode-play(?:\s|>)/g) || []).length, 2, 'each published episode has one cover launching onsite playback');
   assert.match(platforms, /在其他平台观看第一集/);
   assert.match(platforms, /新窗口打开/);
   const trailer = html.split('id="trailer-platforms"')[1].split('</nav>')[0];
   assert.match(trailer, /a13797765/);
   assert.match(trailer, /xd9IZhTjrTY/);
   assert.match(html, /src="\.\.\/assets\/videos\/xuantian-jie\/xuantian-jie-trailer\.mp4"/);
+});
+
+test('platforms consistently prioritize Douyin, Bilibili, Xinpianchang, then WeChat', () => {
+  const links = block => [...block.matchAll(/<a\b[^>]*href="(https:[^"]+)"/g)].map(match => match[1].replaceAll('&amp;', '&'));
+  const platforms = html.split('id="episode-1-platforms"')[1].split('</nav>')[0];
+  const ending = html.split('<div class="xj-watch-links">')[1].split('</div>')[0];
+  assert.deepEqual(links(platforms), episodeURLs);
+  assert.deepEqual(links(ending), episodeTwoURLs);
+  const second = html.split('id="episode-2-platforms"')[1].split('</nav>')[0];
+  assert.deepEqual(links(second), episodeTwoURLs);
+  const trailer = html.split('id="trailer-platforms"')[1].split('</nav>')[0];
+  assert.deepEqual(links(trailer).map(url => new URL(url).hostname), ['v.douyin.com', 'www.xinpianchang.com']);
+  assert.match(trailer.match(/<a\b[^>]*href="([^"]+)"/)[1], /^https:\/\/v\.douyin\.com\//);
+  assert.match(trailer, /href="#trailer" aria-current="true"/);
+});
+
+test('episode cards use compact height and padding without hiding release information', () => {
+  const selection = fs.readFileSync(path.join(root, 'assets/xuantian-selection.css'), 'utf8');
+  assert.match(selection, /\.xj-episode-card \{[^}]*min-height: 72px;[^}]*padding: 8px 14px;/);
+  assert.match(selection, /\.xj-viewing__lounge a\.xj-episode-card \{[^}]*padding: 8px 12px;/);
+  assert.match(selection, /\.xj-episode-card__text \{[^}]*gap: 1px;/);
+  assert.match(selection, /grid-auto-columns: 144px;[^}]*overflow-x: auto;/);
+  assert.doesNotMatch(selection, /\.xj-episode-card (?:small|strong)[^{]*\{[^}]*display: none/);
 });
 
 test('episode poster is uncropped and the official Douyin player loads only on request', () => {
@@ -45,7 +80,12 @@ test('episode poster is uncropped and the official Douyin player loads only on r
   assert.match(panel, /width="1672" height="941"/);
   assert.match(panel, /新窗口/);
   assert.doesNotMatch(panel, /<video|<iframe|01:40/);
-  assert.doesNotMatch(panel.split('>')[0], /\shidden/);
+  assert.match(panel.split('>')[0], /\shidden/);
+  const latest = html.match(/<figure id="episode-2"[\s\S]*?<\/figure>/)[0];
+  assert.doesNotMatch(latest.split('>')[0], /\shidden/);
+  assert.match(latest, /vid=7694831533504466212&amp;autoplay=1&amp;mode=pc/);
+  assert.match(latest, /episode-02-xuanmen.webp/);
+  assert.match(latest, /第二集 · 初入玄门/);
   assert.match(panel, /data-embed-src="https:\/\/open\.douyin\.com\/player\/video\?vid=7691998330158599459&amp;autoplay=1&amp;mode=pc"/);
   assert.match(panel, /无法播放？前往抖音/);
   assert.match(html, /<figure id="trailer"[^>]*hidden/);
@@ -75,6 +115,7 @@ test('every external playback platform has a local decorative SVG before its nam
   ]);
   const blocks = [
     html.split('id="episode-1-platforms"')[1].split('</nav>')[0],
+    html.split('id="episode-2-platforms"')[1].split('</nav>')[0],
     html.split('id="trailer-platforms"')[1].split('</nav>')[0],
     html.split('<div class="xj-watch-links">')[1].split('</div>')[0]
   ];
@@ -91,11 +132,11 @@ test('every external playback platform has a local decorative SVG before its nam
       count++;
     }
   }
-  assert.equal(count, 10);
+  assert.equal(count, 14);
   assert.match(css, /\.xj-platform-logo \{[^}]*width: 18px; height: 18px; flex: 0 0 18px/);
 });
 
-function fixture(hash = '', withEmbed = false, withFutureEpisode = false) {
+function fixture(hash = '', withEmbed = false, withFutureEpisode = false, defaultEpisode = 'episode-1') {
   const element = dataset => ({dataset, hidden: false, attributes: {}, listeners: {}, style: {},
     getBoundingClientRect() { return {width: this.width || 800}; },
     setAttribute(key, value) { this.attributes[key] = value; },
@@ -124,6 +165,7 @@ function fixture(hash = '', withEmbed = false, withFutureEpisode = false) {
   });
   const embedNodes = episodeNodes['episode-1'];
   const section = {
+    dataset: {defaultEpisode},
     querySelector: selector => selector === 'video' ? video : null,
     querySelectorAll: selector => ({'[data-episode-panel]': panels, '[data-episode-platforms]': platforms, '[data-episode-select]': choices})[selector]
   };
@@ -314,4 +356,14 @@ test('deep links, hash navigation, modified clicks and blocked file history rema
   f.window.history.replaceState = () => { throw Error('blocked'); };
   assert.doesNotThrow(() => f.click(1));
   assert.equal(f.panels[1].hidden, false);
+});
+
+
+test('latest-episode default respects explicit first-episode and trailer deep links', () => {
+  for (const [hash, expected] of [['', 'episode-2'], ['#full-film', 'episode-2'], ['#episode-1', 'episode-1'], ['#trailer', 'trailer']]) {
+    const f = fixture(hash, true, true, 'episode-2');
+    assert.deepEqual(f.panels.filter(panel => !panel.hidden).map(panel => panel.dataset.episodePanel), [expected]);
+    assert.deepEqual(f.platforms.filter(row => !row.hidden).map(row => row.dataset.episodePlatforms), [expected]);
+    assert.equal(f.frames.length, 0, 'selecting a published episode must not start playback');
+  }
 });
