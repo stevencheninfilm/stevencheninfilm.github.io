@@ -49,12 +49,14 @@ function harness({ home = true, reduced = false, ready = true, saved = null, rou
     render: () => { for (let i = 0; i < 4; i++) frames.splice(0).forEach(fn => fn()); } };
 }
 
-test('all participating documents load the shared transition before their first render', () => {
+test('destination transition runs before render; homepage defers its optional transition script', () => {
   for (const file of ['index.html', 'index-v3.html', 'tvc/index.html', 'film/Film.html']) {
     const head = read(file).split('</head>')[0];
     assert.match(head, /<link rel="stylesheet" href="(?:\.\.\/)?assets\/tvc-transition.css\?v=20260925-3">/);
-    assert.match(head, /<script src="(?:\.\.\/)?assets\/tvc-transition.js\?v=20260925-3"><\/script>/);
-    assert.doesNotMatch(head.match(/<script[^>]*tvc-transition.js[^>]*>/)[0], /defer|async|type="module"/);
+    assert.match(head, /<script (?:defer )?src="(?:\.\.\/)?assets\/tvc-transition.js\?v=20260925-3"><\/script>/);
+    const script=head.match(/<script[^>]*tvc-transition.js[^>]*>/)[0];
+    if(file.startsWith('index')) assert.match(script,/defer/);
+    else assert.doesNotMatch(script,/defer|async|type="module"/);
   }
   assert.equal(read('index.html'), read('index-v3.html'));
   assert.match(read('tvc/index.html'), /rel="preload" as="image" href="[^"\n]+banner-editorial-20260925.webp"/);

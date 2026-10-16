@@ -43,7 +43,11 @@
     cancelAnimationFrame(frame);
     clearTimeout(watchdog);
     isRevealed = false;
-    if (preference.matches || !motion || !lead || !tiles.length) return finish();
+    // Navigation is available even if this optional script arrives late. Avoid
+    // covering an already-visible page on a slow connection or data saver.
+    const connection = navigator.connection;
+    if (preference.matches || !motion || !lead || !tiles.length ||
+        performance.now() > 1800 || connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || '')) return finish();
     loader.hidden = false;
     loader.style.opacity = '1';
     percent.textContent = '0%';
@@ -60,15 +64,17 @@
       element.style.opacity = '0';
     });
     const images = [...loader.querySelectorAll('img')];
-    // Cached images are already ready. Count actual settled images on a cold load;
-    // failures also settle so one unavailable asset cannot block the homepage.
+    // Count actual ready images on a cold load. A failure skips the optional
+    // animation so an unavailable asset cannot block the homepage.
+    let failed = images.some(image => image.complete && image.naturalWidth === 0);
     const settled = new Set(images.filter(image => image.complete));
     images.filter(image => !settled.has(image)).forEach(image => {
       const markReady = () => { settled.add(image); };
-      if (image.decode) image.decode().then(markReady, markReady);
+      const markFailed = () => { failed = true; markReady(); };
+      if (image.decode) image.decode().then(markReady, markFailed);
       else {
         image.addEventListener('load', markReady, { once: true });
-        image.addEventListener('error', markReady, { once: true });
+        image.addEventListener('error', markFailed, { once: true });
       }
     });
     const started = performance.now();
@@ -79,8 +85,10 @@
     watchdog = window.setTimeout(finish, 6500);
     function render(now) {
       if (currentRun !== run) return;
+      if (failed) return finish();
       if (wallStarted === null) {
-        if (settled.size === images.length || now - started >= 2100) wallStarted = now;
+        if (settled.size === images.length) wallStarted = now;
+        else if (now - started >= 700) return finish();
         else {
           const value = Math.floor(settled.size / images.length * 100);
           if (value !== lastPercent) { percent.textContent = `${value}%`; lastPercent = value; }

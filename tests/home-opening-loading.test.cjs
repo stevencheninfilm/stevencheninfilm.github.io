@@ -5,15 +5,15 @@ const vm = require('node:vm');
 const motion = require('../assets/home-opening-motion.js');
 const source = fs.readFileSync(require.resolve('../assets/home-opening.js'), 'utf8');
 
-function opening(cached = false) {
-  let now = 0, frameId = 0, reloads = 0;
+function opening(cached = false, options = {}) {
+  let now = options.start || 0, frameId = 0, reloads = 0;
   const frames = new Map(), listeners = {}, clickHandlers = {};
   const classes = new Set(['home-v3', 'is-loading', 'is-v3-loading']);
   const body = { classList: { contains: c => classes.has(c), add: c => classes.add(c), remove: (...names) => names.forEach(c => classes.delete(c)) } };
   const images = Array.from({ length: 2 }, () => {
     let resolve, reject;
     const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
-    return { complete: cached, src: '/poster.webp', decode: () => promise, resolve, reject };
+    return { complete: cached, naturalWidth: cached ? 100 : 0, src: '/poster.webp', decode: () => promise, resolve, reject };
   });
   const percent = { style: {}, hidden: true };
   const skip = { addEventListener: (name, fn) => { clickHandlers.skip = fn; } };
@@ -27,7 +27,7 @@ function opening(cached = false) {
     location: { href: 'http://localhost/index.html#featured-work', pathname: '/index.html', reload: () => { reloads++; }, assign: () => {} },
     matchMedia: () => ({ matches: false, addEventListener() {} }),
     addEventListener: (name, fn) => { listeners[name] = fn; }, setTimeout: () => 1 };
-  vm.runInNewContext(source, { window, URL, document: { body, activeElement: null,
+  vm.runInNewContext(source, { window, URL, navigator: {connection:options.connection}, document: { body, activeElement: null,
     querySelector: selector => ({ '.v3-loader': loader, '[data-home-replay]': work })[selector],
     querySelectorAll: () => interfaces }, performance: { now: () => now },
     requestAnimationFrame: fn => { frames.set(++frameId, fn); return frameId; },
@@ -58,11 +58,11 @@ test('cold-load progress counts ready images and disappears as soon as they sett
   await Promise.resolve();
   app.tick(300);
   assert.equal(app.percent.textContent, '50%');
-  app.tick(900);
+  app.tick(600);
   assert.equal(app.percent.textContent, '50%', 'elapsed time must not fake progress');
   app.images[1].resolve();
   await Promise.resolve();
-  app.tick(910);
+  app.tick(610);
   assert.equal(app.percent.hidden, true);
   assert.equal(app.loader.dataset.phase, 'wall');
 });
@@ -72,12 +72,10 @@ test('failed or stalled assets cannot trap visitors behind loading progress', as
   failed.images.forEach(image => image.reject(new Error('unavailable')));
   await Promise.resolve();
   failed.tick(20);
-  assert.equal(failed.loader.dataset.phase, 'wall');
+  assert.equal(failed.loader.hidden, true);
   const stalled = opening();
-  stalled.tick(2100);
-  assert.equal(stalled.percent.hidden, true);
-  assert.equal(stalled.loader.dataset.phase, 'wall');
-  stalled.tick(2100 + motion.timing.end - motion.timing.wallStart + 1);
+  stalled.tick(700);
+  assert.equal(stalled.loader.dataset.phase, 'complete');
   assert.equal(stalled.loader.hidden, true);
 });
 
@@ -101,4 +99,12 @@ test('same-size viewport notifications do not cancel the opening', () => {
   assert.equal(app.loader.dataset.phase, 'wall');
   app.resize(390, 844);
   assert.equal(app.loader.hidden, true, 'a real rotation safely reveals the responsive page');
+});
+
+ test('late scripts and data saver leave the visible homepage available', () => {
+  for (const options of [{start:2000},{connection:{saveData:true}},{connection:{effectiveType:'slow-2g'}}]) {
+    const app=opening(true,options);
+    assert.equal(app.loader.hidden,true);
+    assert.equal(app.interfaces[0].inert,false);
+  }
 });

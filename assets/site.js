@@ -73,17 +73,17 @@
       return Promise.resolve();
     }
 
-    const image = card.querySelector('img[data-src]');
+    const images = [...card.querySelectorAll('img[data-src]')];
     card.querySelectorAll('source[data-srcset]').forEach((source) => {
       source.srcset = source.dataset.srcset;
       source.removeAttribute('data-srcset');
     });
-    if (image) {
+    images.forEach(image => {
       image.src = image.dataset.src;
       image.removeAttribute('data-src');
-    }
+    });
     card.dataset.mediaLoaded = 'true';
-    return image?.decode ? image.decode().catch(() => {}) : Promise.resolve();
+    return Promise.all(images.map(image => image.decode ? image.decode().catch(() => {}) : Promise.resolve()));
   };
 
   cards[0].dataset.mediaLoaded = 'true';
@@ -95,6 +95,7 @@
       const x = relative * distance;
       const cardCenter = (window.innerWidth / 2) + x;
       const visible = cardCenter > -cardWidth && cardCenter < window.innerWidth + cardWidth;
+      if (mode === 'strip' && visible) ensureCardMedia(index);
       card.style.setProperty('--rel', relative);
       card.style.setProperty('--strip-x', `${x}px`);
       card.style.setProperty('--strip-opacity', visible ? '1' : '0');
@@ -231,6 +232,7 @@
     stripTarget = active;
     renderStrip(stripProgress);
     mode = 'strip';
+    renderStrip(stripProgress);
     deck.classList.add('is-transitioning');
     deck.classList.add('is-strip');
     updateInterface();
