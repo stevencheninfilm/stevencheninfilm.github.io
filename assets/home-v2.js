@@ -22,11 +22,10 @@
       source.removeAttribute('data-srcset');
     });
 
-    const image = card.querySelector('img[data-src]');
-    if (image) {
+    card.querySelectorAll('img[data-src]').forEach((image) => {
       image.src = image.dataset.src;
       image.removeAttribute('data-src');
-    }
+    });
     card.dataset.mediaLoaded = 'true';
   };
 
