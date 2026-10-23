@@ -31,7 +31,7 @@
 .cinema-home .workflow-player__picture { position: absolute; inset: 0; aspect-ratio: auto; }
 .cinema-home .workflow-player__picture::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, #0005, transparent 25%, #0003 50%, transparent 68%, #0009); }
 .cinema-home .workflow-player video { object-fit: cover; }
-.cinema-home .workflow-player__controls { position: absolute; z-index: 5; left: clamp(24px, 7vw, 130px); right: clamp(24px, 7vw, 130px); bottom: 108px; min-height: 54px; padding: 0; background: none; color: #fff; text-shadow: 0 1px 8px #000; transition: opacity .3s ease; }
+.cinema-home .workflow-player__controls { position: absolute; z-index: 5; left: clamp(24px, 7vw, 130px); right: clamp(24px, 7vw, 130px); bottom: 108px; min-height: 54px; padding: 0; background: none; color: #fff; text-shadow: 0 1px 8px #000; transition: opacity 1.2s ease-in-out; }
 .cinema-home .workflow-player__status { position: absolute; z-index: 5; left: 7vw; bottom: 172px; padding: 6px 10px; background: #050709b3; }
 .comparison-title-link { color: inherit; text-decoration: none; pointer-events: auto; }
 .comparison-title-link:focus-visible { outline: 1px solid #e5be88; outline-offset: 8px; }
@@ -164,6 +164,7 @@
   .ai-workflows.is-enhanced .ai-workflows__item { justify-content: start; }
 }
 @media (prefers-reduced-motion: reduce) {
+  .cinema-home .workflow-player__controls { transition: none; }
   .ai-workflows__item, .ai-workflows__directory a, .ai-workflows__thumb, .ai-workflows__directory a::before { transition: none !important; }
   .ai-workflows__directory { align-self: start; position: sticky; top: var(--workflow-top); }
 }
