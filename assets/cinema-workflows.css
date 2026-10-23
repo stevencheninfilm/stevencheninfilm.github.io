@@ -39,6 +39,7 @@
 
 /* Native scrolling advances two stories within one pinned editorial canvas. */
 .ai-workflows { --workflow-top: 100px; --workflow-accent: #e5be88; padding: var(--workflow-top) var(--pad) 40px; border-bottom: 1px solid var(--line); }
+.content-page:has(.ai-workflows) .site-header { background: #0b0b0b; }
 .ai-workflows__pin { max-width: 1720px; margin: 0 auto; }
 .ai-workflows__eyebrow { display: flex; gap: 24px; align-items: center; padding: 12px 0 18px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; letter-spacing: .09em; text-transform: uppercase; }
 .ai-workflows__eyebrow h1 { color: var(--ink); margin: 0; font-size: 12px; font-weight: 400; letter-spacing: .12em; }
