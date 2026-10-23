@@ -9,6 +9,7 @@
   const after = stage.querySelector('.ab-compare__after video');
   if (!frame || !handle || !toggle || !status || !before || !after) return;
 
+  const workflowPanel = stage.closest?.('[data-workflow-item]');
   const videos = [before, after];
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const mobile = window.matchMedia('(max-width: 600px)');
@@ -16,7 +17,7 @@
   let manualPlay = false, ready = false, loading = false, failed = false;
   let generation = 0, playPending = false, frameRequest = null, loadTimer = null;
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-  const shouldPlay = () => inView && !document.hidden && !paused && (!motion.matches || manualPlay);
+  const shouldPlay = () => (!workflowPanel || workflowPanel.getAttribute('aria-hidden') !== 'true') && inView && !document.hidden && !paused && (!motion.matches || manualPlay);
 
   const setSplit = (value) => {
     split = clamp(value, 4, 96);
@@ -161,6 +162,7 @@
       update();
     }, { threshold: 0 }).observe(frame);
   } else { inView = true; }
+  if (workflowPanel) new MutationObserver(update).observe(workflowPanel, { attributes: true, attributeFilter: ['aria-hidden'] });
   document.addEventListener('visibilitychange', update);
   window.addEventListener('pagehide', stop);
   window.addEventListener('pageshow', update);

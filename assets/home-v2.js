@@ -10,6 +10,7 @@
 
     const video = card.querySelector('video[data-src]');
     if (video) {
+      if (video.hasAttribute('data-workflow-video')) return;
       video.src = video.dataset.src;
       video.removeAttribute('data-src');
       video.load();

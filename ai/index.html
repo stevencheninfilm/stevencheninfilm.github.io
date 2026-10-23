@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="../assets/site.css?v=20260925-1">
   <link rel="stylesheet" href="../assets/portfolio.css?v=20260925-10">
   <link rel="stylesheet" href="../assets/industry-partnerships.css?v=20260925-1">
+  <link rel="stylesheet" href="../assets/cinema-workflows.css?v=20261023-1">
   <link rel="stylesheet" href="../assets/ai-news.css?v=20260925-3">
   <link rel="stylesheet" href="../assets/xuantian-brand.css?v=20260927-logo-1">
 </head>
@@ -27,12 +28,50 @@
   </header>
 
   <main id="main">
-    <section class="page-intro ai-intro">
-      <div>
-        <p class="eyebrow">Selected AI work / 2025—2026</p>
-        <h1>Images that<br>learn to move.</h1>
+    <section class="ai-workflows" id="cinema-workflows" aria-labelledby="workflows-title" data-workflows>
+      <div class="ai-workflows__pin">
+        <header class="ai-workflows__eyebrow"><h1 id="workflows-title">Cinema, reimagined.</h1><span>Two ways into AI / 05—2026</span><span data-workflow-counter>01 / 02</span></header>
+        <div class="ai-workflows__layout">
+          <nav class="ai-workflows__directory" aria-label="Explore filmmaking workflows">
+            <a href="#camera-previs-to-ai" data-workflow-step="0" aria-current="true"><span class="ai-workflows__thumb"><img src="../assets/images/home/grand-theft-art-poster.jpg" width="320" height="180" alt=""></span><span><b>01</b> 3D Camera Previs <small>to AI</small></span><i aria-hidden="true">↗</i></a>
+            <a href="#real-cinema-to-ai" data-workflow-step="1"><span class="ai-workflows__thumb"><img src="../assets/images/projects/journey-to-another-world/poster.jpg" width="1600" height="900" alt=""></span><span><b>02</b> Real Cinema <small>to AI Video</small></span><i aria-hidden="true">↗</i></a>
+            <p class="ai-workflows__scroll">Scroll to explore <span aria-hidden="true">↓</span></p>
+          </nav>
+          <div class="ai-workflows__stage">
+            <article class="ai-workflows__item" id="camera-previs-to-ai" data-workflow-item aria-labelledby="previs-title">
+              <header class="ai-workflows__title"><p>01 / 3D Camera Previs → AI</p><h2 id="previs-title">Direct the camera.<br><em>Reinvent the world.</em></h2></header>
+                      <div class="ab-compare" data-about-comparison>
+          <div class="ab-compare__frame">
+            <video class="ab-compare__before" muted loop playsinline preload="none" width="1280" height="720" poster="../assets/images/home/grand-theft-art-before.jpg" data-src="../assets/videos/grand-theft-art/previs.m4v" data-src-mobile="../assets/videos/grand-theft-art/previs-mobile.m4v" aria-label="Grand Theft Art — 3D camera previs"></video>
+            <div class="ab-compare__after" aria-hidden="true"><video muted loop playsinline preload="none" width="1280" height="720" poster="../assets/images/home/grand-theft-art-poster.jpg" data-src="../assets/videos/grand-theft-art/ai-render.m4v" data-src-mobile="../assets/videos/grand-theft-art/ai-render-mobile.m4v"></video></div>
+            <span class="ab-compare__label ab-compare__label--before">3D PREVIS</span>
+            <span class="ab-compare__label ab-compare__label--after">AI RENDER</span>
+            <span class="ab-compare__divider" aria-hidden="true"></span>
+            <button class="ab-compare__handle" type="button" role="slider" aria-label="Reveal the 3D previs and AI render comparison" aria-orientation="horizontal" aria-valuemin="4" aria-valuemax="96" aria-valuenow="50" aria-valuetext="50 percent 3D previs, 50 percent AI render" aria-describedby="comparison-help"><span aria-hidden="true">↔</span></button>
+          </div>
+          <div class="ab-compare__controls"><p id="comparison-help">Drag to compare · <span lang="zh-Hans">左右拖动对比</span></p><button class="ab-compare__play" type="button" hidden>Play comparison</button><span class="ab-compare__status" role="status" aria-live="polite"></span></div>
+          <noscript><p><a href="../assets/videos/grand-theft-art/previs.m4v">Watch 3D previs</a> / <a href="../assets/videos/grand-theft-art/ai-render.m4v">Watch AI render</a></p></noscript>
+        </div>
+              <div class="ai-workflows__description"><div><h3>Grand Theft Art</h3><p>A shot begins with a camera move. Build the composition, blocking and movement in 3D, then carry that direction into an AI-rendered world. Drag the divider to see the same moment in both.</p></div><div class="ai-workflows__credits"><span class="project-tool"><i class="project-tool-logo project-tool-logo--dreamina" aria-hidden="true"></i>Seedance 2.0</span><time datetime="2026-05">05/2026</time></div></div>
+            </article>
+            <article class="ai-workflows__item" id="real-cinema-to-ai" data-workflow-item aria-labelledby="cinema-title">
+              <header class="ai-workflows__title"><p>02 / Real Cinema → AI Video</p><h2 id="cinema-title">Shot in reality.<br><em>Reimagined with AI.</em></h2></header>
+              <div class="workflow-player" data-workflow-player>
+              <div class="workflow-player__picture"><video data-workflow-video muted loop playsinline preload="none" width="1280" height="720" poster="../assets/images/projects/journey-to-another-world/poster.jpg" data-src="../assets/videos/journey-to-another-world/bts-720p.mp4" data-src-mobile="../assets/videos/journey-to-another-world/bts-mobile.mp4" aria-label="Journey to Another World — live-action to AI breakdown"></video></div>
+              <div class="workflow-player__controls" data-player-controls hidden>
+                <button type="button" data-player-toggle aria-label="Play video">Play</button>
+                <output data-player-time aria-label="Playback time">0:00 / 0:36</output>
+                <input type="range" min="0" max="100" step="0.1" value="0" disabled data-player-seek aria-label="Seek Journey to Another World video">
+                <button type="button" data-player-sound aria-label="Unmute video" aria-pressed="false">Sound off</button>
+              </div>
+              <span class="workflow-player__status" role="status" data-player-status></span>
+              <noscript><a href="../assets/videos/journey-to-another-world/bts-720p.mp4">Watch Journey to Another World ↗</a></noscript>
+            </div>
+              <div class="ai-workflows__description"><div><h3>Journey to Another World</h3><p>Start with a real performance, practical space and a deliberate shot. Use Seedance 2.0 to transform that footage into another world. This breakdown moves between the original filming, visual references and the finished AI shots.</p></div><div class="ai-workflows__credits"><span class="project-tool"><i class="project-tool-logo project-tool-logo--dreamina" aria-hidden="true"></i>Seedance 2.0</span><time datetime="2026-05">05/2026</time></div></div>
+            </article>
+          </div>
+        </div>
       </div>
-      <p class="intro-copy">Steven Chen builds visual worlds across generative image, AI filmmaking, brand storytelling, and interactive experiments. The work starts with cinema: light, rhythm, character, and a reason for every frame.</p>
     </section>
 
     <section class="industry-partnerships" id="industry-partnerships" aria-label="Industry partnerships">
@@ -166,6 +205,9 @@
   </main>
 
   <footer class="site-footer"><a href="mailto:kieen1454@gmail.com">Start a project ↗</a><span>© 2026 Steven Chen</span></footer>
+  <script src="../assets/ai-workflows.js?v=20261023-1" defer></script>
+  <script src="../assets/about-comparison.js?v=20261023-1" defer></script>
+  <script src="../assets/workflow-player.js?v=20261023-1" defer></script>
   <script src="../assets/video-loader.js?v=20260911-5"></script>
   <script src="../assets/ai-news.js?v=20260925-2"></script>
 </body>
