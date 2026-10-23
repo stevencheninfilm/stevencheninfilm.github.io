@@ -5,6 +5,8 @@
 
   document.querySelectorAll('[data-workflow-player]').forEach(player => {
     const video = player.querySelector('video');
+    video.defaultMuted = true;
+    video.muted = true;
     const controls = player.querySelector('[data-player-controls]');
     const toggle = player.querySelector('[data-player-toggle]');
     const seek = player.querySelector('[data-player-seek]');
@@ -48,7 +50,11 @@
     };
     const update = () => {
       const isActive = active();
-      if (isActive && !wasActive) paused = false;
+      if (isActive && !wasActive) {
+        paused = false;
+        // Every new visit starts quietly; sound remains an explicit choice within it.
+        video.muted = true;
+      }
       wasActive = isActive;
       controls.inert = !isActive;
       if (canPlay() && !failed) { load(); play(); }
