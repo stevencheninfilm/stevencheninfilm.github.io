@@ -9,7 +9,7 @@
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const compact = matchMedia('(max-height: 650px)');
   const staticLayout = () => motion.matches || compact.matches;
-  let top = 100, frame = 0, active = -1;
+  let top = 100, frame = 0, active = -1, measuredRange = 0;
   const clamp = value => Math.max(0, Math.min(1, value));
   const range = () => Math.max(1, section.offsetHeight - pin.offsetHeight - top);
   const start = () => window.scrollY + section.getBoundingClientRect().top;
@@ -46,13 +46,20 @@
     if (index !== -1) navigate(index, 'instant');
   };
   const measure = () => {
+    const oldProgress = measuredRange ? -section.getBoundingClientRect().top / measuredRange : -1;
     top = Math.ceil(header.getBoundingClientRect().height + 8);
     section.style.setProperty('--workflow-top', `${top}px`);
+    const nextRange = range();
+    if (!staticLayout() && oldProgress >= 0 && oldProgress <= 1 && Math.abs(nextRange - measuredRange) > 1) {
+      window.scrollTo({ top: start() + nextRange * oldProgress, behavior: 'instant' });
+    }
+    measuredRange = nextRange;
     schedule();
   };
   const configure = () => {
     section.classList.toggle('is-enhanced', !staticLayout());
     active = -1;
+    measuredRange = 0;
     measure(); setActive(0); schedule();
   };
   steps.forEach((step, i) => step.addEventListener('click', event => {
