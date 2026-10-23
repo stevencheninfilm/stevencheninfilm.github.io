@@ -22,6 +22,17 @@
       activate(tabs[next], true);
     });
   });
+  const sceneImage = document.querySelector('[data-scene-image]');
+  const sceneCaption = document.querySelector('[data-scene-caption]');
+  const sceneButtons = [...document.querySelectorAll('[data-scene-src]')];
+  sceneButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      sceneImage.src = button.dataset.sceneSrc;
+      sceneImage.alt = `${button.dataset.sceneName}，六张餐桌与完整厨房的游戏场景`;
+      sceneCaption.textContent = button.dataset.sceneName;
+      sceneButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    });
+  });
   const copy = document.querySelector('[data-copy-wechat]');
   copy?.addEventListener('click', async () => {
     const number = document.getElementById('cn-wechat-number').textContent.trim();
