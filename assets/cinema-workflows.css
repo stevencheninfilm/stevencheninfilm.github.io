@@ -21,11 +21,13 @@
 /* Home: edge-to-edge moving image with the same centered hierarchy as project 0. */
 .cinema-home { position: absolute; inset: 0; isolation: isolate; }
 .cinema-home__heading { position: absolute; z-index: 4; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(82vw, 1000px); display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; text-shadow: 0 2px 24px #0009; pointer-events: none; }
-.cinema-home__kicker { margin: 0; color: #eeece4; font-size: var(--home-project-meta-size); letter-spacing: .1em; text-transform: uppercase; }
+.cinema-home__kicker > span { white-space: nowrap; }
+.cinema-home__kicker .project-tool { text-transform: none; }
+.cinema-home__kicker .project-tool-logo { width: 14px; height: 14px; flex-basis: 14px; }
+.cinema-home__kicker { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 14px; margin: 0; color: #eeece4; font-size: var(--home-project-meta-size); letter-spacing: .1em; text-transform: uppercase; }
 .home-page .cinema-home .cinema-home__title { position: static; transform: none; display: block; width: auto; max-width: none; padding: 0; font-size: var(--home-project-title-size); line-height: .98; letter-spacing: -.05em; white-space: normal; text-align: center; pointer-events: auto; }
 .cinema-home__title span { display: block; }
 .cinema-home__meta { display: flex; align-items: center; gap: 20px; font-size: var(--home-project-meta-size); letter-spacing: .035em; }
-.cinema-home__meta time { padding-left: 20px; border-left: 1px solid #ffffff70; }
 
 .cinema-home > .workflow-player { position: absolute; inset: 0; }
 .cinema-home .workflow-player__picture { position: absolute; inset: 0; aspect-ratio: auto; }
@@ -38,8 +40,6 @@
 .home-page .deck-card--comparison .comparison-copy em { padding: 11px 20px; font-size: clamp(13px, 1.1vw, 17px); letter-spacing: .06em; text-transform: none; }
 .home-page .deck-card--comparison .comparison-copy em::after { content: none; }
 .cinema-home .workflow-player__controls[data-visible="false"] { opacity: 0; visibility: hidden; pointer-events: none; }
-.home-page:has(.deck-card--cinema.is-active) .stage-step--prev { left: 0; }
-.home-page:has(.deck-card--cinema.is-active) .stage-step--next { right: 0; }
 .project-deck.is-strip .cinema-home { inset: 0; }
 .project-deck.is-strip .cinema-home__heading, .project-deck.is-strip .workflow-player__controls, .project-deck.is-strip .workflow-player__status { display: none; }
 .project-deck.is-strip .workflow-player { height: 100%; pointer-events: none; }
@@ -126,7 +126,6 @@
   .cinema-home__kicker, .cinema-home__meta { font-size: 9px; }
   .cinema-home .workflow-player__controls { left: 18px; right: 18px; bottom: 152px; padding: 0; }
   .cinema-home .workflow-player__status { left: 18px; bottom: 212px; }
-  .home-page:has(.deck-card--cinema.is-active) .stage-step { top: auto; bottom: 92px; transform: none; }
   .home-page .deck-card--comparison .comparison-copy em { font-size: 12px; padding: 8px 14px; }
   .ai-workflows__eyebrow { gap: 8px; padding: 5px 0 14px; }
   .ai-workflows__eyebrow > p { font-size: 10px; }
