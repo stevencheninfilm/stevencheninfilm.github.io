@@ -77,3 +77,15 @@ test('a failed source can retry without losing the controls', async () => {
   assert.equal(s.video.paused, true); assert.equal(s.toggle.textContent, 'Retry');
   s.toggle.fire('click'); await flush(); assert.equal(s.video.loads, 2); assert.equal(s.video.paused, false);
 });
+
+test('each new visit starts muted, while explicit sound stays on during playback and seeking', async () => {
+  const s = setup(); s.visible(true); await flush();
+  assert.equal(s.video.defaultMuted, true);
+  assert.equal(s.video.muted, true);
+  s.sound.fire('click'); assert.equal(s.video.muted, false);
+  s.seek.fire('pointerdown', { pointerId: 1 }); s.seek.value = 40; s.seek.fire('input'); s.seek.fire('pointerup');
+  await flush(); assert.equal(s.video.muted, false);
+  s.select(false); s.select(true); await flush();
+  assert.equal(s.video.muted, true); assert.equal(s.sound.textContent, 'Sound off');
+  assert.equal(s.video.paused, false);
+});

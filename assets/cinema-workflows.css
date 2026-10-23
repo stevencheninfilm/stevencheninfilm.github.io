@@ -1,4 +1,4 @@
-/* Film players keep the complete frame, including the original breakdown captions. */
+/* Detail players preserve the complete frame; the home hero fills its viewport. */
 .workflow-player { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 .workflow-player__picture { position: relative; flex: 1; min-height: 0; aspect-ratio: 16 / 9; background: #050606; overflow: hidden; }
 .workflow-player video { display: block; width: 100%; height: 100%; object-fit: contain; }
@@ -8,31 +8,35 @@
 .workflow-player__controls button:first-child { min-width: 34px; text-align: left; }
 .workflow-player__controls output { font-size: 10px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .workflow-player__controls input { --seek: 0%; appearance: none; -webkit-appearance: none; flex: 1; width: 0; min-width: 35px; height: 36px; margin: 0; cursor: ew-resize; background: transparent; touch-action: none; }
-.workflow-player__controls input::-webkit-slider-runnable-track { height: 2px; background: linear-gradient(to right, #e5be88 var(--seek), #ffffff35 var(--seek)); }
-.workflow-player__controls input::-moz-range-track { height: 2px; background: #ffffff35; }
-.workflow-player__controls input::-moz-range-progress { height: 2px; background: #e5be88; }
-.workflow-player__controls input::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; margin-top: -5px; border-radius: 50%; background: #e5be88; border: 0; }
-.workflow-player__controls input::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: #e5be88; border: 0; }
+.workflow-player__controls input::-webkit-slider-runnable-track { box-sizing: border-box; height: 12px; border: 1px solid #e5be8899; border-radius: 2px; background: linear-gradient(to right, #e5be88 var(--seek), #171a1be6 var(--seek)); }
+.workflow-player__controls input::-moz-range-track { box-sizing: border-box; height: 12px; border: 1px solid #e5be8899; border-radius: 2px; background: #171a1be6; }
+.workflow-player__controls input::-moz-range-progress { height: 10px; border-radius: 1px; background: #e5be88; }
+.workflow-player__controls input::-webkit-slider-thumb { -webkit-appearance: none; width: 4px; height: 18px; margin-top: -4px; border-radius: 1px; background: #fff0d7; border: 0; }
+.workflow-player__controls input::-moz-range-thumb { width: 4px; height: 18px; border-radius: 1px; background: #fff0d7; border: 0; }
 .workflow-player__controls input:focus-visible { outline: 1px solid #e5be88; outline-offset: 3px; }
 .workflow-player__controls input:disabled { opacity: .3; cursor: wait; }
 .workflow-player__status { font-size: 11px; color: #e5be88; }
 .workflow-player__status:empty { display: none; }
 
-/* Home: a cinema frame, with its title and transport outside the picture. */
-.cinema-home { position: absolute; inset: max(92px, var(--home-header-top)) clamp(24px, 7vw, 130px) 128px; display: flex; flex-direction: column; gap: 18px; }
-.cinema-home__heading { display: flex; justify-content: space-between; align-items: end; gap: 20px; flex-shrink: 0; }
-.cinema-home .deck-project-link { position: static; transform: none; padding: 0; white-space: normal; text-align: left; justify-content: start; max-width: none; }
-.cinema-home .cinema-home__title { display: block; font-size: clamp(26px, 3.6vw, 58px); line-height: .97; letter-spacing: -.05em; }
-.cinema-home__title span { color: #e5be88; }
-.cinema-home__meta { display: flex; flex-direction: column; align-items: end; gap: 8px; white-space: nowrap; font-size: 11px; letter-spacing: .035em; }
-.cinema-home > .workflow-player { flex: 1; }
-.cinema-home__caption { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-shrink: 0; color: var(--muted); font-size: 11px; }
-.cinema-home .cinema-home__explore { display: block; min-height: 0; font-size: 11px; letter-spacing: 0; }
+/* Home: edge-to-edge moving image with the same centered hierarchy as project 0. */
+.cinema-home { position: absolute; inset: 0; isolation: isolate; }
+.cinema-home__heading { position: absolute; z-index: 4; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(82vw, 1000px); display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; text-shadow: 0 2px 24px #0009; pointer-events: none; }
+.cinema-home__kicker { margin: 0; color: #eeece4; font-size: var(--home-project-meta-size); letter-spacing: .1em; text-transform: uppercase; }
+.home-page .cinema-home .cinema-home__title { position: static; transform: none; display: block; width: auto; max-width: none; padding: 0; font-size: var(--home-project-title-size); line-height: .98; letter-spacing: -.05em; white-space: normal; text-align: center; pointer-events: auto; }
+.cinema-home__title span { display: block; color: #e5be88; }
+.cinema-home__meta { display: flex; align-items: center; gap: 20px; font-size: var(--home-project-meta-size); letter-spacing: .035em; }
+.cinema-home__meta time { padding-left: 20px; border-left: 1px solid #ffffff70; }
+.cinema-home > .workflow-player { position: absolute; inset: 0; }
+.cinema-home .workflow-player__picture { position: absolute; inset: 0; aspect-ratio: auto; }
+.cinema-home .workflow-player__picture::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, #0005, transparent 25%, #0003 50%, transparent 68%, #0009); }
+.cinema-home .workflow-player video { object-fit: cover; }
+.cinema-home .workflow-player__controls { position: absolute; z-index: 5; left: clamp(24px, 7vw, 130px); right: clamp(24px, 7vw, 130px); bottom: 108px; min-height: 54px; padding: 0 18px; border-radius: 4px; background: #050709a6; backdrop-filter: blur(12px); }
+.cinema-home .workflow-player__status { position: absolute; z-index: 5; left: 7vw; bottom: 172px; padding: 6px 10px; background: #050709b3; }
 .workflow-home-link.deck-project-link { top: auto; bottom: 112px; font-size: 11px; padding: 10px 16px; border: 1px solid #ffffff55; border-radius: 30px; backdrop-filter: blur(12px); background: #05070966; }
 .home-page:has(.deck-card--cinema.is-active) .stage-step--prev { left: 0; }
 .home-page:has(.deck-card--cinema.is-active) .stage-step--next { right: 0; }
 .project-deck.is-strip .cinema-home { inset: 0; }
-.project-deck.is-strip .cinema-home__heading, .project-deck.is-strip .cinema-home__caption, .project-deck.is-strip .workflow-player__controls, .project-deck.is-strip .workflow-player__status { display: none; }
+.project-deck.is-strip .cinema-home__heading, .project-deck.is-strip .workflow-player__controls, .project-deck.is-strip .workflow-player__status { display: none; }
 .project-deck.is-strip .workflow-player { height: 100%; pointer-events: none; }
 .project-deck.is-strip .workflow-player__picture { aspect-ratio: auto; }
 .project-deck.is-strip .workflow-player video { object-fit: cover; }
@@ -44,7 +48,7 @@
 .ai-workflows__eyebrow { display: flex; gap: 24px; align-items: center; padding: 12px 0 18px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; letter-spacing: .09em; text-transform: uppercase; }
 .ai-workflows__eyebrow h1 { color: var(--ink); margin: 0; font-size: 12px; font-weight: 400; letter-spacing: .12em; }
 .ai-workflows__eyebrow > span:last-child { margin-left: auto; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.ai-workflows__layout { display: grid; grid-template-columns: clamp(125px, 15vw, 220px) minmax(0, 1fr); gap: clamp(25px, 5vw, 88px); padding-top: 26px; min-height: 0; }
+.ai-workflows__layout { display: grid; grid-template-columns: clamp(180px, 18vw, 240px) minmax(0, 1fr); gap: clamp(28px, 4vw, 68px); padding-top: 22px; min-height: 0; }
 .ai-workflows__directory { display: flex; flex-direction: column; gap: 26px; align-self: center; border-left: 1px solid var(--line); }
 .ai-workflows__directory a { position: relative; display: grid; gap: 12px; padding-left: 18px; text-decoration: none; color: var(--muted); font-size: 11px; line-height: 1.5; transition: color .35s; }
 .ai-workflows__directory a::before { content: ''; position: absolute; left: -1px; top: 0; width: 2px; height: 100%; transform: scaleY(0); transform-origin: top; background: var(--workflow-accent); transition: transform .35s; }
@@ -54,19 +58,19 @@
 .ai-workflows__thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .ai-workflows__directory a:is([aria-current="true"], :hover) .ai-workflows__thumb { opacity: 1; }
 .ai-workflows__directory b { display: block; margin-bottom: 3px; font-weight: 400; color: var(--workflow-accent); font-size: 9px; letter-spacing: .06em; }
-.ai-workflows__directory small { display: block; font-size: inherit; }
-.ai-workflows__directory i { position: absolute; right: 0; bottom: 4px; font-style: normal; }
+.ai-workflows__directory a > span:last-child { white-space: nowrap; }
+.ai-workflows__directory small { display: inline; font-size: inherit; }
 .ai-workflows__scroll { margin: 6px 0 0 18px; font-size: 9px; color: var(--muted); }
 .ai-workflows__scroll span { display: block; margin-top: 12px; font-size: 20px; }
 .ai-workflows__stage { min-width: 0; min-height: 0; }
 .ai-workflows__item { display: flex; flex-direction: column; gap: 18px; scroll-margin-top: calc(var(--workflow-top) + 12px); }
 .ai-workflows__item + .ai-workflows__item { margin-top: 80px; }
 .ai-workflows__title p { margin: 0 0 12px; color: var(--workflow-accent); font-size: 10px; text-transform: uppercase; letter-spacing: .12em; }
-.ai-workflows__title h2 { margin: 0; font-size: clamp(32px, 4.1vw, 66px); font-weight: 400; letter-spacing: -.055em; line-height: .98; }
+.ai-workflows__title h2 { margin: 0; font-size: clamp(44px, min(6.3vw, 8svh), 82px); font-weight: 400; letter-spacing: -.055em; line-height: .98; }
 .ai-workflows__title em { font-style: normal; color: #aaa9a3; }
 .ai-workflows__description { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; flex-shrink: 0; }
 .ai-workflows__description h3 { margin: 0 0 8px; font-weight: 400; font-size: 15px; letter-spacing: -.02em; }
-.ai-workflows__description p { margin: 0; max-width: 650px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.ai-workflows__description p { margin: 0; max-width: 760px; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .ai-workflows__credits { display: flex; flex-direction: column; gap: 12px; align-items: end; font-size: 10px; white-space: nowrap; }
 .ai-workflows__credits time { color: var(--muted); }
 .ai-workflows.is-enhanced { height: 250svh; padding-bottom: 0; }
@@ -94,26 +98,23 @@
 .ai-workflows .ab-compare__status:not(:empty) { flex-basis: 100%; padding-bottom: 6px; }
 
 @media (max-width: 680px) {
-  .cinema-home { inset: 94px 18px 160px; gap: 16px; justify-content: center; }
-  .cinema-home__heading { align-items: start; }
-  .cinema-home .cinema-home__title { font-size: clamp(26px, 6vw, 40px); }
-  .cinema-home__title span { display: block; }
-  .cinema-home__meta { font-size: 9px; padding-top: 5px; }
-  .cinema-home > .workflow-player { flex: 0 1 auto; }
-  .cinema-home .workflow-player__picture { flex: none; }
-  .cinema-home__caption { align-items: start; font-size: 10px; }
-  .cinema-home .cinema-home__explore { font-size: 10px; text-align: right; }
+  .cinema-home__heading { width: calc(100vw - 64px); gap: 14px; }
+  .home-page .cinema-home .cinema-home__title { font-size: clamp(32px, 8.5vw, 48px); }
+  .cinema-home__kicker, .cinema-home__meta { font-size: 9px; }
+  .cinema-home .workflow-player__controls { left: 18px; right: 18px; bottom: 152px; padding: 0 12px; }
+  .cinema-home .workflow-player__status { left: 18px; bottom: 212px; }
   .home-page:has(.deck-card--cinema.is-active) .stage-step { top: auto; bottom: 92px; transform: none; }
   .workflow-home-link.deck-project-link { bottom: 155px; font-size: 10px; }
   .ai-workflows__eyebrow { gap: 8px; padding: 5px 0 14px; }
   .ai-workflows__eyebrow h1 { font-size: 10px; }
   .ai-workflows__eyebrow > span:nth-child(2) { display: none; }
-  .ai-workflows__layout { grid-template-columns: 62px minmax(0, 1fr); gap: 14px; padding-top: 20px; }
+  .ai-workflows__layout { grid-template-columns: 76px minmax(0, 1fr); gap: 14px; padding-top: 20px; }
   .ai-workflows__directory { gap: 22px; }
   .ai-workflows__directory a { gap: 7px; padding-left: 8px; font-size: 9px; line-height: 1.4; }
-  .ai-workflows__directory i, .ai-workflows__scroll { display: none; }
+  .ai-workflows__scroll { display: none; }
+  .ai-workflows__directory a > span:last-child { white-space: normal; }
   .ai-workflows__thumb { aspect-ratio: 1; }
-  .ai-workflows__title h2 { font-size: clamp(29px, 6.5vw, 43px); }
+  .ai-workflows__title h2 { font-size: clamp(31px, 7.5vw, 48px); }
   .ai-workflows__title p { font-size: 8px; letter-spacing: .05em; line-height: 1.6; }
   .ai-workflows__item { gap: 18px; }
   .ai-workflows__description { grid-template-columns: 1fr; gap: 14px; }
@@ -145,22 +146,20 @@
 }
 /* Size the image and its controls as one 16:9 frame, without empty side panels. */
 @media (min-width: 681px) and (min-height: 651px) {
-  .ai-workflows__title h2 { font-size: clamp(32px, 3.4vw, 54px); }
   .ai-workflows.is-enhanced .ai-workflows__item > .ab-compare,
-  .ai-workflows.is-enhanced .ai-workflows__item > .workflow-player { container-type: size; align-items: center; justify-content: center; }
+  .ai-workflows.is-enhanced .ai-workflows__item > .workflow-player { container-type: size; align-items: start; justify-content: end; }
   .ai-workflows.is-enhanced .ab-compare__frame,
   .ai-workflows.is-enhanced .workflow-player__picture { flex: none; width: min(100cqw, calc((100cqh - 44px) * 16 / 9)); height: auto; aspect-ratio: 16 / 9; }
   .ai-workflows.is-enhanced .ab-compare__controls,
   .ai-workflows.is-enhanced .workflow-player__controls { width: min(100cqw, calc((100cqh - 44px) * 16 / 9)); }
 }
-@media (min-width: 1000px) and (min-height: 651px) {
-  .ai-workflows.is-enhanced .ai-workflows__item { display: grid; grid-template-columns: minmax(0, 1fr) clamp(160px, 16vw, 230px); grid-template-rows: auto minmax(0, 1fr); gap: 24px 30px; }
-  .ai-workflows__title { grid-column: 1 / -1; }
+/* Wide, shallow windows keep the large headline on one line to give the film more height. */
+@media (min-width: 1200px) and (min-height: 651px) and (max-height: 850px) {
+  .ai-workflows__title h2 { font-size: clamp(48px, 4.15vw, 62px); }
+  .ai-workflows__title br { display: none; }
+  .ai-workflows__title em::before { content: ' '; }
   .ai-workflows.is-enhanced .ai-workflows__item > .ab-compare,
-  .ai-workflows.is-enhanced .ai-workflows__item > .workflow-player { grid-row: 2; grid-column: 1; align-items: start; justify-content: center; }
-  .ai-workflows__description { display: flex; flex-direction: column; justify-content: center; gap: 28px; }
-  .ai-workflows__description p { line-height: 1.75; }
-  .ai-workflows__credits { align-items: start; gap: 10px; }
+  .ai-workflows.is-enhanced .ai-workflows__item > .workflow-player { align-items: center; }
 }
 @media (min-width: 1025px) {
   .home-v2 .home-pagination { right: calc(max(clamp(18px, 3.3vw, 64px), env(safe-area-inset-right)) + 9 * clamp(68px, 5.2vw, 100px) + 58px); }
