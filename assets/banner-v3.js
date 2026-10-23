@@ -195,6 +195,7 @@
 
   frame.addEventListener('pointerdown', (event) => {
     if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    if (event.target.closest('a')) return;
     const startedOnHandle = Boolean(event.target.closest('.comparison-handle'));
     if (event.pointerType === 'touch' && !startedOnHandle) return;
     event.preventDefault();
