@@ -11,13 +11,13 @@ vm.runInContext(source.split("const grid = document.querySelector")[0], context)
 const projects = vm.runInContext('projects', context);
 const lossless = vm.runInContext('losslessWebpStills', context);
 
-test('homepage has the requested eight entries, synchronized with v3', () => {
+test('homepage has the requested nine entries, synchronized with v3', () => {
   const html = read('index.html');
   assert.equal(html, read('index-v3.html'));
   const cards = [...html.matchAll(/<article class="deck-card[^>]*data-title="([^"]+)" data-page="(\d+)"/g)];
-  assert.deepEqual(cards.map(match => match[1]), ['Grand Theft Art', '猫猫小窝 / 猫猫餐厅', '玄天诀 / XUANTIAN JUE', 'Cybertruck: Mars', 'Feel Every Stories', 'Healing Wings', 'Alone', 'TVC']);
-  assert.deepEqual(cards.map(match => match[2]), ['0','1','2','3','4','5','6','7']);
-  assert.equal((html.match(/data-slide="/g) || []).length, 8);
+  assert.deepEqual(cards.map(match => match[1]), ['Grand Theft Art', 'Real Cinema to AI Video', '猫猫小窝 / 猫猫餐厅', '玄天诀 / XUANTIAN JUE', 'Cybertruck: Mars', 'Feel Every Stories', 'Healing Wings', 'Alone', 'TVC']);
+  assert.deepEqual(cards.map(match => match[2]), ['0','1','2','3','4','5','6','7','8']);
+  assert.equal((html.match(/data-slide="/g) || []).length, 9);
   assert.match(html, /影视级AI剧集/);
   assert.match(html, /alone-poster-20260925.webp/);
   assert.match(html, /film\/Film.html#healing/);

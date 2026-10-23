@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="assets/home-opening.css?v=20261016-loading-1">
   <link rel="stylesheet" href="assets/banner-v3.css?v=20260922-3">
   <link rel="stylesheet" href="assets/portfolio.css?v=20261022-game-project-1">
+  <link rel="stylesheet" href="assets/cinema-workflows.css?v=20261023-1">
   <link rel="stylesheet" href="assets/cat-nest-home.css?v=20261023-play-3">
   <link rel="stylesheet" href="assets/tvc-transition.css?v=20260925-3">
   <link rel="stylesheet" href="assets/xuantian-brand.css?v=20260927-logo-3">
@@ -78,6 +79,7 @@
   <main id="featured-work" class="home-stage home-interface" aria-label="Featured projects">
     <div class="project-deck">
       <article class="deck-card deck-card--comparison is-active" data-title="Grand Theft Art" data-page="0">
+        <a class="deck-project-link workflow-home-link" href="ai/index.html#camera-previs-to-ai">Explore 3D Camera Previs → AI ↗</a>
         <div class="comparison-stage" data-comparison>
           <div class="comparison-frame" data-video-loading data-video-static-on-reduced-motion>
             <video class="comparison-video comparison-video--before" poster="assets/images/home/grand-theft-art-before.jpg" muted loop playsinline preload="none" data-src="assets/videos/grand-theft-art/previs.m4v" data-src-mobile="assets/videos/grand-theft-art/previs-mobile.m4v" aria-label="Unreal Engine 3D previs of the Grand Theft Art chase"></video>
@@ -90,9 +92,9 @@
 
             <div class="comparison-copy">
               <p class="comparison-tool-line">WORKFLOW COMPARISON <i class="project-tool-logo project-tool-logo--dreamina" aria-hidden="true"></i>Seedance 2.0</p>
-              <h1>3D Direct Camera x AI Rending</h1>
+              <h1>Direct the camera.<br>Reinvent the world.</h1>
               <span>05/2026</span>
-              <em>Drag to reveal</em>
+              <em>3D Camera Previs → AI · Drag to reveal</em>
             </div>
 
             <div class="comparison-divider" aria-hidden="true"></div>
@@ -112,7 +114,28 @@
         </div>
       </article>
 
-      <article class="deck-card deck-card--cat-nest" data-title="猫猫小窝 / 猫猫餐厅" data-page="1" data-link="projects/cat-nest.html">
+      <article class="deck-card deck-card--cinema" data-title="Real Cinema to AI Video" data-page="1" data-link="ai/index.html#real-cinema-to-ai">
+        <div class="cinema-home">
+          <header class="cinema-home__heading">
+            <a class="deck-project-link cinema-home__title" href="ai/index.html#real-cinema-to-ai">Real Cinema <span>to AI Video ↗</span></a>
+            <div class="cinema-home__meta"><span class="project-tool"><i class="project-tool-logo project-tool-logo--dreamina" aria-hidden="true"></i>Seedance 2.0</span><time datetime="2026-05">05/2026</time></div>
+          </header>
+          <div class="workflow-player" data-workflow-player>
+              <div class="workflow-player__picture"><video data-workflow-video muted loop playsinline preload="none" width="1280" height="720" poster="assets/images/projects/journey-to-another-world/poster.jpg" data-src="assets/videos/journey-to-another-world/bts-720p.mp4" data-src-mobile="assets/videos/journey-to-another-world/bts-mobile.mp4" aria-label="Journey to Another World — live-action to AI breakdown"></video></div>
+              <div class="workflow-player__controls" data-player-controls hidden>
+                <button type="button" data-player-toggle aria-label="Play video">Play</button>
+                <output data-player-time aria-label="Playback time">0:00 / 0:36</output>
+                <input type="range" min="0" max="100" step="0.1" value="0" disabled data-player-seek aria-label="Seek Real Cinema to AI video">
+                <button type="button" data-player-sound aria-label="Unmute video" aria-pressed="false">Sound off</button>
+              </div>
+              <span class="workflow-player__status" role="status" data-player-status></span>
+              <noscript><a href="assets/videos/journey-to-another-world/bts-720p.mp4">Watch Journey to Another World ↗</a></noscript>
+            </div>
+          <div class="cinema-home__caption"><span>Journey to Another World</span><a class="deck-project-link cinema-home__explore" href="ai/index.html#real-cinema-to-ai">Explore the transformation ↗</a></div>
+        </div>
+      </article>
+
+      <article class="deck-card deck-card--cat-nest" data-title="猫猫小窝 / 猫猫餐厅" data-page="2" data-link="projects/cat-nest.html">
         <picture class="deck-picture">
           <img class="deck-media cn-home-station" data-src="assets/images/projects/cat-nest/station-all-cats.webp" width="1536" height="1024" decoding="async" alt="猫猫图鉴的猫猫车站，全部 36 只猫友以游戏中的原始姿势和位置出现在车站里">
         </picture>
@@ -128,7 +151,7 @@
         </a>
       </article>
 
-      <article class="deck-card" data-title="玄天诀 / XUANTIAN JUE" data-page="2" data-link="projects/xuantian-jie.html">
+      <article class="deck-card" data-title="玄天诀 / XUANTIAN JUE" data-page="3" data-link="projects/xuantian-jie.html">
         <picture class="deck-picture">
           <img class="deck-media deck-media--xuantian" data-src="assets/images/projects/xuantian-jie/xuantian-hero.jpg" width="3840" height="2160" decoding="async" alt="XUANTIAN JUE live-action fantasy battle between an immortal sword cultivator and an invading warrior">
         </picture>
@@ -140,7 +163,7 @@
         </a>
       </article>
 
-      <article class="deck-card" data-title="Cybertruck: Mars" data-page="3" data-link="ai/index.html#cybertruck">
+      <article class="deck-card" data-title="Cybertruck: Mars" data-page="4" data-link="ai/index.html#cybertruck">
         <picture class="deck-picture">
           <source media="(max-width: 560px)" data-srcset="assets/images/home/cybertruck-mobile.jpg">
           <img class="deck-media" data-src="assets/images/projects/cybertruck/Cyber-Thumb-1.jpg" width="2912" height="1632" decoding="async" alt="Cybertruck crossing the surface of Mars">
@@ -152,7 +175,7 @@
         </a>
       </article>
 
-      <article class="deck-card" data-title="Feel Every Stories" data-page="4" data-link="ai/index.html#feel">
+      <article class="deck-card" data-title="Feel Every Stories" data-page="5" data-link="ai/index.html#feel">
         <picture class="deck-picture">
           <img class="deck-media deck-media--feel" data-src="assets/images/projects/feel/netflix-main.jpg" width="2912" height="1632" decoding="async" alt="Netflix Home Entertainment speaker in a red light installation">
         </picture>
@@ -163,7 +186,7 @@
         </a>
       </article>
 
-      <article class="deck-card" data-title="Healing Wings" data-page="5" data-link="film/Film.html#healing" data-shared-project="healing">
+      <article class="deck-card" data-title="Healing Wings" data-page="6" data-link="film/Film.html#healing" data-shared-project="healing">
         <a class="deck-picture project-image-link" href="film/Film.html#healing" aria-label="Healing Wings — View film" tabindex="-1">
           <img class="deck-media" data-src="film/images/healing_cover.jpg" width="2048" height="1080" decoding="async" alt="Interview frame from the documentary Healing Wings">
         </a>
@@ -174,7 +197,7 @@
         </a>
       </article>
 
-      <article class="deck-card deck-card--alone" data-title="Alone" data-page="6" data-link="film/Film.html#alone" data-shared-project="alone">
+      <article class="deck-card deck-card--alone" data-title="Alone" data-page="7" data-link="film/Film.html#alone" data-shared-project="alone">
         <div class="alone-poster-frame">
           <a class="deck-picture project-image-link" href="film/Film.html#alone" aria-label="Alone — View film" tabindex="-1">
             <img class="deck-media deck-media--alone" data-src="assets/images/home/alone-poster-20260925.webp" width="3840" height="2160" decoding="async" alt="Alone official poster, written and directed by Steven Chen, with festival laurels">
@@ -184,7 +207,7 @@
         </div>
       </article>
 
-      <article class="deck-card deck-card--tvc" data-title="TVC" data-page="7" data-link="tvc/index.html" data-shared-project="tvc">
+      <article class="deck-card deck-card--tvc" data-title="TVC" data-page="8" data-link="tvc/index.html" data-shared-project="tvc">
         <div class="tvc-home-layout">
           <a class="deck-picture tvc-image-link" href="tvc/index.html" aria-label="TVC — View commercial films" tabindex="-1">
             <img class="deck-media deck-media--tvc-banner" data-src="assets/images/tvc/banner-editorial-20260925.webp" width="2114" height="744" decoding="async" alt="TVC — a montage of Wuhan Jiudao, René Furterer, GE HealthCare and Feihe project stills">
@@ -197,25 +220,27 @@
     <button class="stage-step stage-step--prev" type="button" aria-label="Previous project"><span aria-hidden="true">←</span></button>
     <button class="stage-step stage-step--next" type="button" aria-label="Next project"><span aria-hidden="true">→</span></button>
 
-    <button class="home-pagination" type="button" aria-label="Browse all 8 projects"><span id="current-slide">0</span><span aria-hidden="true">—</span><span>7</span></button>
+    <button class="home-pagination" type="button" aria-label="Browse all 9 projects"><span id="current-slide">0</span><span aria-hidden="true">—</span><span>8</span></button>
 
     <div class="thumbnail-dock" role="group" aria-label="Featured projects">
       <button class="is-active" type="button" data-slide="0" aria-label="Show Grand Theft Art comparison" aria-pressed="true"><img src="assets/images/home/grand-theft-art-poster.jpg" width="320" height="180" decoding="async" alt=""></button>
-      <button type="button" data-slide="1" aria-label="Show 猫猫小窝 / 猫猫餐厅 — Vibe Coding" aria-pressed="false"><img src="assets/images/projects/cat-nest/photo-wall-thumb.webp" width="640" height="360" decoding="async" alt=""></button>
-      <button type="button" data-slide="2" aria-label="Show XUANTIAN JUE" aria-pressed="false"><img src="assets/images/projects/xuantian-jie/xuantian-thumb.jpg" width="960" height="540" decoding="async" alt=""></button>
-      <button type="button" data-slide="3" aria-label="Show Cybertruck Mars" aria-pressed="false"><img src="assets/images/home/cybertruck-thumb.jpg" width="320" height="179" decoding="async" alt=""></button>
-      <button type="button" data-slide="4" aria-label="Show Feel Every Stories" aria-pressed="false"><img src="assets/images/projects/feel/netflix-thumb.jpg" width="1000" height="580" decoding="async" alt=""></button>
-      <button type="button" data-slide="5" aria-label="Show Healing Wings" aria-pressed="false"><img src="assets/images/home/healing-thumb.webp" width="960" height="506" decoding="async" alt=""></button>
-      <button type="button" data-slide="6" aria-label="Show Alone" aria-pressed="false"><img src="assets/images/home/alone-thumb-20260925.webp" width="960" height="540" decoding="async" alt=""></button>
-      <button class="thumbnail-tvc" type="button" data-slide="7" aria-label="Show TVC" aria-pressed="false"><img src="assets/images/tvc/banner-editorial-thumb-20260925.webp" width="512" height="180" decoding="async" alt=""></button>
+      <button type="button" data-slide="1" aria-label="Show Real Cinema to AI Video" aria-pressed="false"><img src="assets/images/projects/journey-to-another-world/poster.jpg" width="1600" height="900" decoding="async" alt=""></button>
+      <button type="button" data-slide="2" aria-label="Show 猫猫小窝 / 猫猫餐厅 — Vibe Coding" aria-pressed="false"><img src="assets/images/projects/cat-nest/photo-wall-thumb.webp" width="640" height="360" decoding="async" alt=""></button>
+      <button type="button" data-slide="3" aria-label="Show XUANTIAN JUE" aria-pressed="false"><img src="assets/images/projects/xuantian-jie/xuantian-thumb.jpg" width="960" height="540" decoding="async" alt=""></button>
+      <button type="button" data-slide="4" aria-label="Show Cybertruck Mars" aria-pressed="false"><img src="assets/images/home/cybertruck-thumb.jpg" width="320" height="179" decoding="async" alt=""></button>
+      <button type="button" data-slide="5" aria-label="Show Feel Every Stories" aria-pressed="false"><img src="assets/images/projects/feel/netflix-thumb.jpg" width="1000" height="580" decoding="async" alt=""></button>
+      <button type="button" data-slide="6" aria-label="Show Healing Wings" aria-pressed="false"><img src="assets/images/home/healing-thumb.webp" width="960" height="506" decoding="async" alt=""></button>
+      <button type="button" data-slide="7" aria-label="Show Alone" aria-pressed="false"><img src="assets/images/home/alone-thumb-20260925.webp" width="960" height="540" decoding="async" alt=""></button>
+      <button class="thumbnail-tvc" type="button" data-slide="8" aria-label="Show TVC" aria-pressed="false"><img src="assets/images/tvc/banner-editorial-thumb-20260925.webp" width="512" height="180" decoding="async" alt=""></button>
     </div>
   </main>
 
-  <script defer src="assets/site.js?v=20261016-loading-1"></script>
-  <script defer src="assets/home-v2.js?v=20261022-photo-wall-1"></script>
+  <script defer src="assets/site.js?v=20261023-cinema-1"></script>
+  <script defer src="assets/home-v2.js?v=20261023-cinema-1"></script>
   <script defer src="assets/home-opening-motion.js?v=20260925-2"></script>
   <script defer src="assets/home-opening.js?v=20261016-loading-1"></script>
   <script defer src="assets/video-loader.js?v=20260911-5"></script>
+  <script defer src="assets/workflow-player.js?v=20261023-1"></script>
   <script defer src="assets/banner-v3.js?v=20260911-4"></script>
 </body>
 </html>

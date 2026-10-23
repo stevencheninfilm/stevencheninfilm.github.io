@@ -64,6 +64,7 @@
 
     const video = card.querySelector('video');
     if (video) {
+      if (video.hasAttribute('data-workflow-video')) return Promise.resolve();
       if (video.dataset.src) {
         video.src = video.dataset.src;
         video.removeAttribute('data-src');
@@ -143,7 +144,7 @@
     cards.forEach((card, index) => {
       if (card.classList.contains('deck-card--comparison')) return;
       const video = card.querySelector('video');
-      if (!video) return;
+      if (!video || video.hasAttribute('data-workflow-video')) return;
       if (index === active && mode === 'expanded') {
         ensureCardMedia(index).then(() => video.play().catch(() => {}));
       } else video.pause();
@@ -291,7 +292,7 @@
     incoming.classList.add('is-animating');
 
     const incomingVideo = incoming.classList.contains('deck-card--comparison') ? null : incoming.querySelector('video');
-    if (incomingVideo) incomingVideo.play().catch(() => {});
+    if (incomingVideo && !incomingVideo.hasAttribute('data-workflow-video')) incomingVideo.play().catch(() => {});
 
     const outgoingAnimation = outgoing.animate([
       { transform: 'translate(-50%, -50%) translateX(0)' },
