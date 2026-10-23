@@ -1,0 +1,11 @@
+.deck-card--cat-nest { background:#394032; }
+.deck-card--cat-nest .deck-media { object-position:50% 50%; }
+.deck-card--cat-nest::after { content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg,#131d1626 0%,#131d1605 25%,#15201580 64%,#111b14a3 100%); }
+.home-page .deck-card--cat-nest>.deck-project-link--meta { z-index:2; top:58%; max-width:85vw; width:max-content; text-shadow:0 2px 20px #14201770; }
+.deck-card--cat-nest .project-tool-line { font-size:clamp(11px,1vw,16px); letter-spacing:.18em; }
+.home-page .deck-card--cat-nest .deck-project-title { font-family:Georgia,"Times New Roman",serif; font-weight:400; font-size:clamp(60px,8.5vw,140px); font-style:italic; letter-spacing:-.07em; line-height:1.05; }
+.deck-card--cat-nest .deck-project-category { display:block; margin:8px 0; font-size:clamp(21px,2.4vw,36px); font-weight:500; letter-spacing:.08em; }
+.deck-card--cat-nest .deck-project-category small { display:block; margin-top:8px; font-size:clamp(10px,1vw,14px); font-weight:400; letter-spacing:.12em; }
+.deck-card--cat-nest .deck-project-date { margin-top:10px; }
+.project-deck.is-strip .deck-card--cat-nest>.deck-project-link--meta { top:50%; }
+@media(max-width:560px) { .deck-card--cat-nest .deck-media { object-position:40% 50%; } .home-page .deck-card--cat-nest>.deck-project-link--meta { top:53%; } .home-page .deck-card--cat-nest .deck-project-title { font-size:clamp(55px,13vw,75px); } .deck-card--cat-nest .deck-project-category { font-size:21px; letter-spacing:.02em; } }
