@@ -25,6 +25,7 @@
 .home-page .cinema-home .cinema-home__title { position: static; transform: none; display: block; width: auto; max-width: none; padding: 0; font-size: var(--home-project-title-size); line-height: .98; letter-spacing: -.05em; white-space: normal; text-align: center; pointer-events: auto; }
 .cinema-home__title span { display: block; }
 .cinema-home__meta { display: flex; align-items: center; gap: 20px; font-size: var(--home-project-meta-size); letter-spacing: .035em; }
+.cinema-home__meta time { padding-left: 20px; border-left: 1px solid #ffffff70; }
 
 .cinema-home > .workflow-player { position: absolute; inset: 0; }
 .cinema-home .workflow-player__picture { position: absolute; inset: 0; aspect-ratio: auto; }
@@ -32,9 +33,6 @@
 .cinema-home .workflow-player video { object-fit: cover; }
 .cinema-home .workflow-player__controls { position: absolute; z-index: 5; left: clamp(24px, 7vw, 130px); right: clamp(24px, 7vw, 130px); bottom: 108px; min-height: 54px; padding: 0; background: none; color: #fff; text-shadow: 0 1px 8px #000; transition: opacity .3s ease; }
 .cinema-home .workflow-player__status { position: absolute; z-index: 5; left: 7vw; bottom: 172px; padding: 6px 10px; background: #050709b3; }
-/* Credits stay in the same corner across the two home workflows. */
-.home-tool-badge { position: absolute; z-index: 6; top: 78px; right: clamp(24px, 3.3vw, 64px); font-size: clamp(11px, .9vw, 14px); letter-spacing: .035em; color: #fff; text-shadow: 0 1px 10px #000; pointer-events: none; }
-.project-deck.is-strip .home-tool-badge { display: none; }
 .comparison-title-link { color: inherit; text-decoration: none; pointer-events: auto; }
 .comparison-title-link:focus-visible { outline: 1px solid #e5be88; outline-offset: 8px; }
 .home-page .deck-card--comparison .comparison-copy em { padding: 11px 20px; font-size: clamp(13px, 1.1vw, 17px); letter-spacing: .06em; text-transform: none; }
@@ -129,7 +127,6 @@
   .cinema-home .workflow-player__controls { left: 18px; right: 18px; bottom: 152px; padding: 0; }
   .cinema-home .workflow-player__status { left: 18px; bottom: 212px; }
   .home-page:has(.deck-card--cinema.is-active) .stage-step { top: auto; bottom: 92px; transform: none; }
-  .home-tool-badge { top: 74px; right: 20px; }
   .home-page .deck-card--comparison .comparison-copy em { font-size: 12px; padding: 8px 14px; }
   .ai-workflows__eyebrow { gap: 8px; padding: 5px 0 14px; }
   .ai-workflows__eyebrow > p { font-size: 10px; }
