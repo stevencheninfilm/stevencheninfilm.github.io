@@ -135,7 +135,7 @@
 }
 .project-deck.is-strip .deck-media { object-fit: cover; }
 .project-deck.is-strip .deck-media--tvc-banner { padding: 0; }
-.thumbnail-dock button[data-slide="6"] img { object-fit: contain; background: #000; }
+.thumbnail-dock .thumbnail-tvc img { object-fit: contain; background: #000; }
 
 /* A fifth navigation item has its own row on small screens, not smaller targets. */
 .content-page .primary-nav { flex-shrink: 0; }
