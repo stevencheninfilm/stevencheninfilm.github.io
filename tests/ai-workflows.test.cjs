@@ -3,8 +3,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../assets/ai-workflows.js'), 'utf8');
-function setup({ hash = '', reduced = false, compact = false } = {}) {
-  let scroll = 0, sectionTop = 0, queued = [], enhanced = false;
+function setup({ hash = '', reduced = false, compact = false, offset = 0 } = {}) {
+  let scroll = 0, sectionTop = offset, queued = [], enhanced = false;
   const eventTarget = () => ({ events: {}, addEventListener(n, fn) { this.events[n] = fn; }, fire(n, event = {}) { this.events[n]?.(event); } });
   const item = id => ({ id, attrs: {}, setAttribute(n, v) { this.attrs[n] = v; }, removeAttribute(n) { delete this.attrs[n]; }, scrollIntoView() { this.scrolled = true; } });
   const items = [item('camera-previs-to-ai'), item('real-cinema-to-ai')];
@@ -33,6 +33,13 @@ test('a homepage deep link selects the second film on first load, and directory 
   assert.equal(s.counter.textContent, '02 / 02'); assert.equal(s.items[1].inert, false);
   s.steps[0].fire('click', { preventDefault() {} }); s.flush();
   assert.equal(s.location.hash, '#camera-previs-to-ai'); assert.equal(s.counter.textContent, '01 / 02');
+});
+test('a banner above the workflows preserves deep links and scroll thresholds', () => {
+  const s = setup({ hash: '#real-cinema-to-ai', offset: 680 });
+  assert.equal(s.counter.textContent, '02 / 02');
+  assert.equal(s.window.scrollY, 680 + 1500 * .78);
+  s.scrollTo(780); assert.equal(s.counter.textContent, '01 / 02');
+  s.scrollTo(1580); assert.equal(s.counter.textContent, '02 / 02');
 });
 test('resizing preserves the active story and normalized position inside the pinned section', () => {
   const s = setup(); s.scrollTo(900); s.resize(1800, 611);

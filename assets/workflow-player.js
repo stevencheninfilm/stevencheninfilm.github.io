@@ -16,12 +16,24 @@
     const card = player.closest('.deck-card');
     const deck = player.closest('.project-deck');
     const panel = player.closest('[data-workflow-item]');
+    const controlsDelay = Math.max(0, Number(player.dataset.controlsDelay) || 0);
+    let controlsTimer = 0, controlsReady = !controlsDelay;
     let visible = false, wasActive = false, loaded = false, paused = false;
     let manual = false, scrubbing = false, resume = false, failed = false;
     const active = () => visible && !document.hidden &&
       (!card || (card.classList.contains('is-active') && !deck.classList.contains('is-strip'))) &&
       (!panel || panel.getAttribute('aria-hidden') !== 'true');
     const canPlay = () => active() && !paused && !scrubbing && (!motion.matches || manual);
+    const paintControls = isActive => {
+      controls.setAttribute('data-visible', String(controlsReady));
+      controls.inert = !isActive || !controlsReady;
+    };
+    const resetControls = () => {
+      clearTimeout(controlsTimer);
+      controlsTimer = 0;
+      controlsReady = !controlsDelay;
+      paintControls(false);
+    };
     const draw = () => {
       const duration = Number.isFinite(video.duration) ? video.duration : 0;
       const percentage = duration ? Math.min(100, video.currentTime / duration * 100) : 0;
@@ -56,7 +68,17 @@
         video.muted = true;
       }
       wasActive = isActive;
-      controls.inert = !isActive;
+      if (!isActive) resetControls();
+      else if (!controlsReady && !controlsTimer) {
+        // Count uninterrupted time on this project, not time spent on other cards.
+        controlsTimer = setTimeout(() => {
+          controlsTimer = 0;
+          if (!active()) return;
+          controlsReady = true;
+          paintControls(true);
+        }, controlsDelay);
+      }
+      paintControls(isActive);
       if (canPlay() && !failed) { load(); play(); }
       else video.pause();
       draw();
@@ -109,7 +131,7 @@
     const observer = new MutationObserver(update);
     for (const element of [card, deck, panel].filter(Boolean)) observer.observe(element, { attributes: true, attributeFilter: ['class', 'aria-hidden'] });
     document.addEventListener('visibilitychange', update);
-    window.addEventListener('pagehide', () => video.pause());
+    window.addEventListener('pagehide', () => { wasActive = false; resetControls(); video.pause(); });
     window.addEventListener('pageshow', update);
     motion.addEventListener('change', () => { manual = false; update(); });
     update();

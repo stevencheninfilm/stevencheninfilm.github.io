@@ -23,16 +23,23 @@
 .cinema-home__heading { position: absolute; z-index: 4; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(82vw, 1000px); display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center; text-shadow: 0 2px 24px #0009; pointer-events: none; }
 .cinema-home__kicker { margin: 0; color: #eeece4; font-size: var(--home-project-meta-size); letter-spacing: .1em; text-transform: uppercase; }
 .home-page .cinema-home .cinema-home__title { position: static; transform: none; display: block; width: auto; max-width: none; padding: 0; font-size: var(--home-project-title-size); line-height: .98; letter-spacing: -.05em; white-space: normal; text-align: center; pointer-events: auto; }
-.cinema-home__title span { display: block; color: #e5be88; }
+.cinema-home__title span { display: block; }
 .cinema-home__meta { display: flex; align-items: center; gap: 20px; font-size: var(--home-project-meta-size); letter-spacing: .035em; }
-.cinema-home__meta time { padding-left: 20px; border-left: 1px solid #ffffff70; }
+
 .cinema-home > .workflow-player { position: absolute; inset: 0; }
 .cinema-home .workflow-player__picture { position: absolute; inset: 0; aspect-ratio: auto; }
 .cinema-home .workflow-player__picture::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, #0005, transparent 25%, #0003 50%, transparent 68%, #0009); }
 .cinema-home .workflow-player video { object-fit: cover; }
-.cinema-home .workflow-player__controls { position: absolute; z-index: 5; left: clamp(24px, 7vw, 130px); right: clamp(24px, 7vw, 130px); bottom: 108px; min-height: 54px; padding: 0 18px; border-radius: 4px; background: #050709a6; backdrop-filter: blur(12px); }
+.cinema-home .workflow-player__controls { position: absolute; z-index: 5; left: clamp(24px, 7vw, 130px); right: clamp(24px, 7vw, 130px); bottom: 108px; min-height: 54px; padding: 0; background: none; color: #fff; text-shadow: 0 1px 8px #000; transition: opacity .3s ease; }
 .cinema-home .workflow-player__status { position: absolute; z-index: 5; left: 7vw; bottom: 172px; padding: 6px 10px; background: #050709b3; }
-.workflow-home-link.deck-project-link { top: auto; bottom: 112px; font-size: 11px; padding: 10px 16px; border: 1px solid #ffffff55; border-radius: 30px; backdrop-filter: blur(12px); background: #05070966; }
+/* Credits stay in the same corner across the two home workflows. */
+.home-tool-badge { position: absolute; z-index: 6; top: 78px; right: clamp(24px, 3.3vw, 64px); font-size: clamp(11px, .9vw, 14px); letter-spacing: .035em; color: #fff; text-shadow: 0 1px 10px #000; pointer-events: none; }
+.project-deck.is-strip .home-tool-badge { display: none; }
+.comparison-title-link { color: inherit; text-decoration: none; pointer-events: auto; }
+.comparison-title-link:focus-visible { outline: 1px solid #e5be88; outline-offset: 8px; }
+.home-page .deck-card--comparison .comparison-copy em { padding: 11px 20px; font-size: clamp(13px, 1.1vw, 17px); letter-spacing: .06em; text-transform: none; }
+.home-page .deck-card--comparison .comparison-copy em::after { content: none; }
+.cinema-home .workflow-player__controls[data-visible="false"] { opacity: 0; visibility: hidden; pointer-events: none; }
 .home-page:has(.deck-card--cinema.is-active) .stage-step--prev { left: 0; }
 .home-page:has(.deck-card--cinema.is-active) .stage-step--next { right: 0; }
 .project-deck.is-strip .cinema-home { inset: 0; }
@@ -41,12 +48,30 @@
 .project-deck.is-strip .workflow-player__picture { aspect-ratio: auto; }
 .project-deck.is-strip .workflow-player video { object-fit: cover; }
 
+/* The page title is a full cinema banner, separate from the pinned story controls. */
+.ai-cinema-banner { position: relative; isolation: isolate; min-height: 520px; height: min(76svh, 850px); padding: 150px var(--pad) 58px; display: flex; align-items: end; justify-content: space-between; overflow: hidden; border-bottom: 1px solid var(--line); background: #080b0e; }
+.ai-cinema-banner__image { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 60%; opacity: .7; }
+.ai-cinema-banner::before { content: ''; position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, #06090ded 0%, #06090d8c 52%, #06090d26), linear-gradient(0deg, #07090cd9, transparent 60%); }
+.ai-cinema-banner__copy { position: relative; }
+.ai-cinema-banner__label { margin: 0 0 30px; font-size: 11px; letter-spacing: .15em; text-transform: uppercase; color: #e5be88; }
+.ai-cinema-banner h1 { margin: 0; font-size: clamp(76px, 11.5vw, 180px); font-weight: 400; line-height: .86; letter-spacing: -.065em; }
+.ai-cinema-banner h1 em { font-style: normal; color: #e5e3dc; }
+.ai-cinema-banner__subtitle { margin: 30px 0 0; font-size: clamp(16px, 1.6vw, 24px); letter-spacing: -.025em; color: #c6c6c1; }
+.ai-cinema-banner__index { display: flex; flex-direction: column; gap: 12px; padding-bottom: 3px; color: #d9d8d1; font-size: 10px; letter-spacing: .07em; text-transform: uppercase; }
+@media (max-width: 680px) {
+  .ai-cinema-banner { min-height: 480px; height: 70svh; padding-top: 150px; padding-bottom: 38px; align-items: end; }
+  .ai-cinema-banner h1 { font-size: clamp(55px, 14vw, 92px); }
+  .ai-cinema-banner__label { font-size: 9px; margin-bottom: 24px; }
+  .ai-cinema-banner__subtitle { margin-top: 24px; }
+  .ai-cinema-banner__index { display: none; }
+}
+
 /* Native scrolling advances two stories within one pinned editorial canvas. */
 .ai-workflows { --workflow-top: 100px; --workflow-accent: #e5be88; padding: var(--workflow-top) var(--pad) 40px; border-bottom: 1px solid var(--line); }
 .content-page:has(.ai-workflows) .site-header { background: #0b0b0b; }
 .ai-workflows__pin { max-width: 1720px; margin: 0 auto; }
 .ai-workflows__eyebrow { display: flex; gap: 24px; align-items: center; padding: 12px 0 18px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; letter-spacing: .09em; text-transform: uppercase; }
-.ai-workflows__eyebrow h1 { color: var(--ink); margin: 0; font-size: 12px; font-weight: 400; letter-spacing: .12em; }
+.ai-workflows__eyebrow > p { color: var(--ink); margin: 0; font-size: 12px; font-weight: 400; letter-spacing: .12em; }
 .ai-workflows__eyebrow > span:last-child { margin-left: auto; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .ai-workflows__layout { display: grid; grid-template-columns: clamp(180px, 18vw, 240px) minmax(0, 1fr); gap: clamp(28px, 4vw, 68px); padding-top: 22px; min-height: 0; }
 .ai-workflows__directory { display: flex; flex-direction: column; gap: 26px; align-self: center; border-left: 1px solid var(--line); }
@@ -101,12 +126,13 @@
   .cinema-home__heading { width: calc(100vw - 64px); gap: 14px; }
   .home-page .cinema-home .cinema-home__title { font-size: clamp(32px, 8.5vw, 48px); }
   .cinema-home__kicker, .cinema-home__meta { font-size: 9px; }
-  .cinema-home .workflow-player__controls { left: 18px; right: 18px; bottom: 152px; padding: 0 12px; }
+  .cinema-home .workflow-player__controls { left: 18px; right: 18px; bottom: 152px; padding: 0; }
   .cinema-home .workflow-player__status { left: 18px; bottom: 212px; }
   .home-page:has(.deck-card--cinema.is-active) .stage-step { top: auto; bottom: 92px; transform: none; }
-  .workflow-home-link.deck-project-link { bottom: 155px; font-size: 10px; }
+  .home-tool-badge { top: 74px; right: 20px; }
+  .home-page .deck-card--comparison .comparison-copy em { font-size: 12px; padding: 8px 14px; }
   .ai-workflows__eyebrow { gap: 8px; padding: 5px 0 14px; }
-  .ai-workflows__eyebrow h1 { font-size: 10px; }
+  .ai-workflows__eyebrow > p { font-size: 10px; }
   .ai-workflows__eyebrow > span:nth-child(2) { display: none; }
   .ai-workflows__layout { grid-template-columns: 76px minmax(0, 1fr); gap: 14px; padding-top: 20px; }
   .ai-workflows__directory { gap: 22px; }
