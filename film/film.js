@@ -60,9 +60,18 @@ const projects = [
     ],
     link: ['Watch on Xinpianchang', 'https://www.xinpianchang.com/a12617120?from=UserProfile']
   },
+  {
+    id: 'nuccio', title: 'Nuccio’s Jim', chinese: '努乔的苗圃', role: 'Production Sound Mixer', type: 'Documentary',
+    cover: 'nuccio-01.jpg', count: 3,
+    gallery: ['../film/images/nuccio-01.jpg', '../film/images/nuccio-02.jpg', '../film/images/nuccio-03.jpg'],
+    // User-supplied title, credit, stills and viewing link, 23 Oct 2026. Production date and runtime not supplied.
+    description: 'A documentary about the camellia garden at Nuccio’s nursery, tracing three generations of dedication and farewell in the aftermath of wildfire. My role: Production Sound Mixer.',
+    descriptionZh: '山火余烬下的山茶花园，三代人历经百年的坚守和告别。我在本片中担任现场混音师（Production Sound Mixer）。',
+    link: ['Watch on Bilibili', 'https://www.bilibili.com/video/BV1muH96HER3/']
+  },
   { id: 'tumbleweed', title: 'Tumbleweed', chinese: '风滚草', role: 'Editing / Color Grading', date: '08/2024', type: 'Narrative short', duration: '22 min', cover: 'tumbleweed_cover.jpg', prefix: 'tumbleweed', count: 6, description: 'A Syracuse University graduation film set in western China. I shaped the edit and color grade, completing post-production within one week.', descriptionZh: '雪城大学导演毕业短片，故事发生在中国西部。负责影片剪辑与调色，在一周内完成后期制作。', link: ['Watch via Baidu Pan · code 8888', 'https://pan.baidu.com/s/1SXGOQOQRrPMyNpA5KLSbug?pwd=8888'], size: 'wide' },
   { id: 'everylook', title: 'In Every Look', chinese: '在你眼里', role: 'Director / Color Grading', date: '10/2024', type: 'Narrative short', duration: '6 min', cover: 'everylook_cover.jpg', prefix: 'everylook', count: 6, description: 'A narrative short I directed while studying at the USC School of Cinematic Arts, with color grading developed as part of the film’s visual language.', descriptionZh: '在南加州大学电影艺术学院学习期间创作的剧情短片，负责导演与调色。', link: ['Watch on Bilibili', 'https://www.bilibili.com/video/BV1mH9YYLEy2/'] },
-  { id: 'healing', title: 'Healing Wings', chinese: '治愈的翅膀', role: 'Color Grading / Location Sound / Audio Post', date: '10/2024', type: 'Feature documentary', duration: '120 min', cover: 'healing_cover.jpg', prefix: 'healing', count: 6, description: 'After losing her child to kidney cancer, a mother in the United States works to support pediatric kidney-cancer research across China and the US. The documentary brings together interviews with eight pediatric specialists and two affected families. My work spans color grading, location sound and audio post-production.', descriptionZh: '一位在美国生活的母亲失去患肾癌的孩子后，投身中美儿童肾癌研究支持工作。影片采访了中美两国的八位儿科专家及两个患儿家庭。我负责调色、现场录音及音频后期。' },
+  { id: 'healing', title: 'Healing Wings', chinese: '治愈的翅膀', role: 'Color Grading / Production Sound / Post Sound', date: '10/2024', type: 'Feature documentary', duration: '120 min', cover: 'healing_cover.jpg', prefix: 'healing', count: 6, description: 'After losing her child to kidney cancer, a mother in the United States works to support pediatric kidney-cancer research across China and the US. The documentary brings together interviews with eight pediatric specialists and two affected families. My work spans color grading, production sound and post sound.', descriptionZh: '一位在美国生活的母亲失去患肾癌的孩子后，投身中美儿童肾癌研究支持工作。影片采访了中美两国的八位儿科专家及两个患儿家庭。我负责调色、现场录音及音频后期。' },
   { id: 'reason', title: 'Reason to Lie', chinese: '谎言的理由', role: 'Color Grading', date: '10/2024', type: 'Suspense short', duration: '19 min', cover: 'reason_cover.jpg', prefix: 'reason', count: 6, description: 'A suspense short made in collaboration with a Loyola Marymount University director. The grade explores a darker, Kodak-inspired palette to support the film’s atmosphere.', descriptionZh: '与洛约拉马利蒙特大学导演合作的悬疑短片。以偏暗、具有柯达胶片质感的色彩设计支持影片的悬疑氛围。', link: ['Watch via Baidu Pan · code 8888', 'https://pan.baidu.com/s/14J02p1QUOHUMcIonuLXpyw?pwd=8888'], size: 'wide' },
   { id: 'papa', title: 'Papa and Pluto', chinese: '普星', role: 'Producing / Color Grading', date: '09/2023', type: 'Narrative short', duration: '15 min', cover: 'papa_cover.jpg', prefix: 'papa', count: 4, description: 'A suspense short produced in Shanghai for a Columbia University MFA application. Production brought together four locations, a purpose-built basement set and a three-day shoot; I also completed the color grade.', descriptionZh: '为哥伦比亚大学 MFA 申请创作的悬疑短片。负责制片与调色，协调上海四处拍摄场地及地下室置景，完成三天拍摄。', link: ['Watch via Baidu Pan · code 8888', 'https://pan.baidu.com/s/1sjfUbMeWceF_hZZQkUS6yQ?pwd=8888'] },
   { id: 'power', title: 'Power Failure', chinese: '停电', role: 'Director', date: '12/2021', type: 'Narrative short', cover: 'power_cover.jpg', prefix: 'power', count: 6, description: 'A couple caught between work and an argument are given a chance to reconnect when a blackout interrupts their evening. The single-room film was shot in one four-hour night.', descriptionZh: '工作忙碌、缺少沟通的情侣在争吵时遭遇停电，意外获得重新交流的机会。影片以单一房间为场景，在一个夜晚的四小时内拍摄完成。', link: ['Watch on Bilibili', 'https://www.bilibili.com/video/BV1a3411v75i/'], size: 'wide' },
@@ -108,7 +117,7 @@ visibleProjects.forEach((project, index) => {
   const isWide = collection === 'film' && index % 3 === 0;
   card.className = `film-card${isWide ? ' film-card--wide' : ''}${project.id === 'alone' ? ' film-card--poster' : ''}`;
   const preview = project.preview || (collection === 'tvc' ? `../assets/images/tvc/${project.id}-preview.webp` : `../film/images/${project.cover}`);
-  card.innerHTML = `<img src="${preview}" alt="" loading="lazy" decoding="async"><span class="film-card__shade"></span><span class="film-card__meta"><span>${String(index + 1).padStart(2, '0')}</span><strong>${escapeHTML(project.title)}<small lang="zh-Hans">${escapeHTML(project.chinese)}</small></strong><em>${escapeHTML(project.role)}<br>${project.date}</em></span>`;
+  card.innerHTML = `<img src="${preview}" alt="" loading="lazy" decoding="async"><span class="film-card__shade"></span><span class="film-card__meta"><span>${String(index + 1).padStart(2, '0')}</span><strong>${escapeHTML(project.title)}<small lang="zh-Hans">${escapeHTML(project.chinese)}</small></strong><em>${escapeHTML(project.role)}${project.date ? `<br>${escapeHTML(project.date)}` : ''}</em></span>`;
   card.addEventListener('click', event => {
     if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
@@ -132,7 +141,7 @@ function openProject(project) {
   if (project.staffPicks) {
     dialogDescription.innerHTML += `<figure class="alone-staff-picks alone-staff-picks--detail"><picture><source media="(max-width: 560px)" srcset="${escapeHTML(project.staffPicks.mobileImage)}" width="1920" height="640"><img src="${escapeHTML(project.staffPicks.image)}" width="3840" height="320" decoding="async" alt="${escapeHTML(project.staffPicks.alt)}"></picture></figure>`;
   }
-  document.querySelector('#dialog-facts').innerHTML = `<div><dt>Role</dt><dd>${escapeHTML(project.role)}</dd></div><div><dt>Date</dt><dd>${project.date}</dd></div>${project.duration ? `<div><dt>Runtime</dt><dd>${project.duration}</dd></div>` : ''}`;
+  document.querySelector('#dialog-facts').innerHTML = `<div><dt>Role</dt><dd>${escapeHTML(project.role)}</dd></div>${project.date ? `<div><dt>Date</dt><dd>${escapeHTML(project.date)}</dd></div>` : ''}${project.duration ? `<div><dt>Runtime</dt><dd>${project.duration}</dd></div>` : ''}`;
   const recognition = document.querySelector('#dialog-recognition');
   recognition.hidden = !project.recognition?.length;
   recognition.innerHTML = project.recognition?.length ? `<h3>Recognition / <span lang="zh-Hans">荣誉</span></h3><ol class="film-recognition-list">${recognitionItemsHTML(project.recognition)}</ol>` : '';
@@ -142,7 +151,7 @@ function openProject(project) {
     const figure = document.createElement('figure');
     const image = document.createElement('img');
     const stem = `${project.prefix}_img_${index}`;
-    image.src = collection === 'tvc' ? `../assets/images/tvc/${project.id}-${String(index).padStart(2, '0')}.webp` : `../film/images/${stem}.${losslessWebpStills.has(stem) ? 'webp' : 'png'}`;
+    image.src = project.gallery?.[index - 1] || (collection === 'tvc' ? `../assets/images/tvc/${project.id}-${String(index).padStart(2, '0')}.webp` : `../film/images/${stem}.${losslessWebpStills.has(stem) ? 'webp' : 'png'}`);
     image.alt = `${project.title} — project image ${index}`;
     image.loading = 'lazy';
     image.decoding = 'async';
