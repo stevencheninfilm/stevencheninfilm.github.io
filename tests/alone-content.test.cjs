@@ -14,7 +14,7 @@ const alone = projects.find(project => project.id === 'alone');
 
 test('Alone is film 01 and other films retain their relative order', () => {
   assert.deepEqual(Array.from(projects.filter(project => !project.collection), project => project.id), [
-    'alone', 'tumbleweed', 'everylook', 'healing', 'reason', 'papa', 'power', 'cube', 'invert'
+    'alone', 'nuccio', 'tumbleweed', 'everylook', 'healing', 'reason', 'papa', 'power', 'cube', 'invert'
   ]);
   assert.equal(projects.filter(project => project.id === 'alone').length, 1);
   assert.match(source, /const isWide = collection === 'film' && index % 3 === 0/);

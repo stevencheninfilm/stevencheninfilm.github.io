@@ -33,18 +33,21 @@ test('film directing credits use Director in cards and project details', () => {
   assert.equal(projects.find(project => project.id === 'ge').role, 'Assistant Direction / On-set Editing');
 });
 
-test('archive separates nine films and four complete commercial cases', () => {
-  assert.equal(projects.filter(p => !p.collection).length, 9);
+test('archive separates ten films and four complete commercial cases', () => {
+  const films = projects.filter(p => !p.collection);
+  assert.equal(films.length, 10);
+  assert.deepEqual(Array.from(films.slice(0, 2), project => project.id), ['alone', 'nuccio']);
   const tvc = projects.filter(p => p.collection === 'tvc');
   assert.equal(tvc.length, 4);
   assert.deepEqual(Array.from(tvc, p => p.count), [6,5,6,4]);
   assert.equal(new Set(projects.map(p => p.id)).size, projects.length);
   assert.equal(projects.find(p => p.id === 'tumbleweed').role, 'Editing / Color Grading');
   for (const project of projects) {
-    assert.ok(project.description && project.descriptionZh && project.role && project.date);
+    assert.ok(project.description && project.descriptionZh && project.role);
+    assert.ok(project.date === undefined || /^\d{2}\/\d{4}$/.test(project.date));
     for (let i = 1; i <= project.count; i++) {
       const stem = `${project.prefix}_img_${i}`;
-      const file = project.collection === 'tvc'
+      const file = project.gallery?.[i - 1] ? path.relative(root, path.resolve(root, 'film', project.gallery[i - 1])) : project.collection === 'tvc'
         ? `assets/images/tvc/${project.id}-${String(i).padStart(2, '0')}.webp`
         : `film/images/${stem}.${lossless.has(stem) ? 'webp' : 'png'}`;
       assert.ok(fs.existsSync(path.join(root, file)), file);
