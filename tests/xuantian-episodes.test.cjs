@@ -28,6 +28,13 @@ const episodeThreeURLs = [
   'https://www.xiaohongshu.com/discovery/item/6ad2cb160000000012039e0f?source=webshare&xhsshare=pc_web&xsec_token=YBfp_LPHHuYftUf8bIf4LvCj38kqFTpRRTjVUeiffFLzQ=&xsec_source=pc_share'
 ];
 
+const episodeFourURLs = [
+  'https://v.douyin.com/BuM69EkW3Ss/',
+  'https://www.bilibili.com/video/BV12mHM6ZEnb/?share_source=copy_web&vd_source=017fe2b77e3ee35441400db7b7543f59',
+  'https://www.xinpianchang.com/a13853543?channel=copyLink&from=webShare',
+  'https://www.xiaohongshu.com/discovery/item/6adc09010000000025004b80?source=webshare&xhsshare=pc_web&xsec_token=YBivUWuD79ULEOau-niMb2a7diVa0sxg1Bbo8os3vRd30=&xsec_source=pc_share'
+];
+
 test('published episodes retain distinct destinations and closing links point to the latest episode', () => {
   const platforms = html.split('id="episode-1-platforms"')[1].split('</nav>')[0].replaceAll('&amp;', '&');
   const ending = html.split('<section class="xj-end"')[1].split('</section>')[0].replaceAll('&amp;', '&');
@@ -42,19 +49,25 @@ test('published episodes retain distinct destinations and closing links point to
   const third = html.split('id="episode-3-platforms"')[1].split('</nav>')[0].replaceAll('&amp;', '&');
   for (const url of episodeThreeURLs) {
     assert.ok(third.includes(`href="${url}"`), url);
+  }
+  const fourth = html.split('id="episode-4-platforms"')[1].split('</nav>')[0].replaceAll('&amp;', '&');
+  for (const url of episodeFourURLs) {
+    assert.ok(fourth.includes(`href="${url}"`), url);
     assert.ok(ending.includes(`href="${url}"`), url);
   }
-  assert.match(ending, /href="#episode-3"/);
-  assert.match(html, /data-default-episode="episode-3"/);
-  assert.match(html, /href="#episode-3" data-episode-select="episode-3"[^>]*aria-current="true"/);
-  assert.doesNotMatch(html, /data-xj-calendar-open[^>]*aria-label="第三集/);
+  assert.match(ending, /href="#episode-4"/);
+  assert.match(html, /data-default-episode="episode-4"/);
+  assert.match(html, /href="#episode-4" data-episode-select="episode-4"[^>]*aria-current="true"/);
+  assert.match(html, /更新至第四集/);
+  assert.doesNotMatch(html, /data-xj-calendar-open[^>]*aria-label="(?:第三|第四)集/);
+  assert.match(html, /data-xj-calendar-open[^>]*aria-label="第五集/);
   for (const link of platforms.matchAll(/<a\b[^>]+>/g)) {
     assert.match(link[0], /target="_blank"/);
     assert.match(link[0], /rel="noopener noreferrer"/);
   }
   assert.doesNotMatch(platforms, /a13797765|xd9IZhTjrTY/);
   assert.doesNotMatch(html, /xj-watch-context|data-episode-play-label/);
-  assert.equal((html.match(/\sdata-episode-play(?:\s|>)/g) || []).length, 3, 'each published episode has one cover launching onsite playback');
+  assert.equal((html.match(/\sdata-episode-play(?:\s|>)/g) || []).length, 4, 'each published episode has one cover launching onsite playback');
   assert.match(platforms, /在其他平台观看第一集/);
   assert.match(platforms, /新窗口打开/);
   const trailer = html.split('id="trailer-platforms"')[1].split('</nav>')[0];
@@ -68,13 +81,17 @@ test('platforms prioritize Douyin, Bilibili, Xinpianchang, then each episode’s
   const platforms = html.split('id="episode-1-platforms"')[1].split('</nav>')[0];
   const ending = html.split('<div class="xj-watch-links">')[1].split('</div>')[0];
   assert.deepEqual(links(platforms), episodeURLs);
-  assert.deepEqual(links(ending), episodeThreeURLs);
+  assert.deepEqual(links(ending), episodeFourURLs);
   const second = html.split('id="episode-2-platforms"')[1].split('</nav>')[0];
   assert.deepEqual(links(second), episodeTwoURLs);
   const third = html.split('id="episode-3-platforms"')[1].split('</nav>')[0];
   assert.deepEqual(links(third), episodeThreeURLs);
   assert.match(third, /小红书/);
   assert.doesNotMatch(third, /微信视频号/);
+  const fourth = html.split('id="episode-4-platforms"')[1].split('</nav>')[0];
+  assert.deepEqual(links(fourth), episodeFourURLs);
+  assert.match(fourth, /小红书/);
+  assert.doesNotMatch(fourth, /微信视频号/);
   const trailer = html.split('id="trailer-platforms"')[1].split('</nav>')[0];
   assert.deepEqual(links(trailer).map(url => new URL(url).hostname), ['v.douyin.com', 'www.xinpianchang.com']);
   assert.match(trailer.match(/<a\b[^>]*href="([^"]+)"/)[1], /^https:\/\/v\.douyin\.com\//);
@@ -105,10 +122,14 @@ test('episode poster is uncropped and the official Douyin player loads only on r
   assert.match(second, /vid=7694831533504466212&amp;autoplay=1&amp;mode=pc/);
   assert.match(second, /episode-02-xuanmen.webp/);
   assert.match(second, /第二集 · 初入玄门/);
-  const latest = html.match(/<figure id="episode-3"[\s\S]*?<\/figure>/)[0];
+  const third = html.match(/<figure id="episode-3"[\s\S]*?<\/figure>/)[0];
+  assert.match(third.split('>')[0], /\shidden/);
+  assert.match(third, /vid=7697437902317440256&amp;autoplay=1&amp;mode=pc/);
+  assert.match(third, /第三集 · 仙神陨落/);
+  const latest = html.match(/<figure id="episode-4"[\s\S]*?<\/figure>/)[0];
   assert.doesNotMatch(latest.split('>')[0], /\shidden/);
-  assert.match(latest, /vid=7697437902317440256&amp;autoplay=1&amp;mode=pc/);
-  assert.match(latest, /第三集 · 仙神陨落/);
+  assert.match(latest, /vid=7700039277098421554&amp;autoplay=1&amp;mode=pc/);
+  assert.match(latest, /第四集 · 如意惊鸣/);
   assert.match(latest, /width="1672" height="941"/);
   assert.doesNotMatch(latest, /<video|<iframe|01:40/);
   const latestPoster = latest.match(/<img src="(\.\.\/assets\/images\/projects\/xuantian-jie\/[^"]+\.webp)"/)[1];
@@ -145,6 +166,7 @@ test('every external playback platform has a local decorative SVG before its nam
     html.split('id="episode-1-platforms"')[1].split('</nav>')[0],
     html.split('id="episode-2-platforms"')[1].split('</nav>')[0],
     html.split('id="episode-3-platforms"')[1].split('</nav>')[0],
+    html.split('id="episode-4-platforms"')[1].split('</nav>')[0],
     html.split('id="trailer-platforms"')[1].split('</nav>')[0],
     html.split('<div class="xj-watch-links">')[1].split('</div>')[0]
   ];
@@ -161,7 +183,7 @@ test('every external playback platform has a local decorative SVG before its nam
       count++;
     }
   }
-  assert.equal(count, 18);
+  assert.equal(count, 22);
   assert.match(css, /\.xj-platform-logo \{[^}]*width: 18px; height: 18px; flex: 0 0 18px/);
 });
 
@@ -177,7 +199,7 @@ function fixture(hash = '', withEmbed = false, withFutureEpisode = false, defaul
     append(child) { this.child = child; },
     remove() { this.removed = true; }
   });
-  const keys = ['episode-1', 'trailer', ...(withFutureEpisode ? ['episode-2', 'episode-3'] : [])];
+  const keys = ['episode-1', 'trailer', ...(withFutureEpisode ? ['episode-2', 'episode-3', 'episode-4'] : [])];
   const panels = keys.map(key => element({episodePanel: key}));
   const platforms = keys.map(key => element({episodePlatforms: key}));
   const choices = keys.map(key => element({episodeSelect: key}));
@@ -186,8 +208,8 @@ function fixture(hash = '', withEmbed = false, withFutureEpisode = false, defaul
   panels.forEach(panel => {
     const key = panel.dataset.episodePanel;
     const nodes = Object.fromEntries(['[data-episode-embed]', '[data-episode-mount]', '.xj-episode-cover', '[data-episode-help]', '[data-episode-status]', '[data-episode-source]', '[data-episode-reload]'].map(selector => [selector, element({})]));
-    nodes['[data-episode-embed]'].dataset.embedSrc = `https://open.douyin.com/player/video?vid=${({'episode-1': '7691998330158599459', 'episode-2': '7694831533504466212', 'episode-3': '7697437902317440256'})[key] || 'trailer'}&autoplay=1&mode=pc`;
-    panel.setAttribute('aria-label', ({'episode-1': '《玄天诀》第一集：初入仙界', 'episode-2': '《玄天诀》第二集：初入玄门', 'episode-3': '《玄天诀》第三集：仙神陨落'})[key] || '《玄天诀》预告片');
+    nodes['[data-episode-embed]'].dataset.embedSrc = `https://open.douyin.com/player/video?vid=${({'episode-1': '7691998330158599459', 'episode-2': '7694831533504466212', 'episode-3': '7697437902317440256', 'episode-4': '7700039277098421554'})[key] || 'trailer'}&autoplay=1&mode=pc`;
+    panel.setAttribute('aria-label', ({'episode-1': '《玄天诀》第一集：初入仙界', 'episode-2': '《玄天诀》第二集：初入玄门', 'episode-3': '《玄天诀》第三集：仙神陨落', 'episode-4': '《玄天诀》第四集：如意惊鸣'})[key] || '《玄天诀》预告片');
     panel.querySelector = selector => withEmbed && key !== 'trailer' ? nodes[selector] : null;
     panel.querySelectorAll = selector => selector === '[data-episode-play]' ? [nodes['.xj-episode-cover']] : [];
     episodeNodes[key] = nodes;
@@ -242,34 +264,34 @@ test('episodes expand on the first play request and keep the cinema size through
   assert.equal(embed.dataset.screenExpanded, 'true', 'return/replay retains the same size as the trailer');
 });
 
-test('third episode inherits onsite playback and switching stops the previous stream', () => {
-  const f = fixture('#episode-3', true, true);
+test('fourth episode inherits onsite playback and switching stops the previous stream', () => {
+  const f = fixture('#episode-4', true, true);
   const first = f.embedNodes['[data-episode-embed]'];
-  const second = f.episodeNodes['episode-2']['[data-episode-embed]'];
   const third = f.episodeNodes['episode-3']['[data-episode-embed]'];
-  assert.equal(f.panels[3].hidden, false, 'third-episode deep links resolve');
+  const fourth = f.episodeNodes['episode-4']['[data-episode-embed]'];
+  assert.equal(f.panels[4].hidden, false, 'fourth-episode deep links resolve');
   assert.equal(f.frames.length, 0, 'deep links do not start third-party playback');
-  f.playAt('episode-2');
-  assert.equal(second.dataset.screenExpanded, 'true');
-  assert.match(f.frames[0].src, /vid=7694831533504466212/);
   f.playAt('episode-3');
-  assert.equal(f.frames[0].removed, true, 'moving from second to third unloads the second stream');
   assert.equal(third.dataset.screenExpanded, 'true');
+  assert.match(f.frames[0].src, /vid=7697437902317440256/);
+  f.playAt('episode-4');
+  assert.equal(f.frames[0].removed, true, 'moving from third to fourth unloads the third stream');
+  assert.equal(fourth.dataset.screenExpanded, 'true');
   assert.equal(first.dataset.screenExpanded, undefined);
-  assert.match(f.frames[1].title, /第三集 · 仙神陨落/);
-  assert.match(f.frames[1].src, /vid=7697437902317440256/);
-  assert.equal(f.window.location.hash, '#episode-3');
-  assert.equal(f.panels[2].hidden, true);
-  assert.equal(f.platforms[2].hidden, true);
-  assert.equal(f.platforms[3].hidden, false);
-  assert.equal(f.choices[3].attributes['aria-current'], 'true');
+  assert.match(f.frames[1].title, /第四集 · 如意惊鸣/);
+  assert.match(f.frames[1].src, /vid=7700039277098421554/);
+  assert.equal(f.window.location.hash, '#episode-4');
+  assert.equal(f.panels[3].hidden, true);
+  assert.equal(f.platforms[3].hidden, true);
+  assert.equal(f.platforms[4].hidden, false);
+  assert.equal(f.choices[4].attributes['aria-current'], 'true');
   f.click(0);
-  assert.equal(f.frames[1].removed, true, 'returning to first stops third-episode playback');
+  assert.equal(f.frames[1].removed, true, 'returning to first stops fourth-episode playback');
   f.play();
   assert.equal(first.dataset.screenExpanded, 'true');
-  assert.equal(f.panels[3].hidden, true);
+  assert.equal(f.panels[4].hidden, true);
   assert.equal(f.platforms[0].hidden, false);
-  assert.equal(f.platforms[3].hidden, true);
+  assert.equal(f.platforms[4].hidden, true);
   assert.equal(f.frames.length, 3);
   f.window.listeners.pagehide();
   assert.equal(f.frames[2].removed, true);
@@ -399,8 +421,8 @@ test('deep links, hash navigation, modified clicks and blocked file history rema
 
 
 test('latest-episode default respects all published episode and trailer deep links', () => {
-  for (const [hash, expected] of [['', 'episode-3'], ['#full-film', 'episode-3'], ['#episode-1', 'episode-1'], ['#episode-2', 'episode-2'], ['#episode-3', 'episode-3'], ['#trailer', 'trailer']]) {
-    const f = fixture(hash, true, true, 'episode-3');
+  for (const [hash, expected] of [['', 'episode-4'], ['#full-film', 'episode-4'], ['#episode-1', 'episode-1'], ['#episode-2', 'episode-2'], ['#episode-3', 'episode-3'], ['#episode-4', 'episode-4'], ['#trailer', 'trailer']]) {
+    const f = fixture(hash, true, true, 'episode-4');
     assert.deepEqual(f.panels.filter(panel => !panel.hidden).map(panel => panel.dataset.episodePanel), [expected]);
     assert.deepEqual(f.platforms.filter(row => !row.hidden).map(row => row.dataset.episodePlatforms), [expected]);
     assert.equal(f.frames.length, 0, 'selecting a published episode must not start playback');
