@@ -27,7 +27,10 @@ test('complete supplied poster and all five release dates remain accessible', ()
     assert.ok(widgetHTML.includes(date), date);
   }
   assert.ok(fs.statSync(path.join(root, 'assets/images/projects/xuantian-jie/release-calendar-2026-10-ep02.jpg')).size > 0);
-  assert.match(widgetHTML, /class="xj-calendar__watch" href="#episode-2"/);
+  assert.match(widgetHTML, /class="xj-calendar__watch" href="#episode-3"/);
+  assert.match(widgetHTML, /更新至第三集 · 已上线/);
+  assert.match(widgetHTML, /观看第三集 <span>仙神陨落<\/span>/);
+  assert.match(widgetHTML, /第三集 10 月 17 日 已上线/);
   assert.match(widgetHTML, /tabindex="0" role="region" aria-label="追剧日历海报，可滚动查看"/);
 });
 
