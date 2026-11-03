@@ -1,0 +1,82 @@
+/* The new comparison keeps the established home layout and a Chinese-led hierarchy. */
+.home-page .deck-card--detail .comparison-copy {
+  left: 50%;
+  width: min(86%, 860px);
+}
+.home-page .deck-card--detail .comparison-copy h1 {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: clamp(36px, 4.7vw, 76px);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: .025em;
+}
+.home-page .detail-copy .comparison-tool-line {
+  margin-bottom: 21px;
+  font-size: clamp(10px, .88vw, 14px);
+  letter-spacing: .12em;
+}
+.home-page .detail-copy p.detail-copy__english {
+  margin: 13px 0 0;
+  font-size: clamp(13px, 1.2vw, 18px);
+  letter-spacing: .055em;
+  line-height: 1.4;
+  color: #eee7df;
+}
+.home-page .detail-copy p.detail-copy__process {
+  margin: 27px 0 0;
+  font-size: clamp(15px, 1.25vw, 20px);
+  line-height: 1.4;
+  letter-spacing: .05em;
+}
+.detail-copy__process b { padding-inline: 12px; font-weight: 400; opacity: .6; }
+.detail-copy__process strong { font-weight: 500; }
+.detail-copy__process i { padding-inline: 5px; font-style: normal; color: #e5be88; }
+.detail-copy time { display: block; margin-top: 15px; font-size: 12px; letter-spacing: .04em; }
+.home-page .deck-card--detail .detail-copy em { margin-top: 24px; font-size: 14px; letter-spacing: .04em; }
+.detail-copy em small { margin-left: 9px; font-size: 10px; opacity: .75; letter-spacing: .02em; }
+.deck-card--detail .comparison-label { gap: 7px; font-size: 11px; letter-spacing: .03em; }
+.deck-card--detail .comparison-label small { font-size: 9px; letter-spacing: .06em; opacity: .65; }
+
+/* Ten thumbnails; the project labels still run from -1 through 8. */
+@media (min-width: 1025px) {
+  .home-v2 .home-pagination { right: calc(max(clamp(18px, 3.3vw, 64px), env(safe-area-inset-right)) + 10 * clamp(68px, 5.2vw, 100px) + 63px); }
+}
+
+@media (orientation: portrait) and (max-width: 900px) {
+  .home-page .deck-card--detail .comparison-frame {
+    inset: 96px max(8px, env(safe-area-inset-right)) 142px max(8px, env(safe-area-inset-left));
+    height: auto;
+    aspect-ratio: auto;
+    transform: none;
+    background: #07080a;
+  }
+  .deck-card--detail .comparison-video--before,
+  .deck-card--detail .comparison-after { top: 0; height: 52%; }
+  .deck-card--detail .comparison-video { object-fit: contain; }
+  .deck-card--detail .comparison-after .comparison-video { height: 100%; }
+  .deck-card--detail .comparison-divider { bottom: 48%; }
+  .deck-card--detail .comparison-handle { top: 26%; }
+  .home-page .deck-card--detail .comparison-copy {
+    top: 57%;
+    width: 96%;
+    transform: translate(-50%, 0);
+  }
+  .home-page .deck-card--detail .comparison-copy h1 { font-size: clamp(27px, 7vw, 45px); line-height: 1.25; }
+  .home-page .detail-copy .comparison-tool-line { margin-bottom: 12px; font-size: 8px; letter-spacing: .06em; }
+  .home-page .detail-copy p.detail-copy__english { margin-top: 8px; font-size: 11px; }
+  .home-page .detail-copy p.detail-copy__process { margin-top: 16px; font-size: 14px; }
+  .detail-copy time { margin-top: 10px; font-size: 10px; }
+  .home-page .deck-card--detail .detail-copy em { margin-top: 16px; padding: 8px 13px; font-size: 12px; }
+  .detail-copy em small { font-size: 8px; }
+  .home-page .deck-card--detail .comparison-stage.is-interacting .comparison-copy { transform: translate(-50%, 0) scale(.97); }
+  .project-deck.is-strip .deck-card--detail .comparison-frame { inset: 0; height: 100%; }
+  .project-deck.is-strip .deck-card--detail .comparison-video--before,
+  .project-deck.is-strip .deck-card--detail .comparison-after { height: 100%; }
+  .project-deck.is-strip .deck-card--detail .comparison-video { object-fit: cover; }
+}
+@media (orientation: portrait) and (max-height: 740px) {
+  .home-page .deck-card--detail .comparison-frame { top: 82px; bottom: 130px; }
+  .home-page .deck-card--detail .comparison-copy { top: 51%; }
+  .home-page .detail-copy p.detail-copy__process { margin-top: 10px; }
+  .home-page .deck-card--detail .detail-copy em { margin-top: 10px; }
+}

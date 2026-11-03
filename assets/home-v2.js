@@ -7,6 +7,8 @@
 
   const prepareCardMedia = (card) => {
     if (!card || card.dataset.mediaLoaded === 'true') return;
+    // The paired-video loader activates comparisons only in expanded view.
+    if (card.classList?.contains('deck-card--comparison')) return;
 
     const video = card.querySelector('video[data-src]');
     if (video) {

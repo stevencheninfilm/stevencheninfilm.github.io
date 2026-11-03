@@ -25,7 +25,7 @@
 
     // Opt-in localization keeps existing English pages unchanged.
     const copy = group.dataset.videoLang === 'zh' ? {
-      loading: '预告片加载中', loadingStatus: '视频正在加载',
+      loading: group.dataset.videoLoadingLabel || '预告片加载中', loadingStatus: '视频正在加载',
       error: '视频暂时无法加载', offline: '当前离线，无法加载视频',
       errorStatus: '视频加载失败，请重试。', offlineStatus: '当前处于离线状态，请联网后重试。',
       ready: '视频已就绪', staticReady: '视频静态预览已就绪'
@@ -49,6 +49,12 @@
     let hideTimer = 0;
     let retryFocusTimer = 0;
     let restoreFocusAfterRetry = false;
+    const homeCard = group.closest('.deck-card--comparison');
+    const homeDeck = homeCard?.closest('.project-deck');
+    let homeLoadStarted = false;
+    const canLoadHome = () => !homeCard || (homeDeck &&
+      !homeDeck.classList.contains('is-strip') && !document.hidden &&
+      (homeCard.classList.contains('is-active') || homeCard.classList.contains('is-slide-layer')));
 
     videos.forEach((video) => {
       video.dataset.videoLoaderManaged = 'true';
@@ -288,22 +294,43 @@
       }
     };
 
+    const startWhenActive = () => {
+      if (homeCard && (homeLoadStarted || !canLoadHome())) return;
+      homeLoadStarted = true;
+      start(false);
+    };
+
     videos.forEach((video) => video.addEventListener('error', showError));
     retry.addEventListener('click', () => {
+      if (!canLoadHome()) return;
       restoreFocusAfterRetry = true;
+      homeLoadStarted = true;
       start(true);
     });
-    motionPreference.addEventListener('change', () => start(false));
+    motionPreference.addEventListener('change', () => {
+      homeLoadStarted = false;
+      if (group.hasAttribute('data-video-static-on-reduced-motion') && motionPreference.matches) {
+        // Cancel an in-flight transfer even if its card has since moved offscreen.
+        start(false);
+      } else startWhenActive();
+    });
     window.addEventListener('pageshow', (event) => {
       if (!event.persisted) return;
       if (videos.every((video) => video.readyState >= READY_STATE)) {
         hideAsReady();
         announceReady();
       } else {
-        start(false);
+        homeLoadStarted = false;
+        startWhenActive();
       }
     });
 
-    start(false);
+    if (homeCard && homeDeck) {
+      const homeObserver = new MutationObserver(startWhenActive);
+      homeObserver.observe(homeCard, { attributes: true, attributeFilter: ['class'] });
+      homeObserver.observe(homeDeck, { attributes: true, attributeFilter: ['class'] });
+      document.addEventListener('visibilitychange', startWhenActive);
+    }
+    startWhenActive();
   });
 })();

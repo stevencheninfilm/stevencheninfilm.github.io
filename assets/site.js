@@ -61,6 +61,8 @@
   const ensureCardMedia = (index) => {
     const card = cards[index];
     if (!card || card.dataset.mediaLoaded === 'true') return Promise.resolve();
+    // Comparison pairs own their responsive sources and reduced-motion state.
+    if (card.classList?.contains('deck-card--comparison')) return Promise.resolve();
 
     const video = card.querySelector('video');
     if (video) {

@@ -1,6 +1,4 @@
-(() => {
-  const stage = document.querySelector('[data-comparison]');
-  if (!stage) return;
+document.querySelectorAll('[data-comparison]').forEach((stage) => {
 
   const card = stage.closest('.deck-card');
   const deck = stage.closest('.project-deck');
@@ -15,7 +13,9 @@
   const child = before;
   const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   const mobileMedia = window.matchMedia('(max-width: 600px)');
-  const initialTime = 5.25;
+  const initialTime = Number(stage.dataset.startTime ?? 5.25);
+  const beforeLabel = stage.dataset.beforeLabel || '3D previs';
+  const afterLabel = stage.dataset.afterLabel || 'AI render';
   const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
 
   let split = 50;
@@ -31,7 +31,7 @@
     const rounded = Math.round(split);
     stage.style.setProperty('--compare-split', `${split}%`);
     handle.setAttribute('aria-valuenow', String(rounded));
-    handle.setAttribute('aria-valuetext', `${rounded} percent 3D previs, ${100 - rounded} percent AI render`);
+    handle.setAttribute('aria-valuetext', `${rounded}% ${beforeLabel}, ${100 - rounded}% ${afterLabel}`);
   };
 
   const loadVideos = () => {
@@ -143,6 +143,7 @@
   };
 
   const updatePlayback = () => {
+    handle.tabIndex = card.classList.contains('is-active') && !deck.classList.contains('is-strip') ? 0 : -1;
     if (shouldPlay()) {
       playPair();
     } else {
@@ -263,6 +264,5 @@
   });
 
   setSplit(split);
-  loadVideos();
   updatePlayback();
-})();
+});
