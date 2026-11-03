@@ -3,6 +3,25 @@
   const pagination = document.querySelector('.home-pagination');
   if (!deck || !pagination) return;
 
+  const dock = document.querySelector('.thumbnail-dock');
+  const deferredThumbnails = [...(dock?.querySelectorAll('img[data-src]') || [])];
+  const revealThumbnail = image => {
+    if (!image.dataset.src) return;
+    image.src = image.dataset.src;
+    image.removeAttribute('data-src');
+  };
+  if ('IntersectionObserver' in window && dock) {
+    // The mobile dock scrolls horizontally: do not fetch thumbnails off its edge.
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        revealThumbnail(entry.target);
+        observer.unobserve(entry.target);
+      });
+    }, { root: dock, rootMargin: '0px 24px', threshold: 0 });
+    deferredThumbnails.forEach(image => observer.observe(image));
+  } else deferredThumbnails.forEach(revealThumbnail);
+
   const stripSelectedCard = () => deck.querySelector('.deck-card.is-strip-selected');
 
   const prepareCardMedia = (card) => {

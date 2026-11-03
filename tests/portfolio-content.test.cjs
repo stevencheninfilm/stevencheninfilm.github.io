@@ -77,9 +77,10 @@ test('TVC uses the selected banner without repeating its embedded title', () => 
   assert.doesNotMatch(card, /class="deck-project-title"/);
   assert.ok(card.indexOf('class="deck-picture tvc-image-link"') < card.indexOf('class="deck-project-link deck-project-link--meta"'));
   assert.match(card, /href="tvc\/index.html"/);
-  assert.match(card, /banner-editorial-20260925.webp" width="2114" height="744"/);
+  assert.match(card, /data-src="assets\/images\/tvc\/banner-editorial-20260925.webp"[^>]*width="2114" height="744"/);
+  assert.match(card, /data-preview="assets\/images\/home\/dock\/tvc.webp"/);
   assert.match(card, /aria-label="TVC — Explore selected commercial work"/);
-  assert.match(read('index.html'), /banner-editorial-thumb-20260925.webp" width="512" height="180"/);
+  assert.match(read('index.html'), /data-src="assets\/images\/home\/dock\/tvc.webp" width="320" height="112"/);
   assert.match(read('tvc/index.html'), /class="tvc-banner"[^]*banner-editorial-20260925.webp/);
 });
 

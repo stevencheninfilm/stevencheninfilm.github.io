@@ -62,7 +62,9 @@ test('both placements are transparent and only image silhouettes cast a 10% shad
   assert.match(image, /background: transparent;/);
   assert.match(image, /filter: drop-shadow\(0 2px 6px rgba\(0, 0, 0, \.1\)\);/);
   assert.doesNotMatch(home + image, /box-shadow:|opacity:/);
-  for (const page of ['index.html', 'index-v3.html', 'film/Film.html']) {
-    assert.match(read(page), /portfolio\.css\?v=\d{8}-[^"\s]+/);
+  for (const page of ['index.html', 'index-v3.html']) {
+    assert.match(read(page), /home-critical\.bundle\.css\?v=\d{8}-[^"\s]+/);
+    assert.ok(read('assets/home-critical.bundle.css').includes(css.trimEnd()), 'homepage bundle includes current portfolio styles');
   }
+  assert.match(read('film/Film.html'), /portfolio\.css\?v=\d{8}-[^"\s]+/);
 });

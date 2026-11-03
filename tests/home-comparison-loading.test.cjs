@@ -213,8 +213,8 @@ test('blocked home autoplay offers a gesture-driven Play action without reloadin
 
 test('deck and strip helpers leave comparison video hydration to its paired loader', async () => {
   const video = { dataset: { src: '/desktop.mp4' }, load() { throw new Error('comparison must not hydrate here'); } };
-  const card = { dataset: {}, classList: { contains: name => name === 'deck-card--comparison' }, querySelector: () => video };
-  const ensure = read('assets/site.js').match(/const ensureCardMedia = \(index\) => \{[\s\S]*?\n  \};/)[0];
+  const card = { dataset: {}, classList: { contains: name => name === 'deck-card--comparison' }, querySelector: () => video, querySelectorAll: () => [] };
+  const ensure = read('assets/site.js').match(/const ensureCardMedia = \(index, preview = false\) => \{[\s\S]*?\n  \};/)[0];
   await vm.runInNewContext(`${ensure}; ensureCardMedia`, { cards: [card] })(0);
   const prepare = read('assets/home-v2.js').match(/const prepareCardMedia = \(card\) => \{[\s\S]*?\n  \};/)[0];
   vm.runInNewContext(`${prepare}; prepareCardMedia`)(card);
