@@ -326,6 +326,8 @@
     });
 
     if (homeCard && homeDeck) {
+      // An unvisited project is a poster, not a stalled loading indicator.
+      overlay.hidden = true;
       const homeObserver = new MutationObserver(startWhenActive);
       homeObserver.observe(homeCard, { attributes: true, attributeFilter: ['class'] });
       homeObserver.observe(homeDeck, { attributes: true, attributeFilter: ['class'] });

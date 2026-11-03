@@ -74,6 +74,8 @@ function setup({ active = 0, reduced = false, mobile = false, home = true, hidde
 
 test('homepage fetches only the active comparison and uses mobile sources', async () => {
   const app = setup({ mobile: true });
+  assert.equal(app.groups[0].overlay.hidden, false, 'the active pair reports its real transfer');
+  assert.equal(app.groups[1].overlay.hidden, true, 'an unvisited comparison shows its poster without a fake loading state');
   assert.deepEqual(app.requests.map(request => request.url), ['/0-before-mobile.mp4', '/0-after-mobile.mp4']);
   app.setStrip(true);
   app.setActive(1);
