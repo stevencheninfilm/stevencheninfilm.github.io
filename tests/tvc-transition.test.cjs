@@ -52,7 +52,12 @@ function harness({ home = true, reduced = false, ready = true, saved = null, rou
 test('destination transition runs before render; homepage defers its optional transition script', () => {
   for (const file of ['index.html', 'index-v3.html', 'tvc/index.html', 'film/Film.html']) {
     const head = read(file).split('</head>')[0];
-    assert.match(head, /<link rel="stylesheet" href="(?:\.\.\/)?assets\/tvc-transition.css\?v=20260925-3">/);
+    if (file.startsWith('index')) {
+      assert.match(head, /<link rel="stylesheet" href="assets\/home-critical\.bundle\.css\?v=\d{8}-[^"\s]+">/);
+      assert.ok(read('assets/home-critical.bundle.css').includes(read('assets/tvc-transition.css').trimEnd()), 'homepage bundle includes the complete transition styles');
+    } else {
+      assert.match(head, /<link rel="stylesheet" href="\.\.\/assets\/tvc-transition.css\?v=20260925-3">/);
+    }
     assert.match(head, /<script (?:defer )?src="(?:\.\.\/)?assets\/tvc-transition.js\?v=20260925-3"><\/script>/);
     const script=head.match(/<script[^>]*tvc-transition.js[^>]*>/)[0];
     if(file.startsWith('index')) assert.match(script,/defer/);

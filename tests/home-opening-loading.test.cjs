@@ -8,31 +8,34 @@ const source = fs.readFileSync(require.resolve('../assets/home-opening.js'), 'ut
 function opening(cached = false, options = {}) {
   let now = options.start || 0, frameId = 0, reloads = 0;
   const frames = new Map(), listeners = {}, clickHandlers = {};
-  const classes = new Set(['home-v3', 'is-loading', 'is-v3-loading']);
+  const classes = new Set(['home-v3']);
   const body = { classList: { contains: c => classes.has(c), add: c => classes.add(c), remove: (...names) => names.forEach(c => classes.delete(c)) } };
   const images = Array.from({ length: 2 }, () => {
     let resolve, reject;
     const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
-    return { complete: cached, naturalWidth: cached ? 100 : 0, src: '/poster.webp', decode: () => promise, resolve, reject };
+    return { complete: cached, naturalWidth: cached ? 100 : 0, src: cached ? '/poster.webp' : undefined, dataset: { src: '/poster.webp' },
+      getAttribute(name) { return this[name]; }, removeAttribute(name) { delete this[name]; }, decode: () => promise,
+      resolve() { this.complete = true; this.naturalWidth = 100; resolve(); }, reject };
   });
   const percent = { style: {}, hidden: true };
   const skip = { addEventListener: (name, fn) => { clickHandlers.skip = fn; } };
   const tiles = images.map((image, i) => ({ style: {}, dataset: { column: String(i), row: '0' }, querySelector: () => image }));
-  const loader = { style: {}, dataset: {}, hidden: false,
+  const loader = { style: {}, dataset: {}, hidden: true,
     querySelector: selector => ({ '.v3-loader-percent': percent, '.v3-loader-tile--lead': tiles[0], '.v3-loader-skip': skip })[selector],
     querySelectorAll: selector => selector === 'img' ? images : tiles };
   const interfaces = [{ inert: false }];
   const work = { href: 'http://localhost/index.html', addEventListener: (name, fn) => { clickHandlers.work = fn; } };
   const window = { innerWidth: 1440, innerHeight: 900, StevenHomeOpening: motion,
     location: { href: 'http://localhost/index.html#featured-work', pathname: '/index.html', reload: () => { reloads++; }, assign: () => {} },
-    matchMedia: () => ({ matches: false, addEventListener() {} }),
+    matchMedia: query => ({ matches: query.includes('reduced-motion') ? !!options.reduced : !!options.mobile, addEventListener() {} }),
     addEventListener: (name, fn) => { listeners[name] = fn; }, setTimeout: () => 1 };
-  vm.runInNewContext(source, { window, URL, navigator: {connection:options.connection}, document: { body, activeElement: null,
+  vm.runInNewContext(source, { window, URL, sessionStorage: { getItem: () => options.warm ? 'ready' : null, setItem() {} }, navigator: {connection:options.connection}, document: { body, activeElement: null,
     querySelector: selector => ({ '.v3-loader': loader, '[data-home-replay]': work })[selector],
     querySelectorAll: () => interfaces }, performance: { now: () => now },
     requestAnimationFrame: fn => { frames.set(++frameId, fn); return frameId; },
     cancelAnimationFrame: id => frames.delete(id), clearTimeout() {} });
   return { loader, percent, images, interfaces, clickHandlers, work, reloads: () => reloads,
+    interact() { listeners.pointerdown({ target: { closest() {} } }); },
     resize(width, height) { window.innerWidth = width; window.innerHeight = height; listeners.resize(); },
     tick(time) { now = time; const pending = [...frames.values()]; frames.clear(); pending.forEach(fn => fn(time)); } };
 }
@@ -47,12 +50,14 @@ test('cached content starts the image wall immediately with no mandatory progres
   assert.equal(app.interfaces[0].inert, false);
 });
 
-test('cold-load progress counts ready images and disappears as soon as they settle', async () => {
+test('optional desktop artwork loads without hiding the usable page, then starts the original wall', async () => {
   const app = opening();
   app.tick(50);
   assert.equal(app.percent.hidden, true, 'no flash for a fast load');
   app.tick(200);
-  assert.equal(app.percent.hidden, false);
+  assert.equal(app.percent.hidden, true);
+  assert.equal(app.loader.hidden, true);
+  assert.equal(app.interfaces[0].inert, false);
   assert.equal(app.percent.textContent, '0%');
   app.images[0].resolve();
   await Promise.resolve();
@@ -65,6 +70,8 @@ test('cold-load progress counts ready images and disappears as soon as they sett
   app.tick(610);
   assert.equal(app.percent.hidden, true);
   assert.equal(app.loader.dataset.phase, 'wall');
+  assert.equal(app.loader.hidden, false);
+  assert.equal(app.interfaces[0].inert, true);
 });
 
 test('failed or stalled assets cannot trap visitors behind loading progress', async () => {
@@ -77,6 +84,7 @@ test('failed or stalled assets cannot trap visitors behind loading progress', as
   stalled.tick(700);
   assert.equal(stalled.loader.dataset.phase, 'complete');
   assert.equal(stalled.loader.hidden, true);
+  assert.ok(stalled.images.every(image => !image.src), 'unfinished optional requests are cancelled');
 });
 
 test('Work reloads the homepage from a hash and preserves modified link clicks', () => {
@@ -107,4 +115,38 @@ test('same-size viewport notifications do not cancel the opening', () => {
     assert.equal(app.loader.hidden,true);
     assert.equal(app.interfaces[0].inert,false);
   }
+});
+
+
+test('cold mobile and reduced-motion visits never request the hidden opening wall', () => {
+  for (const options of [{ mobile: true }, { reduced: true }, { mobile: true, connection: { effectiveType: '4g' } }]) {
+    const app = opening(false, options);
+    assert.ok(app.images.every(image => !image.src));
+    assert.equal(app.loader.hidden, true);
+    assert.equal(app.interfaces[0].inert, false);
+    app.tick(100);
+    assert.equal(app.loader.dataset.phase, 'complete');
+  }
+});
+
+test('a previously ready mobile wall may replay without removing the desktop animation', async () => {
+  const app = opening(false, { mobile: true, warm: true });
+  assert.ok(app.images.every(image => image.src === '/poster.webp'));
+  assert.equal(app.loader.hidden, true, 'the page remains usable while cache decoding completes');
+  app.images.forEach(image => image.resolve());
+  await Promise.resolve();
+  app.tick(100);
+  assert.equal(app.loader.dataset.phase, 'wall');
+  assert.equal(app.loader.hidden, false);
+});
+
+test('using the visible homepage cancels a pending optional intro without blocking the action', async () => {
+  const app = opening();
+  app.interact();
+  app.images.forEach(image => image.resolve());
+  await Promise.resolve();
+  app.tick(300);
+  assert.equal(app.loader.hidden, true);
+  assert.equal(app.loader.dataset.phase, 'complete');
+  assert.equal(app.interfaces[0].inert, false);
 });

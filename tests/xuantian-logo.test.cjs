@@ -14,6 +14,17 @@ test('supplied emblem retains its native dimensions and alpha channel', () => {
   assert.equal(png[25], 6, 'RGBA PNG, not flattened onto black');
 });
 
+test('homepage uses a smaller transparent WebP emblem', () => {
+  const webp = fs.readFileSync(path.join(root, 'assets/images/projects/xuantian-jie/xuantian-jue-logo-web.webp'));
+  assert.equal(webp.subarray(0, 4).toString(), 'RIFF');
+  assert.equal(webp.subarray(8, 12).toString(), 'WEBP');
+  assert.equal(webp.subarray(12, 16).toString(), 'VP8X');
+  assert.ok(webp[20] & 0x10, 'WebP must preserve transparency');
+  assert.equal(webp.readUIntLE(24, 3) + 1, 840);
+  assert.equal(webp.readUIntLE(27, 3) + 1, 473);
+  assert.ok(webp.length < 160000);
+});
+
 test('project hero and closing use the emblem while navigation stays readable', () => {
   const html = read('projects/xuantian-jie.html');
   const h1 = html.match(/<h1 id="xj-title"[\s\S]*?<\/h1>/)[0];
@@ -31,12 +42,21 @@ test('project hero and closing use the emblem while navigation stays readable', 
 test('project identity is consistent on the two homepage entries and AI feature', () => {
   for (const file of ['index.html', 'index-v3.html', 'ai/index.html', 'projects/xuantian-jie.html']) {
     const html = read(file);
-    assert.match(html, /xuantian-brand\.css\?v=20260927-logo-[123]/);
-    assert.match(html, /xuantian-jue-logo\.png/);
-    for (const match of html.matchAll(/<img[^>]+xuantian-jue-logo\.png[^>]+>/g)) {
-      assert.match(match[0], /width="1672" height="941"/);
+    const isHome = file.startsWith('index');
+    if (isHome) {
+      assert.match(html, /home-critical\.bundle\.css\?v=\d{8}-[^"\s]+/);
+      assert.ok(read('assets/home-critical.bundle.css').includes(read('assets/xuantian-brand.css').trimEnd()), 'homepage bundle retains emblem styling');
+      assert.match(html, /xuantian-jue-logo-web\.webp/);
+    } else {
+      assert.match(html, /xuantian-brand\.css\?v=20260927-logo-[123]/);
+      assert.match(html, /xuantian-jue-logo\.png/);
+    }
+    const logos = [...html.matchAll(/<img[^>]+xuantian-jue-logo(?:\.png|-web\.webp)[^>]+>/g)];
+    assert.ok(logos.length > 0);
+    for (const match of logos) {
+      assert.match(match[0], isHome ? /width="840" height="473"/ : /width="1672" height="941"/);
       assert.match(match[0], /alt="玄天诀/);
-      const src = match[0].match(/src="([^"]+)"/)[1];
+      const src = match[0].match(/(?:data-)?src="([^"]+)"/)[1];
       assert.ok(fs.existsSync(path.resolve(root, path.dirname(file), src)));
     }
   }

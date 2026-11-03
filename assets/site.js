@@ -58,9 +58,26 @@
     return { cardWidth, distance: cardWidth + gap };
   };
 
-  const ensureCardMedia = (index) => {
+  const ensureCardMedia = (index, preview = false) => {
     const card = cards[index];
-    if (!card || card.dataset.mediaLoaded === 'true') return Promise.resolve();
+    if (!card) return Promise.resolve();
+    card.querySelectorAll('video[data-poster]').forEach(video => {
+      if (preview) {
+        if (!video.poster) video.poster = video.dataset.posterPreview || video.dataset.poster;
+      } else {
+        video.poster = video.dataset.poster;
+        video.removeAttribute('data-poster');
+      }
+    });
+    if (card.dataset.mediaLoaded === 'true') return Promise.resolve();
+    if (preview) {
+      // A strip card needs a small preview, not its hidden logos or full artwork.
+      // Retain data-src so expanding this project can upgrade it exactly once.
+      card.querySelectorAll('img[data-preview]').forEach(image => {
+        if (!image.getAttribute('src')) image.src = image.dataset.preview;
+      });
+      return Promise.resolve();
+    }
     // Comparison pairs own their responsive sources and reduced-motion state.
     if (card.classList?.contains('deck-card--comparison')) return Promise.resolve();
 
@@ -98,7 +115,7 @@
       const x = relative * distance;
       const cardCenter = (window.innerWidth / 2) + x;
       const visible = cardCenter > -cardWidth && cardCenter < window.innerWidth + cardWidth;
-      if (mode === 'strip' && visible) ensureCardMedia(index);
+      if (mode === 'strip' && visible) ensureCardMedia(index, true);
       card.style.setProperty('--rel', relative);
       card.style.setProperty('--strip-x', `${x}px`);
       card.style.setProperty('--strip-opacity', visible ? '1' : '0');
@@ -250,6 +267,7 @@
     locked = true;
     window.clearTimeout(stripSettle);
     const next = clamp(requested, 0, total - 1);
+    ensureCardMedia(next);
     const travel = Math.abs(next - stripProgress);
     stripTarget = next;
     stripGestureActive = false;

@@ -9,6 +9,10 @@
   const motion = window.StevenHomeOpening;
   if (!body.classList.contains('home-v3') || !loader || !percent) return;
   const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const compactScreen = window.matchMedia('(max-width: 700px)');
+  const touchScreen = window.matchMedia('(pointer: coarse)');
+  const images = [...loader.querySelectorAll('img')];
+  const cacheKey = 'steven-home-intro-ready-20261103';
   let frame = 0, watchdog = 0, run = 0;
   let pageWasHidden = false, isRevealed = false;
   let openingViewport = null;
@@ -23,6 +27,11 @@
     run++;
     cancelAnimationFrame(frame);
     clearTimeout(watchdog);
+    if (loader.dataset.phase === 'loading') {
+      images.forEach(image => {
+        if (!image.complete && image.dataset.src) image.removeAttribute('src');
+      });
+    }
     revealInterface();
     loader.hidden = true;
     loader.dataset.phase = 'complete';
@@ -43,18 +52,26 @@
     cancelAnimationFrame(frame);
     clearTimeout(watchdog);
     isRevealed = false;
+    loader.hidden = true;
+    body.classList.remove('is-v3-loading', 'is-loading');
+    interfaces.forEach(element => { element.inert = false; });
     // Navigation is available even if this optional script arrives late. Avoid
     // covering an already-visible page on a slow connection or data saver.
     const connection = navigator.connection;
+    let knownWarm = images.every(image => image.complete && image.naturalWidth > 0);
+    try { knownWarm ||= sessionStorage.getItem(cacheKey) === 'ready'; } catch {}
+    const mobileCold = (compactScreen.matches || touchScreen.matches) && !knownWarm;
     if (preference.matches || !motion || !lead || !tiles.length ||
-        performance.now() > 1800 || connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || '')) return finish();
-    loader.hidden = false;
+        mobileCold || performance.now() > 1800 || connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || '')) return finish();
+    // Only an eligible opening may request the wall. Hidden data-src images do
+    // not compete with the first poster or navigation on a cold mobile visit.
+    images.forEach(image => {
+      if (image.dataset.src && !image.getAttribute('src')) image.src = image.dataset.src;
+    });
     loader.style.opacity = '1';
     percent.textContent = '0%';
     percent.hidden = true;
     percent.style.opacity = '1';
-    body.classList.add('is-v3-loading');
-    interfaces.forEach(element => { element.inert = true; });
     openingViewport = { width: window.innerWidth, height: window.innerHeight };
     const layout = motion.geometry(openingViewport.width, openingViewport.height, prepareLead());
     const entries = tiles.map(element => ({ element, column: Number(element.dataset.column), row: Number(element.dataset.row), lead: element === lead }));
@@ -63,7 +80,6 @@
       element.style.height = `${layout.tileHeight}px`;
       element.style.opacity = '0';
     });
-    const images = [...loader.querySelectorAll('img')];
     // Count actual ready images on a cold load. A failure skips the optional
     // animation so an unavailable asset cannot block the homepage.
     let failed = images.some(image => image.complete && image.naturalWidth === 0);
@@ -79,6 +95,7 @@
     });
     const started = performance.now();
     let wallStarted = settled.size === images.length ? started : null;
+    let wallVisible = false;
     let lastPercent = -1;
     loader.dataset.phase = wallStarted === null ? 'loading' : 'wall';
     // A broken/slow image can never trap a visitor behind the opening.
@@ -92,11 +109,19 @@
         else {
           const value = Math.floor(settled.size / images.length * 100);
           if (value !== lastPercent) { percent.textContent = `${value}%`; lastPercent = value; }
-          // Avoid flashing a progress number for a fast cache/decode response.
-          percent.hidden = now - started < 120;
+          // Keep the already-rendered homepage usable while optional wall art
+          // decodes. Never replace a slow first visit with a loading screen.
+          percent.hidden = true;
           frame = requestAnimationFrame(render);
           return;
         }
+      }
+      if (!wallVisible) {
+        wallVisible = true;
+        loader.hidden = false;
+        body.classList.add('is-v3-loading');
+        interfaces.forEach(element => { element.inert = true; });
+        try { sessionStorage.setItem(cacheKey, 'ready'); } catch {}
       }
       percent.hidden = true;
       const time = motion.timing.wallStart + now - wallStarted;
@@ -121,6 +146,12 @@
     frame = requestAnimationFrame(render);
   }
   function blockDuringOpening(event) {
+    // Once a visitor starts using the already-visible page, an optional late
+    // image wall must not cover their selection or navigation.
+    if (loader.dataset.phase === 'loading' && !body.classList.contains('is-v3-loading')) {
+      finish();
+      return;
+    }
     if (!body.classList.contains('is-v3-loading') || event.ctrlKey || event.metaKey) return;
     if (event.target.closest?.('.v3-loader-skip')) return;
     if (event.type === 'keydown') {
@@ -145,7 +176,7 @@
     else window.location.assign(destination.href);
   });
   window.addEventListener('resize', () => {
-    if (!loader.hidden && openingViewport &&
+    if (loader.dataset.phase !== 'complete' && openingViewport &&
         (window.innerWidth !== openingViewport.width || window.innerHeight !== openingViewport.height)) finish();
   });
   window.addEventListener('pagehide', () => { pageWasHidden = true; run++; cancelAnimationFrame(frame); clearTimeout(watchdog); });
