@@ -4,15 +4,17 @@
 
   const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   const mobileMedia = window.matchMedia('(max-width: 600px)');
-  const READY_STATE = HTMLMediaElement.HAVE_FUTURE_DATA;
-  const HIDE_DELAY = 500;
+  const READY_STATE = HTMLMediaElement.HAVE_CURRENT_DATA;
+  const HINT_DELAY = 700;
+  const STARTUP_TIMEOUT = 18000;
 
-  const sourceFor = (video) => {
-    if (mobileMedia.matches && video.dataset.srcMobile) return video.dataset.srcMobile;
-    return video.dataset.src || video.getAttribute('src') || video.querySelector('source[src]')?.getAttribute('src') || '';
-  };
+  const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  const lightSource = () => mobileMedia.matches || connection?.saveData || /(^|-)2g$|3g/.test(connection?.effectiveType || '');
+  const sourceFor = video => lightSource() && video.dataset.srcMobile
+    ? video.dataset.srcMobile
+    : video.dataset.src || video.getAttribute('src') || video.querySelector('source[src]')?.getAttribute('src') || '';
 
-  groups.forEach((group) => {
+  groups.forEach(group => {
     const videos = [...group.querySelectorAll('video')];
     const overlay = group.querySelector(':scope > .video-loading-ui');
     const output = overlay?.querySelector('output');
@@ -21,118 +23,49 @@
     const statusText = overlay?.querySelector('.video-loading-status');
     const retry = overlay?.querySelector('.video-loading-retry');
     const controls = [...group.querySelectorAll('.comparison-handle')];
-    if (!videos.length || !overlay || !output || !label || !progressbar || !statusText || !retry) return;
+    if (!videos.length || !overlay || !label || !statusText || !retry) return;
 
-    // Opt-in localization keeps existing English pages unchanged.
     const copy = group.dataset.videoLang === 'zh' ? {
-      loading: '预告片加载中', loadingStatus: '视频正在加载',
+      loading: group.dataset.videoLoadingLabel || '视频加载中',
+      loadingStatus: '视频正在加载，可以先查看静态画面。',
       error: '视频暂时无法加载', offline: '当前离线，无法加载视频',
-      errorStatus: '视频加载失败，请重试。', offlineStatus: '当前处于离线状态，请联网后重试。',
-      ready: '视频已就绪', staticReady: '视频静态预览已就绪'
+      errorStatus: '暂时显示静态画面。点击重试加载视频。',
+      offlineStatus: '暂时显示静态画面。联网后可重试。',
+      ready: '视频已就绪', staticReady: '视频静态预览已就绪',
+      retry: '重试', play: '点击播放', playStatus: '点击播放视频。'
     } : {
-      loading: 'LOADING VIDEO', loadingStatus: 'Video loading',
+      loading: 'LOADING VIDEO', loadingStatus: 'Video loading. The still preview is available.',
       error: 'VIDEO UNAVAILABLE', offline: 'VIDEO UNAVAILABLE OFFLINE',
-      errorStatus: 'Video unavailable. Retry loading.', offlineStatus: 'Video unavailable offline. Retry when connected.',
-      ready: 'Video ready', staticReady: 'Static video preview ready'
+      errorStatus: 'The still preview is available. Retry loading the video.',
+      offlineStatus: 'The still preview is available. Retry when connected.',
+      ready: 'Video ready', staticReady: 'Static video preview ready',
+      retry: 'Retry', play: 'Play video', playStatus: 'Press Play to start the video.'
     };
+    const homeCard = group.closest('.deck-card--comparison');
+    const homeDeck = homeCard?.closest('.project-deck');
+    const originalSources = new Map(videos.map(video => [video, sourceFor(video)]));
+    const resumeTimes = new Map();
+    let phase = 'idle', action = 'retry', inView = !('IntersectionObserver' in window);
+    let run = 0, hintTimer = 0, deadlineTimer = 0, focusTimer = 0;
+    let settingSources = false, restoreFocusAfterRetry = false;
 
-    const transfers = new Map(videos.map((video) => [video, {
-      complete: false,
-      loaded: 0,
-      objectUrl: '',
-      total: 0,
-      xhr: null
-    }]));
-    let finished = false;
-    let loadRun = 0;
-    let readyTimer = 0;
-    let hideTimer = 0;
-    let retryFocusTimer = 0;
-    let restoreFocusAfterRetry = false;
-
-    videos.forEach((video) => {
-      video.dataset.videoLoaderManaged = 'true';
-    });
-
-    const setControlsDisabled = (disabled) => {
-      controls.forEach((control) => {
-        control.disabled = disabled;
-        control.setAttribute('aria-disabled', String(disabled));
-      });
+    const visible = () => !document.hidden && (homeCard
+      ? homeDeck && !homeDeck.classList.contains('is-strip') &&
+        (homeCard.classList.contains('is-active') || homeCard.classList.contains('is-slide-layer'))
+      : inView);
+    const staticOnly = () => group.hasAttribute('data-video-static-on-reduced-motion') && motionPreference.matches;
+    const markReady = ready => videos.forEach(video => { video.dataset.videoLoaderReady = String(ready); });
+    const clearTimers = () => {
+      window.clearTimeout(hintTimer);
+      window.clearTimeout(deadlineTimer);
+      window.clearTimeout(focusTimer);
     };
-
-    const setProgress = (value) => {
-      const percent = Math.max(0, Math.min(100, Math.round(value)));
-      overlay.style.setProperty('--video-load-progress', String(percent / 100));
-      output.textContent = `${percent}%`;
-      progressbar.setAttribute('aria-valuenow', String(percent));
-    };
-
-    const renderTransfer = () => {
-      const items = [...transfers.values()];
-      const totalsKnown = items.every((item) => item.total > 0);
-      if (totalsKnown) {
-        const loaded = items.reduce((sum, item) => sum + item.loaded, 0);
-        const total = items.reduce((sum, item) => sum + item.total, 0);
-        setProgress(Math.min(98, (loaded / total) * 98));
-        return;
-      }
-
-      const completed = items.filter((item) => item.complete).length;
-      setProgress(Math.min(92, (completed / items.length) * 92));
-    };
-
-    const showLoading = () => {
-      window.clearTimeout(readyTimer);
-      window.clearTimeout(hideTimer);
-      window.clearTimeout(retryFocusTimer);
-      finished = false;
-      overlay.hidden = false;
-      overlay.classList.remove('is-ready', 'is-error');
-      label.textContent = copy.loading;
-      retry.hidden = true;
-      statusText.textContent = copy.loadingStatus;
-      setControlsDisabled(true);
-    };
-
-    const showError = () => {
-      window.clearTimeout(readyTimer);
-      window.clearTimeout(hideTimer);
-      window.clearTimeout(retryFocusTimer);
-      finished = true;
-      videos.forEach((video) => video.pause());
-      overlay.hidden = false;
-      overlay.classList.remove('is-ready');
-      overlay.classList.add('is-error');
-      label.textContent = navigator.onLine ? copy.error : copy.offline;
-      retry.hidden = false;
-      statusText.textContent = navigator.onLine ? copy.errorStatus : copy.offlineStatus;
-      setControlsDisabled(true);
-      if (restoreFocusAfterRetry) {
-        retryFocusTimer = window.setTimeout(() => {
-          if (!retry.hidden && overlay.classList.contains('is-error')) retry.focus({ preventScroll: true });
-        }, 60);
-      }
-    };
-
-    const hideAsReady = (announcement = copy.ready) => {
-      window.clearTimeout(readyTimer);
-      window.clearTimeout(hideTimer);
-      finished = true;
-      setProgress(100);
-      overlay.classList.remove('is-error');
-      overlay.classList.add('is-ready');
+    const hide = announcement => {
       overlay.hidden = true;
-      statusText.textContent = announcement;
-      setControlsDisabled(false);
+      statusText.textContent = announcement || '';
     };
-
-    const announceReady = () => {
-      videos.forEach((video) => video.dispatchEvent(new CustomEvent('video-loader:ready')));
-    };
-
     const restoreFocus = () => {
-      if (!restoreFocusAfterRetry) return;
+      if (!restoreFocusAfterRetry || !visible()) return;
       restoreFocusAfterRetry = false;
       const target = controls[0] || group.closest('.project-feature')?.querySelector('h2');
       if (!target) return;
@@ -141,169 +74,192 @@
       target.focus({ preventScroll: true });
       if (addedTabIndex) target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
     };
-
+    const showPlay = () => {
+      if (!visible() || phase !== 'ready') return;
+      action = 'play';
+      label.textContent = copy.playStatus;
+      statusText.textContent = copy.playStatus;
+      retry.textContent = copy.play;
+      retry.hidden = false;
+      overlay.classList.remove('is-ready', 'is-error');
+      overlay.hidden = false;
+    };
+    const resumeAutoplay = () => {
+      if (!visible() || staticOnly()) return;
+      // Homepage comparison playback remains owned by its synchronization controller.
+      videos.filter(video => video.autoplay).forEach(video => {
+        video.play().catch(showPlay);
+      });
+    };
     const finish = () => {
-      if (finished) return;
-      finished = true;
-      setProgress(100);
-      statusText.textContent = copy.ready;
-      setControlsDisabled(false);
-      announceReady();
+      if (phase === 'idle' || phase === 'static' || settingSources) return;
+      clearTimers();
+      phase = 'ready';
+      markReady(true);
+      retry.hidden = true;
+      overlay.classList.remove('is-error');
+      overlay.classList.add('is-ready');
+      hide(copy.ready);
+      videos.forEach(video => video.dispatchEvent(new CustomEvent('video-loader:ready')));
       restoreFocus();
-      readyTimer = window.setTimeout(() => overlay.classList.add('is-ready'), 90);
-      hideTimer = window.setTimeout(() => {
-        overlay.hidden = true;
-      }, HIDE_DELAY);
+      resumeAutoplay();
     };
-
-    const abortTransfers = () => {
-      transfers.forEach((item) => {
-        if (item.xhr) item.xhr.abort();
-        item.xhr = null;
-      });
+    const checkReady = () => {
+      if ((phase === 'loading' || phase === 'error') && videos.every(video => video.readyState >= READY_STATE)) finish();
     };
-
-    const waitForPlayable = (video, run) => {
-      if (video.readyState >= READY_STATE) return Promise.resolve();
-      return new Promise((resolve, reject) => {
-        const cleanup = () => {
-          video.removeEventListener('canplay', onReady);
-          video.removeEventListener('error', onError);
-        };
-        const onReady = () => {
-          cleanup();
-          resolve();
-        };
-        const onError = () => {
-          cleanup();
-          reject(new Error('Video decoding failed'));
-        };
-        if (run !== loadRun) {
-          resolve();
-          return;
-        }
-        video.addEventListener('canplay', onReady, { once: true });
-        video.addEventListener('error', onError, { once: true });
-      });
+    const showError = () => {
+      if (phase === 'idle' || phase === 'static' || settingSources) return;
+      clearTimers();
+      phase = 'error';
+      markReady(false);
+      videos.forEach(video => video.pause());
+      action = 'retry';
+      label.textContent = navigator.onLine ? copy.error : copy.offline;
+      statusText.textContent = navigator.onLine ? copy.errorStatus : copy.offlineStatus;
+      retry.textContent = copy.retry;
+      retry.hidden = false;
+      overlay.classList.remove('is-ready');
+      overlay.classList.add('is-error');
+      overlay.hidden = !visible();
+      if (restoreFocusAfterRetry && visible()) {
+        focusTimer = window.setTimeout(() => {
+          if (phase === 'error' && visible()) retry.focus({ preventScroll: true });
+        }, 60);
+      }
     };
-
-    const download = (video, url, run) => new Promise((resolve, reject) => {
-      const item = transfers.get(video);
-      const xhr = new XMLHttpRequest();
-      item.xhr = xhr;
-      xhr.open('GET', url, true);
-      xhr.responseType = 'blob';
-      xhr.addEventListener('progress', (event) => {
-        if (run !== loadRun) return;
-        item.loaded = event.loaded;
-        if (event.lengthComputable && event.total > 0) item.total = event.total;
-        renderTransfer();
+    const cancelPending = (nextPhase = 'idle') => {
+      ++run;
+      clearTimers();
+      markReady(false);
+      phase = nextPhase;
+      // Removing the source and loading an empty media element cancels native
+      // range requests. Keep the URL and playback position for the next visit.
+      videos.forEach(video => {
+        if (video.readyState >= 1 && Number.isFinite(video.currentTime)) resumeTimes.set(video, video.currentTime);
+        video.pause();
+        video.preload = 'none';
+        video.removeAttribute('src');
+        video.load();
       });
-      xhr.addEventListener('load', () => {
-        if (run !== loadRun) return;
-        if (xhr.status < 200 || xhr.status >= 300 || !(xhr.response instanceof Blob)) {
-          reject(new Error(`Video request failed with ${xhr.status}`));
-          return;
-        }
-        item.loaded = xhr.response.size;
-        item.total = xhr.response.size;
-        item.complete = true;
-        item.xhr = null;
-        renderTransfer();
-        resolve(xhr.response);
-      });
-      xhr.addEventListener('error', () => reject(new Error('Video request failed')));
-      xhr.addEventListener('abort', () => {
-        if (run === loadRun) reject(new DOMException('Loading aborted', 'AbortError'));
-      });
-      xhr.send();
-    });
-
-    const loadDirectly = async (video, url, run) => {
-      if (run !== loadRun) return;
-      video.src = url;
-      video.load();
-      await waitForPlayable(video, run);
+      hide();
     };
-
-    const start = async (reload = false) => {
-      abortTransfers();
-      const run = ++loadRun;
-
-      if (group.hasAttribute('data-video-static-on-reduced-motion') && motionPreference.matches) {
-        videos.forEach((video) => video.pause());
-        hideAsReady(copy.staticReady);
+    const start = (reload = false) => {
+      if (!visible()) return;
+      if (staticOnly()) {
+        if (phase === 'loading' || phase === 'error') cancelPending('static');
+        else { phase = 'static'; markReady(false); videos.forEach(video => video.pause()); }
+        hide(copy.staticReady);
         return;
       }
-
-      if (!reload && videos.every((video) => video.readyState >= READY_STATE)) {
-        hideAsReady();
-        announceReady();
-        videos.forEach((video) => {
-          if (video.autoplay) video.play().catch(() => {});
-        });
-        return;
-      }
-
-      transfers.forEach((item) => {
-        item.complete = false;
-        item.loaded = 0;
-        item.total = 0;
-      });
-      setProgress(0);
-      showLoading();
-
-      const sources = videos.map(sourceFor);
-      if (sources.some((source) => !source)) {
-        showError();
-        return;
-      }
-
-      try {
-        if (location.protocol === 'file:') {
-          await Promise.all(videos.map((video, index) => loadDirectly(video, sources[index], run)));
-        } else {
-          const blobs = await Promise.all(videos.map((video, index) => download(video, sources[index], run)));
-          if (run !== loadRun) return;
-          setProgress(99);
-          videos.forEach((video, index) => {
-            const item = transfers.get(video);
-            if (item.objectUrl) URL.revokeObjectURL(item.objectUrl);
-            item.objectUrl = URL.createObjectURL(blobs[index]);
-            video.src = item.objectUrl;
-            video.load();
-          });
-          await Promise.all(videos.map((video) => waitForPlayable(video, run)));
-        }
-
-        if (run !== loadRun) return;
+      if (phase === 'loading' && !reload) return;
+      if (!reload && videos.every(video => video.readyState >= READY_STATE)) {
+        phase = 'loading';
         finish();
-        videos.forEach((video) => {
-          if (video.autoplay) video.play().catch(() => {});
-        });
-      } catch (error) {
-        if (error?.name === 'AbortError' || run !== loadRun) return;
-        abortTransfers();
-        showError();
+        return;
       }
+      const currentRun = ++run;
+      clearTimers();
+      phase = 'loading';
+      action = 'retry';
+      markReady(false);
+      overlay.classList.remove('is-ready', 'is-error');
+      retry.hidden = true;
+      retry.textContent = copy.retry;
+      label.textContent = copy.loading;
+      hide(copy.loadingStatus);
+      const sources = videos.map(video => sourceFor(video) || originalSources.get(video));
+      if (sources.some(url => !url)) { showError(); return; }
+      hintTimer = window.setTimeout(() => {
+        if (run === currentRun && phase === 'loading' && visible()) overlay.hidden = false;
+      }, HINT_DELAY);
+      deadlineTimer = window.setTimeout(() => {
+        if (run === currentRun && phase === 'loading') showError();
+      }, STARTUP_TIMEOUT);
+      settingSources = true;
+      videos.forEach((video, index) => {
+        video.muted = true;
+        video.preload = 'auto';
+        video.src = sources[index];
+        video.load();
+      });
+      settingSources = false;
+      checkReady();
+    };
+    const update = () => {
+      if (!visible()) {
+        if (phase === 'loading') cancelPending();
+        else if (phase === 'error') cancelPending('error');
+        else videos.forEach(video => video.pause());
+        return;
+      }
+      if (phase === 'error') { overlay.hidden = false; return; }
+      if (phase === 'idle' || phase === 'static') start();
+      else if (phase === 'ready') resumeAutoplay();
     };
 
-    videos.forEach((video) => video.addEventListener('error', showError));
-    retry.addEventListener('click', () => {
-      restoreFocusAfterRetry = true;
-      start(true);
+    // Browser range buffering has no meaningful whole-file percentage. Keep the
+    // poster and reveal control available while a small, delayed status explains loading.
+    overlay.classList.add('is-progressive');
+    overlay.hidden = true;
+    if (output) { output.hidden = true; output.textContent = ''; }
+    if (progressbar) { progressbar.hidden = true; progressbar.removeAttribute('aria-valuenow'); }
+    controls.forEach(control => { control.disabled = false; control.setAttribute('aria-disabled', 'false'); });
+    videos.forEach(video => {
+      video.dataset.videoLoaderManaged = 'true';
+      video.dataset.videoLoaderReady = 'false';
+      video.addEventListener('loadedmetadata', () => {
+        const position = resumeTimes.get(video);
+        if (position !== undefined && phase === 'loading') {
+          resumeTimes.delete(video);
+          const end = Number.isFinite(video.duration) ? Math.max(0, video.duration - .08) : position;
+          video.currentTime = Math.min(position, end);
+        }
+        checkReady();
+      });
+      ['loadeddata', 'canplay', 'playing'].forEach(event => video.addEventListener(event, checkReady));
+      video.addEventListener('error', showError);
     });
-    motionPreference.addEventListener('change', () => start(false));
-    window.addEventListener('pageshow', (event) => {
-      if (!event.persisted) return;
-      if (videos.every((video) => video.readyState >= READY_STATE)) {
-        hideAsReady();
-        announceReady();
+    group.addEventListener('video-loader:play-blocked', showPlay);
+    retry.addEventListener('click', () => {
+      if (!visible()) return;
+      if (action === 'play') {
+        hide(copy.ready);
+        if (homeCard) videos.forEach(video => video.dispatchEvent(new CustomEvent('video-loader:play')));
+        else videos.forEach(video => video.play().catch(showPlay));
       } else {
-        start(false);
+        restoreFocusAfterRetry = true;
+        start(true);
       }
     });
-
-    start(false);
+    motionPreference.addEventListener('change', () => {
+      if (staticOnly()) {
+        if (phase === 'loading' || phase === 'error') cancelPending('static');
+        else { phase = 'static'; markReady(false); videos.forEach(video => video.pause()); }
+        hide(copy.staticReady);
+      } else update();
+    });
+    window.addEventListener('pagehide', () => {
+      if (phase === 'loading') cancelPending();
+      else videos.forEach(video => video.pause());
+    });
+    window.addEventListener('pageshow', event => {
+      if (!event.persisted) return;
+      if (phase === 'ready' && visible()) {
+        videos.forEach(video => video.dispatchEvent(new CustomEvent('video-loader:ready')));
+        resumeAutoplay();
+      } else update();
+    });
+    document.addEventListener('visibilitychange', update);
+    if (homeCard && homeDeck) {
+      const observer = new MutationObserver(update);
+      observer.observe(homeCard, { attributes: true, attributeFilter: ['class'] });
+      observer.observe(homeDeck, { attributes: true, attributeFilter: ['class'] });
+    } else if ('IntersectionObserver' in window) {
+      new IntersectionObserver(entries => {
+        inView = entries[0].isIntersecting;
+        update();
+      }, { threshold: 0, rootMargin: '160px 0px' }).observe(group);
+    }
+    update();
   });
 })();

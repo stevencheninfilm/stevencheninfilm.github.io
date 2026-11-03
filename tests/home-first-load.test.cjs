@@ -10,12 +10,12 @@ test('homepage works without startup scripts and defers inactive full-resolution
   assert.doesNotMatch(html.match(/<body[^>]*>/)[0],/is-loading|is-v3-loading/);
   assert.match(html,/<div class="v3-loader" hidden/);
   const cards=[...html.matchAll(/<article class="deck-card\b[\s\S]*?<\/article>/g)].map(m=>m[0]);
-  assert.equal(cards.length,9);
+  assert.equal(cards.length,10);
   for(const card of cards.slice(1)){
     assert.doesNotMatch(card,/(?<!data-)\b(?:src|srcset)="/);
     assert.match(card,/data-src="/);
   }
-  assert.match(cards[0],/poster="assets\/images\/home\/grand-theft-art-poster.jpg"/);
+  assert.match(cards[0],/poster="assets\/images\/projects\/dlss-detail\/enhanced-poster.jpg"/);
   assert.match(html,/<a[^>]*href="about.html"/);
   for(const script of html.matchAll(/<script[^>]*\bsrc="[^"]+"[^>]*>/g)) assert.match(script[0],/\bdefer\b/);
 });

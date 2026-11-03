@@ -145,7 +145,7 @@ function openProject(project) {
   const recognition = document.querySelector('#dialog-recognition');
   recognition.hidden = !project.recognition?.length;
   recognition.innerHTML = project.recognition?.length ? `<h3>Recognition / <span lang="zh-Hans">荣誉</span></h3><ol class="film-recognition-list">${recognitionItemsHTML(project.recognition)}</ol>` : '';
-  dialogLinks.innerHTML = project.link ? `<a href="${escapeHTML(project.link[1])}" target="_blank" rel="noreferrer">${escapeHTML(project.link[0])} ↗</a>` : '<p class="viewing-note">Selected stills below · No public viewing link provided.</p>';
+  dialogLinks.innerHTML = project.link ? `<a data-viewing-link href="${escapeHTML(project.link[1])}" target="_blank" rel="noreferrer">${escapeHTML(project.link[0])} ↗</a>` : '<p class="viewing-note">Selected stills below · No public viewing link provided.</p>';
   dialogGallery.innerHTML = '';
   for (let index = 1; index <= project.count; index += 1) {
     const figure = document.createElement('figure');
