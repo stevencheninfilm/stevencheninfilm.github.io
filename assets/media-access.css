@@ -16,6 +16,7 @@
   pointer-events: none;
 }
 .video-loading-ui.is-progressive .video-loading-meter { width: auto; }
+.video-loading-ui.is-progressive[hidden] { display: none; }
 .video-loading-ui.is-progressive .video-loading-meta { margin: 0; font-size: 12px; line-height: 1.5; letter-spacing: .025em; }
 .video-loading-ui.is-progressive .video-loading-meta output,
 .video-loading-ui.is-progressive .video-loading-track { display: none; }
