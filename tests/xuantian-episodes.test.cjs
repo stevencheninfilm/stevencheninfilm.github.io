@@ -69,7 +69,7 @@ test('published episodes retain distinct destinations and closing links point to
   assert.doesNotMatch(html, /xj-watch-context|data-episode-play-label/);
   assert.equal((html.match(/\sdata-episode-play(?:\s|>)/g) || []).length, 4, 'each published episode has one cover launching onsite playback');
   assert.match(platforms, /在其他平台观看第一集/);
-  assert.match(platforms, /新窗口打开/);
+  assert.match(platforms, /选择播放平台/);
   const trailer = html.split('id="trailer-platforms"')[1].split('</nav>')[0];
   assert.match(trailer, /a13797765/);
   assert.match(trailer, /xd9IZhTjrTY/);

@@ -28,6 +28,7 @@
   <script>try { sessionStorage.setItem('steven-home-loader', 'seen'); } catch {}</script>
   <noscript><style>.v3-loader{display:none}.home-page.is-loading .home-interface,.home-v3.is-v3-loading .home-interface{opacity:1;visibility:visible;pointer-events:auto}</style></noscript>
   <link rel="stylesheet" href="assets/icp-footer.css?v=20261027-1">
+  <link rel="stylesheet" href="assets/media-access.css?v=20261103-1">
 </head>
 <body class="home-page home-v2 home-v3" data-version="3.1">
   <a class="skip-link" href="#featured-work">Skip to work</a>
@@ -83,9 +84,9 @@
       <article class="deck-card deck-card--comparison deck-card--detail is-active" data-title="重塑每一处细节 / DLSS + RTX" data-page="-1" lang="zh-Hans">
         <div class="comparison-stage" data-comparison data-start-time="1" data-before-label="原始画面" data-after-label="DLSS + RTX 增强">
           <div class="comparison-frame" data-video-loading data-video-lang="zh" data-video-loading-label="对比视频加载中" data-video-static-on-reduced-motion>
-            <video class="comparison-video comparison-video--before" width="1920" height="1080" poster="assets/images/projects/dlss-detail/original-poster.jpg" muted loop playsinline preload="none" data-src="assets/videos/dlss-detail/original-1080p.mp4" data-src-mobile="assets/videos/dlss-detail/original-mobile.mp4" aria-label="原始 1080p 画面，与 DLSS + RTX 增强版同步对比"></video>
+            <video class="comparison-video comparison-video--before" width="1920" height="1080" poster="assets/images/projects/dlss-detail/original-poster.jpg" muted loop playsinline preload="none" data-src="assets/videos/dlss-detail/original-preview.mp4" data-src-mobile="assets/videos/dlss-detail/original-lite.mp4" aria-label="原始 1080p 画面，与 DLSS + RTX 增强版同步对比"></video>
             <div class="comparison-after" aria-hidden="true">
-              <video class="comparison-video comparison-video--after" width="3840" height="2160" poster="assets/images/projects/dlss-detail/enhanced-poster.jpg" muted loop playsinline preload="none" data-src="assets/videos/dlss-detail/enhanced-4k.mp4" data-src-mobile="assets/videos/dlss-detail/enhanced-mobile.mp4"></video>
+              <video class="comparison-video comparison-video--after" width="1920" height="1080" poster="assets/images/projects/dlss-detail/enhanced-poster.jpg" muted loop playsinline preload="none" data-src="assets/videos/dlss-detail/enhanced-preview.mp4" data-src-mobile="assets/videos/dlss-detail/enhanced-lite.mp4"></video>
             </div>
             <div class="comparison-label comparison-label--before">原始画面 <small>ORIGINAL</small></div>
             <div class="comparison-label comparison-label--after">细节增强 <small>DLSS + RTX</small></div>
@@ -97,11 +98,12 @@
               <time datetime="2026-11">11/2026</time>
               <em>拖动查看细节 <small lang="en">Drag to reveal</small></em>
             </div>
+            <a class="detail-quality-link deck-project-link" href="assets/videos/dlss-detail/enhanced-4k.mp4" title="当前为轻量预览；点按查看完整 4K 增强版">查看 4K 增强版 ↗</a>
             <div class="comparison-divider" aria-hidden="true"></div>
             <button class="comparison-handle" type="button" role="slider" aria-label="拖动对比原始与增强画面" aria-orientation="horizontal" aria-valuemin="4" aria-valuemax="96" aria-valuenow="50" aria-valuetext="50% 原始画面，50% DLSS + RTX 增强">
               <span aria-hidden="true"><i>←</i><i>→</i></span>
             </button>
-            <div class="video-loading-ui">
+            <div class="video-loading-ui" hidden>
               <span class="video-loading-status" aria-live="polite" aria-atomic="true"></span>
               <div class="video-loading-meter">
                 <div class="video-loading-meta" aria-hidden="true"><span>对比视频加载中</span><output>0%</output></div>
@@ -115,9 +117,9 @@
       <article class="deck-card deck-card--comparison" data-title="Grand Theft Art" data-page="0">
         <div class="comparison-stage" data-comparison>
           <div class="comparison-frame" data-video-loading data-video-static-on-reduced-motion>
-            <video class="comparison-video comparison-video--before" poster="assets/images/home/grand-theft-art-before.jpg" muted loop playsinline preload="none" data-src="assets/videos/grand-theft-art/previs.m4v" data-src-mobile="assets/videos/grand-theft-art/previs-mobile.m4v" aria-label="Unreal Engine 3D previs of the Grand Theft Art chase"></video>
+            <video class="comparison-video comparison-video--before" poster="assets/images/home/grand-theft-art-before.jpg" muted loop playsinline preload="none" data-src="assets/videos/grand-theft-art/previs-preview.mp4" data-src-mobile="assets/videos/grand-theft-art/previs-lite.mp4" aria-label="Unreal Engine 3D previs of the Grand Theft Art chase"></video>
             <div class="comparison-after" aria-hidden="true">
-              <video class="comparison-video comparison-video--after" poster="assets/images/home/grand-theft-art-poster.jpg" muted loop playsinline preload="none" data-src="assets/videos/grand-theft-art/ai-render.m4v" data-src-mobile="assets/videos/grand-theft-art/ai-render-mobile.m4v"></video>
+              <video class="comparison-video comparison-video--after" poster="assets/images/home/grand-theft-art-poster.jpg" muted loop playsinline preload="none" data-src="assets/videos/grand-theft-art/ai-render-preview.mp4" data-src-mobile="assets/videos/grand-theft-art/ai-render-lite.mp4"></video>
             </div>
 
             <div class="comparison-label comparison-label--before">3D PREVIS</div>
@@ -135,7 +137,7 @@
               <span aria-hidden="true"><i>←</i><i>→</i></span>
             </button>
 
-            <div class="video-loading-ui">
+            <div class="video-loading-ui" hidden>
               <span class="video-loading-status" aria-live="polite" aria-atomic="true"></span>
               <div class="video-loading-meter">
                 <div class="video-loading-meta" aria-hidden="true"><span>LOADING VIDEO</span><output>0%</output></div>
@@ -273,9 +275,9 @@
   <script defer src="assets/home-v2.js?v=20261102-detail-1"></script>
   <script defer src="assets/home-opening-motion.js?v=20260925-2"></script>
   <script defer src="assets/home-opening.js?v=20261016-loading-1"></script>
-  <script defer src="assets/video-loader.js?v=20261102-detail-1"></script>
+  <script defer src="assets/video-loader.js?v=20261103-stream-1"></script>
   <script defer src="assets/workflow-player.js?v=20261023-3"></script>
-  <script defer src="assets/banner-v3.js?v=20261102-detail-1"></script>
+  <script defer src="assets/banner-v3.js?v=20261103-stream-1"></script>
   <footer class="site-registration" aria-label="网站备案信息"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" lang="zh-Hans">沪ICP备2026056937号-1</a></footer>
 </body>
 </html>

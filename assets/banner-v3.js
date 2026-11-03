@@ -9,6 +9,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   if (!card || !deck || !frame || !handle || !before || !after) return;
 
   const videos = [before, after];
+  const mediaReady = () => videos.every(video => video.dataset.videoLoaderManaged !== 'true' || video.dataset.videoLoaderReady === 'true');
   const master = after;
   const child = before;
   const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -25,6 +26,9 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   let videoFrame = null;
   let activePointer = null;
   let copyTimer = null;
+  let buffering = false;
+  let autoplayBlocked = false;
+  const canContinue = () => videos.every(video => video.readyState >= 3 && !video.seeking);
 
   const setSplit = (value) => {
     split = clamp(value, 4, 96);
@@ -85,11 +89,14 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   };
 
   const syncChild = (force = false) => {
-    if (master.readyState < 1 || child.readyState < 1) return;
+    if (master.readyState < 1 || child.readyState < 1 || master.seeking || child.seeking) return;
+    if (buffering && !force) return;
     child.playbackRate = master.playbackRate;
     const childLimit = Number.isFinite(child.duration) ? Math.max(0, child.duration - .04) : master.currentTime;
     const targetTime = Math.min(master.currentTime, childLimit);
-    if (force || Math.abs(child.currentTime - targetTime) > .055) child.currentTime = targetTime;
+    // Even a forced sync must tolerate one frame of drift. Seeking to an
+    // unchanged time on every play/canplay can continually starve native streams.
+    if (Math.abs(child.currentTime - targetTime) > (force ? .055 : .08)) child.currentTime = targetTime;
   };
 
   const stopFrameSync = () => {
@@ -101,23 +108,32 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   const startFrameSync = () => {
     if (!master.requestVideoFrameCallback || videoFrame !== null) return;
     const check = () => {
-      if (!shouldPlay() || master.paused) {
-        videoFrame = null;
-        return;
-      }
+      videoFrame = null;
+      if (!shouldPlay() || master.paused || buffering) return;
       syncChild(false);
-      videoFrame = master.requestVideoFrameCallback(check);
+      if (!master.paused && !buffering) videoFrame = master.requestVideoFrameCallback(check);
     };
     videoFrame = master.requestVideoFrameCallback(check);
   };
 
   const startPair = () => {
-    if (!shouldPlay()) return;
+    if (!shouldPlay() || !mediaReady() || autoplayBlocked) return;
+    if (buffering && !canContinue()) return;
     seekToOpeningFrame();
     syncChild(true);
+    // Aligning a previously stalled pair may itself need one seek/decode. Wait
+    // for that seek once, rather than playing one side while the other catches up.
+    if (buffering && !canContinue()) return;
+    buffering = false;
     videos.forEach((video) => {
       if (!video.paused) return;
-      video.play().catch(() => {});
+      video.play().catch(error => {
+        if (error.name === 'NotAllowedError' && shouldPlay() && !autoplayBlocked) {
+          autoplayBlocked = true;
+          pausePair();
+          frame.dispatchEvent(new CustomEvent('video-loader:play-blocked'));
+        }
+      });
     });
     startFrameSync();
   };
@@ -142,6 +158,18 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
     videos.forEach((video) => video.pause());
   };
 
+  const holdForBuffer = (video, stalled = false) => {
+    if (!shouldPlay() || !mediaReady()) return;
+    // A stalled network request is harmless while playback still has future data.
+    if (stalled && video.readyState >= 3) return;
+    buffering = true;
+    pausePair();
+  };
+
+  const resumeBufferedPair = () => {
+    if (buffering && canContinue()) startPair();
+  };
+
   const updatePlayback = () => {
     handle.tabIndex = card.classList.contains('is-active') && !deck.classList.contains('is-strip') ? 0 : -1;
     if (shouldPlay()) {
@@ -152,30 +180,36 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   };
 
   master.addEventListener('play', () => {
-    if (!shouldPlay()) {
+    if (!shouldPlay() || !mediaReady() || buffering || autoplayBlocked) {
       master.pause();
       return;
     }
     syncChild(true);
-    if (child.paused) child.play().catch(() => {});
     startFrameSync();
   });
   master.addEventListener('pause', () => {
     stopFrameSync();
     child.pause();
   });
-  master.addEventListener('seeking', () => syncChild(true));
-  master.addEventListener('seeked', () => syncChild(true));
+  master.addEventListener('seeking', () => holdForBuffer(master));
+  master.addEventListener('seeked', () => { syncChild(true); resumeBufferedPair(); });
   master.addEventListener('ratechange', () => syncChild(true));
   master.addEventListener('timeupdate', () => syncChild(false));
   child.addEventListener('play', () => {
-    if (!shouldPlay()) {
+    if (!shouldPlay() || !mediaReady() || buffering || autoplayBlocked) {
       child.pause();
       return;
     }
-    if (master.paused) master.play().catch(() => {});
   });
-  videos.forEach((video) => video.addEventListener('video-loader:ready', updatePlayback));
+  child.addEventListener('seeking', () => holdForBuffer(child));
+  child.addEventListener('seeked', resumeBufferedPair);
+  videos.forEach(video => {
+    video.addEventListener('waiting', () => holdForBuffer(video));
+    video.addEventListener('stalled', () => holdForBuffer(video, true));
+    video.addEventListener('canplay', resumeBufferedPair);
+    video.addEventListener('video-loader:ready', updatePlayback);
+    video.addEventListener('video-loader:play', () => { autoplayBlocked = false; startPair(); });
+  });
 
   const splitFromPointer = (clientX) => {
     const rect = frame.getBoundingClientRect();
@@ -196,7 +230,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
 
   frame.addEventListener('pointerdown', (event) => {
     if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
-    if (event.target.closest('a')) return;
+    if (event.target.closest('a, .video-loading-retry')) return;
     const startedOnHandle = Boolean(event.target.closest('.comparison-handle'));
     if (event.pointerType === 'touch' && !startedOnHandle) return;
     event.preventDefault();
