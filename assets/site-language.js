@@ -2,9 +2,13 @@
 (() => {
   'use strict';
   const preferenceKey = 'steven-site-language';
-  const routes = { en: '/en/index.html', zh: '/zh/index.html' };
+  const aiPage = /^\/(?:(?:en|zh)\/)?ai(?:\/|$)/.test(location.pathname);
+  const routes = aiPage
+    ? { en: '/en/ai/index.html', zh: '/zh/ai/index.html' }
+    : { en: '/en/index.html', zh: '/zh/index.html' };
   const supportedLanguage = value => value === 'en' || value === 'zh';
   const rootHome = /^\/(?:index(?:-v3)?\.html)?$/.test(location.pathname);
+  const rootAI = /^\/ai\/(?:index\.html)?$/.test(location.pathname);
   const currentLanguage = /^\/zh(?:\/|$)/.test(location.pathname) ||
     /^zh(?:-|$)/i.test(document.documentElement.lang) ? 'zh' : 'en';
   const links = [...document.querySelectorAll('a[data-site-language]')];
@@ -28,8 +32,16 @@
     url.search = location.search;
     url.hash = location.hash;
     if (preserveActiveProject) {
-      const page = document.querySelector('.project-deck .deck-card.is-active')?.dataset.page;
-      if (/^(?:-1|[0-8])$/.test(page ?? '')) url.searchParams.set('project', page);
+      if (aiPage) {
+        const story = document.querySelector('[data-workflow-item][aria-hidden="false"]');
+        const rect = story?.getBoundingClientRect?.();
+        if (story?.id && rect && rect.bottom > 0 && rect.top < (document.documentElement.clientHeight || Infinity)) {
+          url.hash = `#${story.id}`;
+        }
+      } else {
+        const page = document.querySelector('.project-deck .deck-card.is-active')?.dataset.page;
+        if (/^(?:-1|[0-8])$/.test(page ?? '')) url.searchParams.set('project', page);
+      }
     }
     return url;
   };
@@ -61,7 +73,7 @@
   });
 
   // An explicit /en/ or /zh/ URL is shareable and never redirected by geolocation.
-  if (!rootHome) return;
+  if (!rootHome && !rootAI) return;
   const saved = storedPreference();
   if (saved) {
     location.replace(destination(saved).href);

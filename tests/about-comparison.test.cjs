@@ -6,7 +6,7 @@ const source = fs.readFileSync(require('node:path').join(__dirname, '../assets/a
 const flush = () => new Promise(resolve => setImmediate(resolve));
 const progressiveFixture = require('./progressive-controller-fixture.cjs');
 
-function setup({ reduced = false, mobile = false, blocked = false, comparisons = [{}] } = {}) {
+function setup({ reduced = false, mobile = false, blocked = false, lang = '', comparisons = [{}] } = {}) {
   const element = () => ({
     events: {}, attrs: {}, dataset: {}, style: { setProperty(name, value) { this[name] = value; } },
     addEventListener(name, fn) { (this.events[name] ||= []).push(fn); },
@@ -25,7 +25,7 @@ function setup({ reduced = false, mobile = false, blocked = false, comparisons =
   const motion = Object.assign(element(), { matches: reduced });
   const window = Object.assign(element(), { matchMedia: query => query.includes('reduced') ? motion : { matches: mobile }, IntersectionObserver: true });
   const observers = new Map(), mutations = new Map();
-  const groups = comparisons.map(({ dataset = {}, hidden, incomplete = false }, index) => {
+  const groups = comparisons.map(({ dataset = {}, lang: stageLang, parentLang, parentVideoLang, hidden, incomplete = false }, index) => {
     const before = video(index ? `previs-${index}` : 'previs'), after = video(index ? `ai-${index}` : 'ai');
     const handle = element(), toggle = element(), status = element(), stage = element();
     const capturedPointers = new Set();
@@ -39,7 +39,13 @@ function setup({ reduced = false, mobile = false, blocked = false, comparisons =
     stage.dataset = dataset;
     const panel = hidden === undefined ? null : element();
     if (panel) panel.setAttribute('aria-hidden', String(hidden));
-    stage.closest = () => panel;
+    if (stageLang !== undefined) stage.setAttribute('lang', stageLang);
+    const languageParent = element();
+    if (parentLang !== undefined) languageParent.setAttribute('lang', parentLang);
+    if (parentVideoLang !== undefined) languageParent.dataset.videoLang = parentVideoLang;
+    stage.closest = selector => selector === '[data-workflow-item]' ? panel
+      : stageLang !== undefined || dataset.videoLang !== undefined ? stage
+        : parentLang !== undefined || parentVideoLang !== undefined ? languageParent : null;
     const elements = { '.ab-compare__before': before, '.ab-compare__after video': after, '.ab-compare__handle': handle, '.ab-compare__play': toggle, '.ab-compare__status': status, '.ab-compare__frame': frame };
     stage.querySelector = name => incomplete ? null : elements[name];
     // Keep one public API for the shared window, with a separate transaction
@@ -63,7 +69,7 @@ function setup({ reduced = false, mobile = false, blocked = false, comparisons =
     getIntent: video => apiFor(video).getIntent(video),
     setIntent: (video, patch) => apiFor(video).setIntent(video, patch)
   };
-  const document = Object.assign(element(), { hidden: false, querySelectorAll: selector => selector === '[data-about-comparison]' ? groups.map(group => group.stage) : [] });
+  const document = Object.assign(element(), { documentElement: { lang }, hidden: false, querySelectorAll: selector => selector === '[data-about-comparison]' ? groups.map(group => group.stage) : [] });
   const timers = new Map();
   let timerId = 0;
   vm.runInNewContext(source, {
@@ -146,6 +152,63 @@ test('autoplay denial leaves an explicit working play button', async () => {
   assert.equal(s.before.paused, true);
   s.unblock(); s.toggle.fire('click'); await flush();
   assert.equal(s.before.paused, false); assert.equal(s.after.paused, false);
+});
+
+test('Chinese comparisons localize playback, loading, retry and each slider’s own labels', async () => {
+  const s = setup({ lang: 'zh-Hans', comparisons: [
+    { dataset: { beforeLabel: '原始画面', afterLabel: '细节增强' } },
+    { dataset: { beforeLabel: '运镜预演', afterLabel: 'AI画面' } }
+  ] });
+  const [dlss, previs] = s.groups;
+  assert.equal(dlss.toggle.textContent, '播放对比');
+  assert.equal(dlss.handle.attrs['aria-valuetext'], '50% 原始画面，50% 细节增强');
+  previs.handle.fire('keydown', { key: 'ArrowRight', preventDefault() {} });
+  assert.equal(previs.handle.attrs['aria-valuetext'], '52% 运镜预演，48% AI画面');
+  dlss.visible(true);
+  assert.equal(dlss.status.textContent, '正在加载两侧画面…');
+  await dlss.ready();
+  assert.equal(dlss.toggle.textContent, '暂停对比');
+  assert.equal(dlss.status.textContent, '');
+  dlss.after.currentTime = dlss.before.currentTime = 6.8;
+  dlss.upgrade.begin(); dlss.toggle.fire('click');
+  dlss.upgrade.reset(dlss.before); dlss.upgrade.reset(dlss.after);
+  dlss.upgrade.finish('error'); await flush();
+  assert.equal(dlss.toggle.textContent, '播放对比');
+  assert.ok(dlss.before.paused && dlss.after.paused);
+  assert.equal(dlss.after.currentTime, 6.8);
+  dlss.after.fire('error');
+  assert.equal(dlss.toggle.textContent, '重试对比');
+  assert.equal(dlss.status.textContent, '视频暂时无法播放，请重试加载两侧画面。');
+  dlss.toggle.fire('click');
+  assert.equal(dlss.status.textContent, '正在加载两侧画面…');
+  await dlss.ready();
+  assert.equal(dlss.toggle.textContent, '暂停对比');
+});
+
+test('the nearest Chinese language context localizes an autoplay rejection', async () => {
+  const s = setup({ lang: 'en', blocked: true, comparisons: [{ parentLang: 'zh-Hans' }] });
+  s.visible(true); await s.ready();
+  assert.equal(s.toggle.textContent, '播放对比');
+  assert.equal(s.status.textContent, '点按播放，开始观看两侧画面。');
+  assert.equal(s.handle.attrs['aria-valuetext'], '50% 运镜预演，50% AI画面');
+  s.unblock(); s.toggle.fire('click'); await flush();
+  assert.equal(s.toggle.textContent, '暂停对比');
+  assert.equal(s.status.textContent, '');
+});
+
+test('local language overrides and unsupported locales retain the English fallback', () => {
+  const s = setup({ lang: 'zh-Hans', comparisons: [
+    { lang: 'en' }, { dataset: { videoLang: 'en' } }, { parentVideoLang: 'zh-Hans' }
+  ] });
+  for (const group of s.groups.slice(0, 2)) {
+    assert.equal(group.toggle.textContent, 'Play comparison');
+    assert.equal(group.handle.attrs['aria-valuetext'], '50 percent 3D previs, 50 percent AI render');
+  }
+  assert.equal(s.groups[2].toggle.textContent, '播放对比');
+  const fallback = setup({ lang: 'fr' });
+  fallback.visible(true);
+  assert.equal(fallback.status.textContent, 'Loading both views…');
+  assert.equal(fallback.handle.attrs['aria-valuetext'], '50 percent 3D previs, 50 percent AI render');
 });
 
 test('HD metadata does not reapply the opening seek and a rollback preserves an explicit pause', async () => {
