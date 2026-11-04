@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require.resolve('../assets/banner-v3.js'), 'utf8');
 const flush = () => new Promise(resolve => setImmediate(resolve));
+const progressiveFixture = require('./progressive-controller-fixture.cjs');
 
 function element(extra = {}) {
   const classes = new Set(), listeners = new Map();
@@ -58,9 +59,10 @@ function setup({ mobile = false, reduced = false, loading = false, managed = fal
   });
   const document = element({ body, documentElement: { lang: language }, hidden: false, querySelectorAll: () => pairs.map(pair => pair.stage) });
   const window = { matchMedia: query => query.includes('reduced-motion') ? motion : { matches: mobile }, setTimeout(fn) { timers.set(++timerId, fn); return timerId; }, clearTimeout(id) { timers.delete(id); } };
+  const upgrade = progressiveFixture(window, pairs[0].stage, pairs[0].videos);
   vm.runInNewContext(source, { document, window, CustomEvent: class { constructor(type) { this.type = type; } }, MutationObserver: class { constructor(fn) { this.fn = fn; } observe(target) { observers.push({ target, fn: this.fn }); } } });
   const notify = target => observers.filter(observer => observer.target === target).forEach(observer => observer.fn());
-  return { pairs, document, deck, body, frames,
+  return { pairs, document, deck, body, frames, upgrade,
     runTimers() { const pending = [...timers.values()]; timers.clear(); pending.forEach(fn => fn()); },
     select(index) { pairs.forEach((pair, i) => { pair.card.classList[i === index ? 'add' : 'remove']('is-active'); notify(pair.card); }); },
     strip(value) { deck.classList[value ? 'add' : 'remove']('is-strip'); notify(deck); },
@@ -313,7 +315,6 @@ test('autoplay rejection pauses both and requires a new explicit play gesture', 
   assert.ok(pair.videos.every(video => !video.paused));
 });
 
-
 test('comparison controls and fallback reveal labels follow the page language', async () => {
   for (const [language, expected] of [
     ['en', { pause: 'Pause', pauseLabel: 'Pause comparison video', sound: 'Sound off', elapsed: '0:00 of 0:20', reveal: '52% 3D previs, 48% AI render' }],
@@ -329,4 +330,37 @@ test('comparison controls and fallback reveal labels follow the page language', 
     app.key(1, 'ArrowRight');
     assert.equal(app.pairs[1].handle.attrs['aria-valuetext'], expected.reveal);
   }
+});
+
+test('HD replacement holds the pair timeline and honors transport changes made during decode', async () => {
+  const app = setup({ controls: true, language: 'zh-Hans' }); await flush();
+  const pair = app.pairs[0], [before, after] = pair.videos, controls = pair.controls;
+  before.currentTime = after.currentTime = 6.4; after.fire('timeupdate');
+  app.upgrade.begin(); app.upgrade.reset(after);
+  assert.equal(before.currentTime, 6.4, 'a resetting master must not seek its partner to zero');
+  assert.equal(controls.clock.textContent, '0:06 / 0:20');
+  assert.equal(app.frames.size, 0);
+  app.upgrade.reset(before);
+  controls.toggle.fire('click');
+  controls.seek.value = 70; controls.seek.fire('input');
+  controls.sound.fire('click');
+  const detail = app.upgrade.finish(); await flush();
+  assert.equal(detail.handled, true, 'only the pair controller resumes the restored media');
+  assert.ok(pair.videos.every(video => video.paused && video.currentTime === 14 && video.loads === 1));
+  assert.equal(before.muted, true); assert.equal(after.muted, false);
+  assert.equal(controls.clock.textContent, '0:14 / 0:20');
+  assert.equal(controls.toggle.textContent, '播放');
+  controls.toggle.fire('click'); await flush();
+  assert.ok(pair.videos.every(video => !video.paused));
+});
+
+test('finishing a quality switch offscreen cannot restart a departed comparison', async () => {
+  const app = setup(); await flush();
+  const pair = app.pairs[0];
+  pair.videos.forEach(video => { video.currentTime = 8; });
+  app.upgrade.begin(); app.select(1);
+  app.upgrade.finish('error'); await flush();
+  assert.ok(pair.videos.every(video => video.paused && video.currentTime === 8));
+  app.select(0); await flush();
+  assert.ok(pair.videos.every(video => !video.paused && video.loads === 1));
 });

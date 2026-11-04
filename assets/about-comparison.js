@@ -16,8 +16,14 @@
   let split = 50, pointer = null, inView = false, paused = false;
   let manualPlay = false, ready = false, loading = false, failed = false;
   let generation = 0, playPending = false, frameRequest = null, loadTimer = null;
+  let upgrading = false;
+  const opened = new WeakSet();
+  const switching = () => upgrading || Boolean(window.ProgressiveVideo?.isSwitching(after));
+  const intent = () => window.ProgressiveVideo?.getIntent(after) || { paused: after.paused };
+  const setIntent = patch => window.ProgressiveVideo?.setIntent(after, patch);
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-  const shouldPlay = () => (!workflowPanel || workflowPanel.getAttribute('aria-hidden') !== 'true') && inView && !document.hidden && !paused && (!motion.matches || manualPlay);
+  const wantsPlay = () => (!workflowPanel || workflowPanel.getAttribute('aria-hidden') !== 'true') && inView && !document.hidden && !paused && (!motion.matches || manualPlay);
+  const shouldPlay = () => !switching() && wantsPlay();
 
   const setSplit = (value) => {
     split = clamp(value, 4, 96);
@@ -27,7 +33,7 @@
     handle.setAttribute('aria-valuetext', `${rounded} percent 3D previs, ${100 - rounded} percent AI render`);
   };
   const sync = (force = false) => {
-    if (before.readyState < 1 || after.readyState < 1 || before.seeking) return;
+    if (switching() || before.readyState < 1 || after.readyState < 1 || before.seeking || after.seeking) return;
     if (force || Math.abs(before.currentTime - after.currentTime) > .055) {
       before.currentTime = Math.min(after.currentTime, Math.max(0, before.duration - .04));
     }
@@ -48,6 +54,7 @@
     frameRequest = after.requestVideoFrameCallback(tick);
   };
   const showError = () => {
+    if (switching()) return;
     ++generation;
     clearTimeout(loadTimer);
     loading = false; ready = false; failed = true; playPending = false;
@@ -76,7 +83,7 @@
     track();
   };
   const checkReady = () => {
-    if (!loading || !videos.every(video => video.readyState >= 3 && !video.seeking)) return;
+    if (switching() || !loading || !videos.every(video => video.readyState >= 3 && !video.seeking)) return;
     loading = false; ready = true;
     clearTimeout(loadTimer);
     status.textContent = '';
@@ -95,6 +102,12 @@
   };
   function update() {
     if (failed) return;
+    if (switching()) {
+      setIntent({ paused: !wantsPlay() });
+      stop();
+      toggle.textContent = wantsPlay() ? 'Pause comparison' : 'Play comparison';
+      return;
+    }
     if (!shouldPlay()) {
       stop();
       toggle.textContent = 'Play comparison';
@@ -106,6 +119,8 @@
   }
   videos.forEach(video => {
     video.addEventListener('loadedmetadata', () => {
+      if (switching() || opened.has(video)) return;
+      opened.add(video);
       video.currentTime = Math.min(5.25, Math.max(0, video.duration - .08));
     });
     video.addEventListener('canplay', checkReady);
@@ -114,10 +129,34 @@
   });
   after.addEventListener('timeupdate', () => sync());
   after.addEventListener('seeked', () => sync(true));
+  stage.addEventListener('progressive-video:switch-start', event => {
+    if (!event.detail?.videos?.includes(after)) return;
+    upgrading = true;
+    ++generation;
+    playPending = false;
+    clearTimeout(loadTimer);
+    setIntent({ paused: !wantsPlay() });
+    stop();
+  });
+  const finishUpgrade = event => {
+    if (!event.detail?.videos?.includes(after) || !upgrading) return;
+    event.detail.handled = true;
+    upgrading = false;
+    ++generation;
+    playPending = false;
+    paused = intent().paused;
+    if (videos.some(video => video.error)) { showError(); return; }
+    // Keep the existing sources and playhead, including a successful rollback.
+    loading = false; ready = true; failed = false;
+    status.textContent = '';
+    update();
+  };
+  stage.addEventListener('progressive-video:switch-end', finishUpgrade);
+  stage.addEventListener('progressive-video:switch-error', finishUpgrade);
   toggle.hidden = false;
   toggle.addEventListener('click', () => {
     if (failed) { failed = false; paused = false; manualPlay = true; }
-    else { paused = shouldPlay(); manualPlay = !paused; }
+    else { paused = switching() ? !intent().paused : shouldPlay(); manualPlay = !paused; }
     update();
   });
 
@@ -164,7 +203,7 @@
   } else { inView = true; }
   if (workflowPanel) new MutationObserver(update).observe(workflowPanel, { attributes: true, attributeFilter: ['aria-hidden'] });
   document.addEventListener('visibilitychange', update);
-  window.addEventListener('pagehide', stop);
+  window.addEventListener('pagehide', () => { if (switching()) setIntent({ paused: true }); stop(); });
   window.addEventListener('pageshow', update);
   motion.addEventListener('change', () => { manualPlay = false; update(); });
   setSplit(split);

@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const read = file => fs.readFileSync(path.join(__dirname, '..', file), 'utf8');
+const progressiveFixture = require('./progressive-controller-fixture.cjs');
 
 function target(extra = {}) {
   const listeners = new Map(), classes = new Set();
@@ -13,6 +14,7 @@ function target(extra = {}) {
     addEventListener(name, callback) { const list = listeners.get(name) || []; list.push(callback); listeners.set(name, list); },
     removeEventListener(name, callback) { listeners.set(name, (listeners.get(name) || []).filter(fn => fn !== callback)); },
     emit(name, event = {}) { for (const callback of [...(listeners.get(name) || [])]) callback(event); },
+    fire(name, event = {}) { this.emit(name, event); },
     dispatchEvent(event) { this.emit(event.type, event); },
     setAttribute(name, value) { this.attrs[name] = value; },
     removeAttribute(name) { delete this.attrs[name]; },
@@ -67,6 +69,7 @@ function setup({ active = 0, reduced = false, mobile = false, home = true, hidde
     matchMedia: query => query.includes('reduced-motion') ? motion : { matches: mobile },
     setTimeout: (callback, delay) => { timers.set(++timerId, { callback, at: now + delay }); return timerId; }, clearTimeout: id => timers.delete(id)
   });
+  const upgrade = progressiveFixture(window, groups[0].group, groups[0].videos);
   vm.runInNewContext(read('assets/video-loader.js'), {
     document, window, navigator: { onLine: true }, HTMLMediaElement: { HAVE_CURRENT_DATA: 2 },
     XMLHttpRequest: class { constructor() { throw Error('whole-file XHR must never be used'); } },
@@ -76,7 +79,7 @@ function setup({ active = 0, reduced = false, mobile = false, home = true, hidde
     IntersectionObserver: class { constructor(callback) { this.callback = callback; } observe(element) { intersections.push({ element, callback: this.callback }); } }
   });
   const notify = element => observers.filter(item => item.element === element).forEach(item => item.callback());
-  return { requests, groups, deck, document, motion, window,
+  return { requests, groups, deck, document, motion, window, upgrade,
     setActive(index) { groups.forEach((item, i) => { item.card.classList[i === index ? 'add' : 'remove']('is-active'); notify(item.card); }); },
     setStrip(value) { deck.classList[value ? 'add' : 'remove']('is-strip'); notify(deck); },
     setReduced(value) { motion.matches = value; motion.emit('change', { matches: value }); },
@@ -220,4 +223,33 @@ test('deck and strip helpers leave comparison video hydration to its paired load
   vm.runInNewContext(`${prepare}; prepareCardMedia`)(card);
   assert.equal(video.src, undefined);
   assert.equal(card.dataset.mediaLoaded, undefined);
+});
+
+test('optional HD source resets preserve the ready preview and never invoke its Retry path', () => {
+  const app = setup(), pair = app.groups[0]; readyPair(pair);
+  pair.videos.forEach(video => { video.currentTime = 12; });
+  app.upgrade.begin(); pair.videos.forEach(video => app.upgrade.reset(video));
+  app.advance(30000);
+  assert.equal(pair.overlay.hidden, true);
+  assert.ok(pair.videos.every(video => video.dataset.videoLoaderReady === 'true'));
+  pair.retry.emit('click');
+  assert.equal(app.requests.length, 2, 'native HD decode errors must not reload preview URLs');
+  app.upgrade.finish('error');
+  assert.equal(pair.overlay.hidden, true);
+  assert.ok(pair.videos.every(video => video.currentTime === 12 && video.dataset.videoLoaderReady === 'true'));
+  app.upgrade.downloadError();
+  assert.equal(pair.overlay.hidden, true);
+});
+
+test('an offscreen canceled upgrade can restore undecoded preview URLs without falsely failing', () => {
+  const app = setup(), pair = app.groups[0]; readyPair(pair);
+  app.upgrade.begin(); app.setActive(1);
+  pair.videos.forEach(video => app.upgrade.reset(video));
+  app.upgrade.finish('error', { pending: true, reason: 'canceled' });
+  assert.ok(pair.videos.every(video => video.dataset.videoLoaderReady === 'true'));
+  app.setActive(0);
+  assert.equal(pair.overlay.hidden, true, 'a background decode suspension must not become a Retry overlay');
+  assert.equal(app.requests.filter(request => request.video === pair.videos[0]).length, 1, 'returning retains the engine-restored source');
+  readyPair(pair);
+  assert.equal(pair.overlay.hidden, true);
 });

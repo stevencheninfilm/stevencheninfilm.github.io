@@ -9,7 +9,7 @@ const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 test('both home languages keep the same ten projects and responsive media', () => {
   const english = read('en/index.html');
   const chinese = read('zh/index.html');
-  const media = html => [...html.matchAll(/(?:data-src|data-src-mobile|poster|data-poster)="([^"]+)"/g)].map(match => match[1]);
+  const media = html => [...html.matchAll(/(?:data-src|data-src-mobile|data-src-hd|poster|data-poster)="([^"]+)"/g)].map(match => match[1]);
   const pages = html => [...html.matchAll(/data-page="(-?\d+)"/g)].map(match => match[1]);
   assert.deepEqual(pages(english), ['-1','0','1','2','3','4','5','6','7','8']);
   assert.deepEqual(pages(chinese), pages(english));
@@ -31,4 +31,18 @@ test('both home languages keep the same ten projects and responsive media', () =
 test('published language routes match their independent source templates', () => {
   for (const [file, language] of Object.entries(OUTPUTS)) assert.equal(read(file), renderPage(file, language), file);
   assert.equal(read('index.html'), read('index-v3.html'));
+});
+
+test('HD upgrades resolve from every language route and comparison sides share one transaction', () => {
+  for (const file of Object.keys(OUTPUTS)) {
+    const html = read(file);
+    const sources = [...html.matchAll(/data-src-hd="([^"]+)"/g)].map(match => match[1]);
+    assert.equal(sources.length, 5, file);
+    for (const source of sources) {
+      if (file.includes('/')) assert.ok(source.startsWith('../assets/'), `${file}: ${source}`);
+      assert.ok(fs.existsSync(path.resolve(root, path.dirname(file), source)), `${file}: ${source}`);
+    }
+    assert.equal((html.match(/data-comparison data-progressive-group/g) || []).length, 2, file);
+    assert.ok(html.indexOf('assets/progressive-video.js') < html.indexOf('assets/banner-v3.js'), file);
+  }
 });
