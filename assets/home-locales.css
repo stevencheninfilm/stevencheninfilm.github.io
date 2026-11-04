@@ -1,0 +1,49 @@
+/* Each language has its own copy and hierarchy, with shared media geometry. */
+html:lang(en) .home-page :is(.deck-card--detail, .deck-card--previs) .comparison-copy h1 {
+  font-family: inherit;
+  font-size: var(--home-project-title-size);
+  font-weight: 400;
+  line-height: .98;
+  letter-spacing: -.05em;
+}
+html:lang(en) .home-page .cinema-home .cinema-home__title {
+  font-family: inherit;
+  font-weight: 400;
+  line-height: .98;
+  letter-spacing: -.05em;
+}
+html:lang(zh) .home-page .deck-project-title > small[lang="en"] {
+  display: block;
+  margin-top: 14px;
+  font-family: inherit;
+  font-size: clamp(13px, 1.25vw, 20px);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: .04em;
+}
+html:lang(zh) .home-page .deck-card--cat-nest .deck-project-title {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: clamp(42px, 5vw, 78px);
+  font-style: normal;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: .02em;
+}
+html:lang(zh) .home-page .deck-card--cat-nest .deck-project-title > small {
+  margin-top: 8px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+}
+@media (orientation: portrait) and (max-width: 900px) {
+  html:lang(en) .home-page :is(.deck-card--detail, .deck-card--previs) .comparison-copy h1 {
+    font-size: clamp(27px, 7.4vw, 43px);
+    line-height: 1.05;
+  }
+  html:lang(zh) .home-page .deck-project-title > small[lang="en"] { font-size: 12px; }
+  html:lang(zh) .home-page .deck-card--cat-nest .deck-project-title { font-size: clamp(30px, 8vw, 44px); }
+}
+@media (max-width: 360px) {
+  html:lang(en) .home-page .home-header .primary-nav { gap: 8px; font-size: 11px; }
+  html:lang(en) .home-page .home-header .primary-nav a { padding-inline: 3px; white-space: nowrap; }
+}

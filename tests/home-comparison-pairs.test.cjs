@@ -20,7 +20,7 @@ function element(extra = {}) {
   }, extra);
 }
 
-function setup({ mobile = false, reduced = false, loading = false, managed = false, controls = false, visualWidth = null } = {}) {
+function setup({ mobile = false, reduced = false, loading = false, managed = false, controls = false, visualWidth = null, language = 'en' } = {}) {
   const observers = [], frames = new Map();
   let frameId = 0, timerId = 0;
   const timers = new Map();
@@ -56,7 +56,7 @@ function setup({ mobile = false, reduced = false, loading = false, managed = fal
     stage.style.setProperty = (name, value) => { stage.properties[name] = value; };
     return { stage, card, frame, handle, videos, controls: playerControls };
   });
-  const document = element({ body, hidden: false, querySelectorAll: () => pairs.map(pair => pair.stage) });
+  const document = element({ body, documentElement: { lang: language }, hidden: false, querySelectorAll: () => pairs.map(pair => pair.stage) });
   const window = { matchMedia: query => query.includes('reduced-motion') ? motion : { matches: mobile }, setTimeout(fn) { timers.set(++timerId, fn); return timerId; }, clearTimeout(id) { timers.delete(id); } };
   vm.runInNewContext(source, { document, window, CustomEvent: class { constructor(type) { this.type = type; } }, MutationObserver: class { constructor(fn) { this.fn = fn; } observe(target) { observers.push({ target, fn: this.fn }); } } });
   const notify = target => observers.filter(observer => observer.target === target).forEach(observer => observer.fn());
@@ -90,7 +90,7 @@ test('two comparisons load independently and preserve their own opening frames',
 });
 
 test('comparison controls pause both pictures, preserve manual pause through buffering, and expose only one audio track', async () => {
-  const app = setup({ controls: true, mobile: true }); await flush();
+  const app = setup({ controls: true, mobile: true, language: 'zh-Hans' }); await flush();
   const pair = app.pairs[0], controls = pair.controls;
   assert.equal(controls.root.hidden, false);
   assert.equal(controls.root.attrs['data-visible'], 'false', 'controls wait for uninterrupted dwell on this project');
@@ -311,4 +311,22 @@ test('autoplay rejection pauses both and requires a new explicit play gesture', 
   blocked = false;
   pair.videos[0].fire('video-loader:play'); await flush();
   assert.ok(pair.videos.every(video => !video.paused));
+});
+
+
+test('comparison controls and fallback reveal labels follow the page language', async () => {
+  for (const [language, expected] of [
+    ['en', { pause: 'Pause', pauseLabel: 'Pause comparison video', sound: 'Sound off', elapsed: '0:00 of 0:20', reveal: '52% 3D previs, 48% AI render' }],
+    ['zh-Hans', { pause: '暂停', pauseLabel: '暂停对比视频', sound: '声音关闭', elapsed: '0:00，共 0:20', reveal: '52% 3D 运镜预演，48% AI 生成画面' }]
+  ]) {
+    const app = setup({ controls: true, language }); await flush();
+    const controls = app.pairs[0].controls;
+    assert.equal(controls.toggle.textContent, expected.pause);
+    assert.equal(controls.toggle.attrs['aria-label'], expected.pauseLabel);
+    assert.equal(controls.sound.textContent, expected.sound);
+    assert.equal(controls.seek.attrs['aria-valuetext'], expected.elapsed);
+    app.select(1); await flush();
+    app.key(1, 'ArrowRight');
+    assert.equal(app.pairs[1].handle.attrs['aria-valuetext'], expected.reveal);
+  }
 });

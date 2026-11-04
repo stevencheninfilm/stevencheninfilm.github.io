@@ -15,10 +15,10 @@ test('homepage has the requested ten entries, synchronized with v3', () => {
   const html = read('index.html');
   assert.equal(html, read('index-v3.html'));
   const cards = [...html.matchAll(/<article class="deck-card[^>]*data-title="([^"]+)" data-page="(-?\d+)"/g)];
-  assert.deepEqual(cards.map(match => match[1]), ['重塑每一处细节 / DLSS + RTX', 'Grand Theft Art', 'Real Cinema to AI Video', '猫猫小窝 / 猫猫餐厅', '玄天诀 / XUANTIAN JUE', 'Cybertruck: Mars', 'Feel Every Stories', 'Healing Wings', 'Alone', 'TVC']);
+  assert.deepEqual(cards.map(match => match[1]), ['Redefine Detail / DLSS + RTX', 'Grand Theft Art', 'Real Cinema to AI Video', 'Cat Nest / Cat Restaurant', '玄天诀 / XUANTIAN JUE', 'Cybertruck: Mars', 'Feel Every Stories', 'Healing Wings', 'Alone', 'TVC']);
   assert.deepEqual(cards.map(match => match[2]), ['-1','0','1','2','3','4','5','6','7','8']);
   assert.equal((html.match(/data-slide="/g) || []).length, 10);
-  assert.match(html, /影视级AI剧集/);
+  assert.match(html, /Cinematic AI series/);
   assert.match(html, /alone-poster-20260925.webp/);
   assert.match(html, /film\/Film.html#healing/);
   assert.match(html, /film\/Film.html#alone/);
@@ -118,7 +118,7 @@ test('TVC cards use the selected gallery stills as preview images', () => {
 });
 
 test('all edited entry pages resolve local assets and include TVC navigation', () => {
-  for (const file of ['index.html','index-v3.html','about.html','ai/index.html','film/Film.html','tvc/index.html']) {
+  for (const file of ['index.html','index-v3.html','en/index.html','zh/index.html','about.html','ai/index.html','film/Film.html','tvc/index.html']) {
     const html = read(file);
     assert.match(html, /tvc\/index.html|aria-current="page" href="index.html">TVC/);
     const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(m => m[1]);
@@ -126,7 +126,8 @@ test('all edited entry pages resolve local assets and include TVC navigation', (
     for (const match of html.matchAll(/\s(?:src|href|poster|data-src)="([^"]+)"/g)) {
       const value = match[1].split(/[?#]/)[0];
       if (!value || /^(?:https?:|mailto:|tel:|data:)/.test(value)) continue;
-      assert.ok(fs.existsSync(path.resolve(root, path.dirname(file), value)), `${file}: ${value}`);
+      const local = value.startsWith('/') ? path.resolve(root, `.${value}`) : path.resolve(root, path.dirname(file), value);
+      assert.ok(fs.existsSync(local), `${file}: ${value}`);
     }
   }
 });

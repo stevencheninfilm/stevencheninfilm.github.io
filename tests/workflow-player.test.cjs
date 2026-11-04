@@ -11,7 +11,7 @@ const element = () => ({
   setAttribute(name, value) { this.attrs[name] = value; },
   setPointerCapture() {},
 });
-function setup({ mobile = false, reduced = false, blocked = false, delay = 0, chinese = false } = {}) {
+function setup({ mobile = false, reduced = false, blocked = false, delay = 0, chinese = false, pageLang = '' } = {}) {
   let selected = true, strip = false, mutation, intersection;
   let now = 0, timerId = 0;
   const timers = new Map();
@@ -31,7 +31,7 @@ function setup({ mobile = false, reduced = false, blocked = false, delay = 0, ch
     closest: selector => ({ '.deck-card': card, '.project-deck': deck })[selector],
   };
   const motion = Object.assign(element(), { matches: reduced });
-  const document = Object.assign(element(), { hidden: false, querySelectorAll: () => [player] });
+  const document = Object.assign(element(), { documentElement: { lang: pageLang }, hidden: false, querySelectorAll: () => [player] });
   const window = Object.assign(element(), { IntersectionObserver: true });
   vm.runInNewContext(source, {
     window, document, matchMedia: query => query.includes('reduced') ? motion : { matches: mobile },
@@ -125,4 +125,21 @@ test('Chinese-led home transport keeps play, seek, sound and retry labels locali
   assert.match(s.seek.attrs['aria-valuetext'], /共 0:36/);
   s.video.fire('error'); assert.equal(s.toggle.textContent, '重试');
   assert.equal(s.status.textContent, '视频暂时不可用，请点按重试。');
+});
+
+
+test('page language takes precedence over a legacy player language flag, including errors and autoplay help', async () => {
+  for (const [pageLang, chinese, expected] of [
+    ['zh-Hans', false, { play: '播放', sound: '静音', start: '点按播放，开始观看。', retry: '重试', error: '视频暂时不可用，请点按重试。' }],
+    ['en', true, { play: 'Play', sound: 'Sound off', start: 'Press Play to start the film.', retry: 'Retry', error: 'Video unavailable. Select Retry to load it again.' }]
+  ]) {
+    const s = setup({ pageLang, chinese, blocked: true });
+    s.visible(true); await flush();
+    assert.equal(s.toggle.textContent, expected.play);
+    assert.equal(s.sound.textContent, expected.sound);
+    assert.equal(s.status.textContent, expected.start);
+    s.video.fire('error');
+    assert.equal(s.toggle.textContent, expected.retry);
+    assert.equal(s.status.textContent, expected.error);
+  }
 });

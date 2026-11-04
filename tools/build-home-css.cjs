@@ -21,6 +21,8 @@ const SOURCES = Object.freeze([
   'assets/xuantian-brand.css',
   'assets/icp-footer.css',
   'assets/media-access.css',
+  'assets/home-locales.css',
+  'assets/site-language.css',
 ]);
 
 function renderBundle(root = ROOT) {

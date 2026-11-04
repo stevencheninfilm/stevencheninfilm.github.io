@@ -6,7 +6,7 @@ const motion = require('../assets/home-opening-motion.js');
 const source = fs.readFileSync(require.resolve('../assets/home-opening.js'), 'utf8');
 
 function opening(cached = false, options = {}) {
-  let now = options.start || 0, frameId = 0, reloads = 0;
+  let now = options.start || 0, frameId = 0, reloads = 0, assigned = null;
   const frames = new Map(), listeners = {}, clickHandlers = {};
   const classes = new Set(['home-v3']);
   const body = { classList: { contains: c => classes.has(c), add: c => classes.add(c), remove: (...names) => names.forEach(c => classes.delete(c)) } };
@@ -24,9 +24,9 @@ function opening(cached = false, options = {}) {
     querySelector: selector => ({ '.v3-loader-percent': percent, '.v3-loader-tile--lead': tiles[0], '.v3-loader-skip': skip })[selector],
     querySelectorAll: selector => selector === 'img' ? images : tiles };
   const interfaces = [{ inert: false }];
-  const work = { href: 'http://localhost/index.html', addEventListener: (name, fn) => { clickHandlers.work = fn; } };
+  const work = { href: options.workHref || 'http://localhost/index.html', addEventListener: (name, fn) => { clickHandlers.work = fn; } };
   const window = { innerWidth: 1440, innerHeight: 900, StevenHomeOpening: motion,
-    location: { href: 'http://localhost/index.html#featured-work', pathname: '/index.html', reload: () => { reloads++; }, assign: () => {} },
+    location: { href: options.href || 'http://localhost/index.html#featured-work', pathname: options.pathname || '/index.html', search: options.search || '', reload: () => { reloads++; }, assign: href => { assigned = href; } },
     matchMedia: query => ({ matches: query.includes('reduced-motion') ? !!options.reduced : !!options.mobile, addEventListener() {} }),
     addEventListener: (name, fn) => { listeners[name] = fn; }, setTimeout: () => 1 };
   vm.runInNewContext(source, { window, URL, sessionStorage: { getItem: () => options.warm ? 'ready' : null, setItem() {} }, navigator: {connection:options.connection}, document: { body, activeElement: null,
@@ -34,7 +34,7 @@ function opening(cached = false, options = {}) {
     querySelectorAll: () => interfaces }, performance: { now: () => now },
     requestAnimationFrame: fn => { frames.set(++frameId, fn); return frameId; },
     cancelAnimationFrame: id => frames.delete(id), clearTimeout() {} });
-  return { loader, percent, images, interfaces, clickHandlers, work, reloads: () => reloads,
+  return { loader, percent, images, interfaces, clickHandlers, work, reloads: () => reloads, assigned: () => assigned,
     interact() { listeners.pointerdown({ target: { closest() {} } }); },
     resize(width, height) { window.innerWidth = width; window.innerHeight = height; listeners.resize(); },
     tick(time) { now = time; const pending = [...frames.values()]; frames.clear(); pending.forEach(fn => fn(time)); } };
@@ -149,4 +149,14 @@ test('using the visible homepage cancels a pending optional intro without blocki
   assert.equal(app.loader.hidden, true);
   assert.equal(app.loader.dataset.phase, 'complete');
   assert.equal(app.interfaces[0].inert, false);
+});
+
+
+test('Work clears a restored project query before replaying the first project in the same language', () => {
+  const app = opening(true, { href: 'http://localhost/zh/index.html?project=1#featured-work', pathname: '/zh/index.html', search: '?project=1', workHref: 'http://localhost/zh/index.html' });
+  let prevented = false;
+  app.clickHandlers.work({ button: 0, currentTarget: app.work, preventDefault() { prevented = true; } });
+  assert.equal(prevented, true);
+  assert.equal(app.reloads(), 0, 'reload would retain the project selection');
+  assert.equal(app.assigned(), 'http://localhost/zh/index.html');
 });
