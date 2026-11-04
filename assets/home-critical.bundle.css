@@ -1861,7 +1861,7 @@ html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process 
 }
 @media (max-width: 360px) {
   html:lang(en) .home-page .home-header .primary-nav { gap: 8px; font-size: 11px; }
-  html:lang(en) .home-page .home-header .primary-nav a { padding-inline: 3px; white-space: nowrap; }
+  html:lang(en) .home-page .home-header .primary-nav a { padding-inline: 0; white-space: nowrap; }
 }
 
 /* Source: assets/site-language.css */
@@ -1897,12 +1897,24 @@ html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process 
 .home-page .site-language {
   position: absolute;
   top: var(--home-header-top, 20px);
-  left: calc(50% + 250px);
+  left: auto;
+  right: max(20px, env(safe-area-inset-right));
   text-shadow: 0 1px 10px rgba(0, 0, 0, .78);
 }
+@media (orientation: landscape), (min-width: 901px) {
+  .home-page .project-deck:not(.is-strip) .comparison-label {
+    top: calc(var(--home-header-top, 20px) + 52px - var(--comparison-inset, 0px));
+  }
+}
 @media (max-width: 700px) {
+  .home-page .home-header {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: calc(98px + max(12px, env(safe-area-inset-right)));
+  }
+  .home-page .home-header .primary-nav { gap: 8px; font-size: clamp(11px, 2vw, 13px); }
+  .home-page .home-header .primary-nav a { padding-inline: 0; white-space: nowrap; }
   .home-page .site-language {
-    top: calc(var(--home-header-top, 10px) + 44px);
+    top: var(--home-header-top, 10px);
     left: auto;
     right: max(12px, env(safe-area-inset-right));
     gap: 4px;

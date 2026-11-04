@@ -40,5 +40,5 @@ html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process 
 }
 @media (max-width: 360px) {
   html:lang(en) .home-page .home-header .primary-nav { gap: 8px; font-size: 11px; }
-  html:lang(en) .home-page .home-header .primary-nav a { padding-inline: 3px; white-space: nowrap; }
+  html:lang(en) .home-page .home-header .primary-nav a { padding-inline: 0; white-space: nowrap; }
 }
