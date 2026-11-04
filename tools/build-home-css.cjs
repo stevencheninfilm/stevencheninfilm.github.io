@@ -21,6 +21,7 @@ const SOURCES = Object.freeze([
   'assets/xuantian-brand.css',
   'assets/icp-footer.css',
   'assets/media-access.css',
+  'assets/progressive-video-status.css',
   'assets/home-locales.css',
   'assets/site-language.css',
 ]);

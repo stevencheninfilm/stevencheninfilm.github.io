@@ -50,15 +50,6 @@
 .tvc-services > .viewing-link-group { margin-top: 20px; }
 .tvc-services > .viewing-link-group > a { display: inline-flex; min-height: 44px; align-items: center; font-size: 13px; text-decoration: none; }
 @media (max-width: 900px) { .project-feature--reverse > .film-player { order: 0; } }
-.home-page .detail-quality-link {
-  position: absolute; z-index: 13; left: auto; top: auto; right: 22px; bottom: 156px;
-  width: auto; max-width: none; transform: none; padding: 8px 12px;
-  font-size: 11px; color: #fff; text-underline-offset: 4px;
-  text-shadow: 0 1px 8px #000;
-}
-.detail-quality-icon { display: inline-block; margin-left: 6px; font-size: 22px; line-height: 1; vertical-align: -2px; }
-.project-deck.is-strip .detail-quality-link { display: none; }
 @media (orientation: portrait) and (max-width: 900px) {
-  .home-page .detail-quality-link { position: relative; flex: 0 0 auto; align-self: flex-end; bottom: auto; top: auto; right: auto; min-height: 30px; margin-right: var(--mobile-transport-side, 54px); padding: 5px 0; font-size: 11px; line-height: 20px; text-shadow: none; }
   .deck-card--detail .video-loading-ui.is-progressive { bottom: auto; top: 10%; }
 }

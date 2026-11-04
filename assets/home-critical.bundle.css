@@ -1413,7 +1413,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
   .home-page .comparison-player-controls { position: relative; flex: 0 0 auto; left: auto; right: auto; bottom: auto; width: calc(100% - var(--mobile-transport-side) - var(--mobile-transport-side)); margin-top: 4px; min-height: 40px; text-shadow: none; gap: 9px; }
   .comparison-player-controls button { font-size: 11px; }
   .comparison-player-controls output { font-size: 9px; }
-  .comparison-player-controls + .detail-quality-link + .comparison-copy { margin-top: 12px; }
+  .comparison-player-controls + .hd-status + .comparison-copy { margin-top: 12px; }
   .home-page .cinema-home { inset: max(110px, calc(env(safe-area-inset-top) + 82px)) max(8px, env(safe-area-inset-right)) 146px max(8px, env(safe-area-inset-left)); display: flex; flex-direction: column; justify-content: center; align-items: center; padding-top: clamp(20px, 4svh, 38px); }
   .cinema-home > .workflow-player { position: relative; order: 0; inset: auto; width: 100%; flex: 0 0 auto; }
   .cinema-home .workflow-player__picture { position: relative; inset: auto; flex: 0 0 auto; width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; }
@@ -1753,17 +1753,69 @@ html.tvc-fallback-running .project-dialog[open]::after { animation: tvc-artwork-
 .tvc-services > .viewing-link-group { margin-top: 20px; }
 .tvc-services > .viewing-link-group > a { display: inline-flex; min-height: 44px; align-items: center; font-size: 13px; text-decoration: none; }
 @media (max-width: 900px) { .project-feature--reverse > .film-player { order: 0; } }
-.home-page .detail-quality-link {
-  position: absolute; z-index: 13; left: auto; top: auto; right: 22px; bottom: 156px;
-  width: auto; max-width: none; transform: none; padding: 8px 12px;
-  font-size: 11px; color: #fff; text-underline-offset: 4px;
-  text-shadow: 0 1px 8px #000;
-}
-.detail-quality-icon { display: inline-block; margin-left: 6px; font-size: 22px; line-height: 1; vertical-align: -2px; }
-.project-deck.is-strip .detail-quality-link { display: none; }
 @media (orientation: portrait) and (max-width: 900px) {
-  .home-page .detail-quality-link { position: relative; flex: 0 0 auto; align-self: flex-end; bottom: auto; top: auto; right: auto; min-height: 30px; margin-right: var(--mobile-transport-side, 54px); padding: 5px 0; font-size: 11px; line-height: 20px; text-shadow: none; }
   .deck-card--detail .video-loading-ui.is-progressive { bottom: auto; top: 10%; }
+}
+
+/* Source: assets/progressive-video-status.css */
+/* Optional quality upgrades stay separate from the preview's playback controls. */
+.hd-status {
+  position: absolute;
+  z-index: 14;
+  right: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: max-content;
+  max-width: calc(100% - 20px);
+  padding: 3px 6px;
+  border: 1px solid #ffffff24;
+  border-radius: 3px;
+  background: #0a0c0f8c;
+  color: #f0eee8;
+  font: 10px/1.4 Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+  letter-spacing: .015em;
+  text-shadow: 0 1px 4px #0008;
+  pointer-events: none;
+}
+.hd-status[hidden], .hd-status [hidden] { display: none !important; }
+.hd-status [data-hd-label] { white-space: nowrap; }
+.hd-status [data-hd-percent] { min-width: 24px; font-size: 9px; font-variant-numeric: tabular-nums; text-align: right; }
+.hd-status [data-hd-percent]:empty { display: none; }
+.hd-status progress { appearance: none; width: 30px; height: 2px; border: 0; border-radius: 1px; background: #ffffff38; accent-color: #e5be88; }
+.hd-status progress::-webkit-progress-bar { background: #ffffff38; border-radius: 1px; }
+.hd-status progress::-webkit-progress-value { background: #e5be88; border-radius: 1px; }
+.hd-status progress::-moz-progress-bar { background: #e5be88; border-radius: 1px; }
+.hd-status button {
+  pointer-events: auto;
+  min-height: 24px;
+  padding: 2px 5px;
+  border: 1px solid #ffffff50;
+  border-radius: 2px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.hd-status button:hover, .hd-status button:focus-visible { border-color: #e5be88; color: #e5be88; }
+.hd-status button:focus-visible { outline: 1px solid #e5be88; outline-offset: 2px; }
+.home-page .comparison-frame > .hd-status { right: clamp(24px, 2.6vw, 48px); bottom: 156px; }
+.home-page .cinema-home .workflow-player__picture > .hd-status { right: clamp(24px, 7vw, 130px); bottom: 164px; }
+.film-player__picture > .hd-status, .xj-video-shell > .hd-status { bottom: 54px; }
+.project-deck.is-strip .hd-status { display: none; }
+@media (orientation: portrait) and (max-width: 900px) {
+  .home-page .comparison-frame > .hd-status {
+    position: relative;
+    flex: 0 0 auto;
+    right: auto;
+    bottom: auto;
+    align-self: flex-end;
+    margin: 4px var(--mobile-transport-side, 52px) 0 0;
+    max-width: calc(100% - 60px);
+  }
+  .home-page .cinema-home .workflow-player__picture > .hd-status { right: 8px; bottom: 8px; }
 }
 
 /* Source: assets/home-locales.css */

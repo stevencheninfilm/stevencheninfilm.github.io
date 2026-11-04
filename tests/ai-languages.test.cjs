@@ -15,7 +15,8 @@ test('AI language routes retain the same three workflows, lazy media and HD pair
   assert.deepEqual(stories(zh), stories(en));
   assert.deepEqual(media(zh), media(en));
   for (const html of [en, zh]) {
-    assert.equal((html.match(/data-progressive-group/g) || []).length, 2);
+    assert.equal((html.match(/data-progressive-group/g) || []).length, 6);
+    assert.equal((html.match(/data-progressive-status/g) || []).length, 6);
     assert.equal((html.match(/data-src-hd=/g) || []).length, 8);
     assert.match(html, /href="https:\/\/stevencheninfilm.com\/zh\/ai\/index.html"/);
     assert.match(html, /data-site-language="en"/);

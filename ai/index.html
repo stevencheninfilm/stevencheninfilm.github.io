@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="../assets/site-language.css?v=20261104-lang-1">
   <link rel="stylesheet" href="../assets/ai-locales.css?v=20261104-ai-zh-1">
   <script src="../assets/site-language.js?v=20261104-ai-zh-1" defer></script>
+  <link rel="stylesheet" href="../assets/progressive-video-status.css?v=20261104-hd-status-1">
 </head>
 <body class="content-page ai-page ai-page--en" data-page-family="ai">
   <a class="skip-link" href="#main">Skip to projects</a>
@@ -64,6 +65,9 @@
                 <div class="ab-compare__frame">
                   <video class="ab-compare__before" muted loop playsinline preload="none" width="1920" height="1080" poster="../assets/images/projects/dlss-detail/original-poster-mobile.webp" data-src="../assets/videos/dlss-detail/original-preview.mp4" data-src-hd="../assets/videos/dlss-detail/original-1080p.mp4" data-src-mobile="../assets/videos/dlss-detail/original-lite.mp4" aria-label="Original 1080p footage, synchronized with the DLSS + RTX enhanced version"></video>
                   <div class="ab-compare__after" aria-hidden="true"><video muted loop playsinline preload="none" width="3840" height="2160" poster="../assets/images/projects/dlss-detail/enhanced-poster-mobile.webp" data-src="../assets/videos/dlss-detail/enhanced-preview-audio-v1.mp4" data-src-hd="../assets/videos/dlss-detail/enhanced-4k-audio-v1.mp4" data-src-mobile="../assets/videos/dlss-detail/enhanced-lite-audio-v1.mp4"></video></div>
+                  <div class="hd-status" data-progressive-status data-hd-state="waiting" hidden>
+  <span data-hd-label>HD pending</span><progress data-hd-progress max="100" aria-label="HD video download progress" hidden></progress><span data-hd-percent aria-hidden="true"></span><button type="button" data-hd-retry hidden>Retry HD</button>
+</div>
                   <span class="ab-compare__label ab-compare__label--before">ORIGINAL · 1080p</span>
                   <span class="ab-compare__label ab-compare__label--after">DLSS + RTX · 4K OUTPUT</span>
                   <span class="ab-compare__divider" aria-hidden="true"></span>
@@ -80,7 +84,10 @@
           <div class="ab-compare__frame">
             <video class="ab-compare__before" muted loop playsinline preload="none" width="1280" height="720" poster="../assets/images/home/grand-theft-art-before.jpg" data-src="../assets/videos/grand-theft-art/previs-preview.mp4" data-src-hd="../assets/videos/grand-theft-art/previs-hd-v1.mp4" data-src-mobile="../assets/videos/grand-theft-art/previs-lite.mp4" aria-label="Grand Theft Art — 3D camera previs"></video>
             <div class="ab-compare__after" aria-hidden="true"><video muted loop playsinline preload="none" width="1280" height="720" poster="../assets/images/home/grand-theft-art-poster.jpg" data-src="../assets/videos/grand-theft-art/ai-render-preview.mp4" data-src-hd="../assets/videos/grand-theft-art/ai-render-hd-v1.mp4" data-src-mobile="../assets/videos/grand-theft-art/ai-render-lite.mp4"></video></div>
-            <span class="ab-compare__label ab-compare__label--before">3D PREVIS</span>
+            <div class="hd-status" data-progressive-status data-hd-state="waiting" hidden>
+  <span data-hd-label>HD pending</span><progress data-hd-progress max="100" aria-label="HD video download progress" hidden></progress><span data-hd-percent aria-hidden="true"></span><button type="button" data-hd-retry hidden>Retry HD</button>
+</div>
+                  <span class="ab-compare__label ab-compare__label--before">3D PREVIS</span>
             <span class="ab-compare__label ab-compare__label--after">AI RENDER</span>
             <span class="ab-compare__divider" aria-hidden="true"></span>
             <button class="ab-compare__handle" type="button" role="slider" aria-label="Reveal the 3D previs and AI render comparison" aria-orientation="horizontal" aria-valuemin="4" aria-valuemax="96" aria-valuenow="50" aria-valuetext="50 percent 3D previs, 50 percent AI render" aria-describedby="comparison-help"><span aria-hidden="true">↔</span></button>
@@ -93,7 +100,11 @@
             <article class="ai-workflows__item" id="real-cinema-to-ai" data-workflow-item aria-labelledby="cinema-title">
               <header class="ai-workflows__title"><p>03 / Real Cinema → AI Video</p><h2 id="cinema-title">Shot in reality.<br><em>Reimagined with AI.</em></h2></header>
               <div class="workflow-player" data-workflow-player>
-              <div class="workflow-player__picture"><video data-workflow-video muted loop playsinline preload="none" width="1280" height="720" poster="../assets/images/projects/journey-to-another-world/poster.jpg" data-src="../assets/videos/journey-to-another-world/bts-720p.mp4" data-src-hd="../assets/videos/journey-to-another-world/bts-1080p-hd-v1.mp4" data-src-mobile="../assets/videos/journey-to-another-world/bts-mobile.mp4" aria-label="Journey to Another World — live-action to AI breakdown"></video></div>
+              <div class="workflow-player__picture" data-progressive-group><video data-workflow-video muted loop playsinline preload="none" width="1280" height="720" poster="../assets/images/projects/journey-to-another-world/poster.jpg" data-src="../assets/videos/journey-to-another-world/bts-720p.mp4" data-src-hd="../assets/videos/journey-to-another-world/bts-1080p-hd-v1.mp4" data-src-mobile="../assets/videos/journey-to-another-world/bts-mobile.mp4" aria-label="Journey to Another World — live-action to AI breakdown"></video>
+                <div class="hd-status" data-progressive-status data-hd-state="waiting" hidden>
+                  <span data-hd-label>HD pending</span><progress data-hd-progress max="100" aria-label="HD video download progress" hidden></progress><span data-hd-percent aria-hidden="true"></span><button type="button" data-hd-retry hidden>Retry HD</button>
+                </div>
+              </div>
               <div class="workflow-player__controls" data-player-controls hidden>
                 <button type="button" data-player-toggle aria-label="Play video">Play</button>
                 <output data-player-time aria-label="Playback time">0:00 / 0:36</output>
@@ -169,8 +180,11 @@
     </section>
 
     <section class="project-feature" id="motion">
-      <div class="project-feature__media project-feature__media--uncropped project-feature__media--trim-bars" data-video-loading data-video-static-on-reduced-motion>
+      <div class="project-feature__media project-feature__media--uncropped project-feature__media--trim-bars" data-progressive-group data-video-loading data-video-static-on-reduced-motion>
         <video width="1049" height="576" autoplay muted loop playsinline preload="none" poster="../assets/images/ui/veo-workflow-poster-20260925.png" data-src="../assets/videos/veo-after-video-preview-v1.mp4" data-src-hd="../assets/videos/veo-after-video-silent.mp4"></video>
+        <div class="hd-status" data-progressive-status data-hd-state="waiting" hidden>
+          <span data-hd-label>HD pending</span><progress data-hd-progress max="100" aria-label="HD video download progress" hidden></progress><span data-hd-percent aria-hidden="true"></span><button type="button" data-hd-retry hidden>Retry HD</button>
+        </div>
         <div class="video-loading-ui" hidden>
           <span class="video-loading-status" aria-live="polite" aria-atomic="true"></span>
           <div class="video-loading-meter">
@@ -190,8 +204,11 @@
 
     <section class="project-feature project-feature--reverse project-feature--with-stills" id="feel">
       <div class="film-player" id="feel-film" data-film-player lang="zh-Hans">
-        <div class="film-player__picture">
+        <div class="film-player__picture" data-progressive-group>
           <video controls playsinline preload="none" width="1280" height="720" poster="../assets/images/projects/feel/netflix-main.jpg" data-src="../assets/videos/feel/feel-every-stories-720p.mp4" data-src-hd="../assets/videos/feel/feel-every-stories-1080p-hd-v1.mp4" data-src-mobile="../assets/videos/feel/feel-every-stories-mobile.mp4" aria-label="Feel Every Stories 完整影片"></video>
+          <div class="hd-status" data-progressive-status data-hd-state="waiting" hidden>
+            <span data-hd-label>HD pending</span><progress data-hd-progress max="100" aria-label="HD video download progress" hidden></progress><span data-hd-percent aria-hidden="true"></span><button type="button" data-hd-retry hidden>Retry HD</button>
+          </div>
           <button class="film-player__play" type="button" data-film-play hidden>播放正片</button>
         </div>
         <div class="film-player__caption"><span>站内观看 · Feel Every Stories</span><a href="../assets/videos/feel/feel-every-stories-mobile.mp4">直接打开视频 ↗</a></div>
@@ -231,8 +248,11 @@
         </div>
       </header>
       <div class="film-player" id="cybertruck-film" data-film-player lang="zh-Hans">
-        <div class="film-player__picture">
+        <div class="film-player__picture" data-progressive-group>
           <video controls playsinline preload="none" width="1280" height="720" poster="../assets/images/projects/cybertruck/Cyber-Thumb-1.jpg" data-src="../assets/videos/cybertruck/cybertruck-720p.mp4" data-src-hd="../assets/videos/cybertruck/cybertruck-1080p-hd-v1.mp4" data-src-mobile="../assets/videos/cybertruck/cybertruck-mobile.mp4" aria-label="Cybertruck: Mars 完整影片"></video>
+          <div class="hd-status" data-progressive-status data-hd-state="waiting" hidden>
+            <span data-hd-label>HD pending</span><progress data-hd-progress max="100" aria-label="HD video download progress" hidden></progress><span data-hd-percent aria-hidden="true"></span><button type="button" data-hd-retry hidden>Retry HD</button>
+          </div>
           <button class="film-player__play" type="button" data-film-play hidden>播放正片</button>
         </div>
         <div class="film-player__caption"><span>站内观看 · Cybertruck: Mars</span><a href="../assets/videos/cybertruck/cybertruck-mobile.mp4">直接打开视频 ↗</a></div>
@@ -256,7 +276,8 @@
   </main>
 
   <footer class="site-footer"><a href="mailto:kieen1454@gmail.com">Start a project ↗</a><span>© 2026 Steven Chen</span></footer>
-  <script defer src="../assets/progressive-video.js?v=20261104-hd-2"></script>
+  <script defer src="../assets/progressive-video.js?v=20261104-hd-status-1"></script>
+  <script defer src="../assets/progressive-video-status.js?v=20261104-hd-status-1"></script>
   <script src="../assets/film-player.js?v=20261104-hd-1" defer></script>
   <script src="../assets/ai-workflows.js?v=20261104-comparison-1" defer></script>
   <script src="../assets/about-comparison.js?v=20261104-ai-zh-1" defer></script>
