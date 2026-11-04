@@ -43,6 +43,9 @@
     };
     const homeCard = group.closest('.deck-card--comparison');
     const homeDeck = homeCard?.closest('.project-deck');
+    // Comparison transactions can be rooted on the stage outside this frame.
+    // Events bubble upward, so the frame cannot hear events from that ancestor.
+    const progressiveRoot = group.closest('[data-progressive-group]') || group;
     const originalSources = new Map(videos.map(video => [video, sourceFor(video)]));
     const resumeTimes = new Map();
     let phase = 'idle', action = 'retry', inView = !('IntersectionObserver' in window);
@@ -114,8 +117,9 @@
     const checkReady = () => {
       if (!switching() && (phase === 'loading' || phase === 'error') && videos.every(video => video.readyState >= READY_STATE)) finish();
     };
-    const showError = () => {
+    const showError = (reason = 'upgrade-failed') => {
       if (switching() || phase === 'idle' || phase === 'static' || settingSources) return;
+      const notifyFailure = phase !== 'error' && (reason === 'timeout' || reason === 'media-error');
       clearTimers();
       phase = 'error';
       markReady(false);
@@ -128,6 +132,9 @@
       overlay.classList.remove('is-ready');
       overlay.classList.add('is-error');
       overlay.hidden = !visible();
+      if (notifyFailure) group.dispatchEvent(new CustomEvent('video-loader:preview-failed', {
+        bubbles: true, detail: { videos, reason }
+      }));
       if (restoreFocusAfterRetry && visible()) {
         focusTimer = window.setTimeout(() => {
           if (phase === 'error' && visible()) retry.focus({ preventScroll: true });
@@ -181,7 +188,7 @@
         if (run === currentRun && phase === 'loading' && visible()) overlay.hidden = false;
       }, HINT_DELAY);
       deadlineTimer = window.setTimeout(() => {
-        if (run === currentRun && phase === 'loading') showError();
+        if (run === currentRun && phase === 'loading') showError('timeout');
       }, STARTUP_TIMEOUT);
       settingSources = true;
       videos.forEach((video, index) => {
@@ -230,9 +237,9 @@
         checkReady();
       });
       ['loadeddata', 'canplay', 'playing'].forEach(event => video.addEventListener(event, checkReady));
-      video.addEventListener('error', showError);
+      video.addEventListener('error', () => showError('media-error'));
     });
-    group.addEventListener('progressive-video:switch-start', event => {
+    progressiveRoot.addEventListener('progressive-video:switch-start', event => {
       if (!event.detail?.videos?.some(video => videos.includes(video))) return;
       upgrading = true;
       ++run;
@@ -256,8 +263,8 @@
         phase = 'loading'; showError();
       }
     };
-    group.addEventListener('progressive-video:switch-end', finishUpgrade);
-    group.addEventListener('progressive-video:switch-error', finishUpgrade);
+    progressiveRoot.addEventListener('progressive-video:switch-end', finishUpgrade);
+    progressiveRoot.addEventListener('progressive-video:switch-error', finishUpgrade);
     group.addEventListener('video-loader:play-blocked', showPlay);
     retry.addEventListener('click', () => {
       if (switching() || !visible()) return;

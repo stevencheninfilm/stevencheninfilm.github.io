@@ -11,6 +11,7 @@ function setup({ reduced = false, mobile = false, blocked = false } = {}) {
     events: {}, attrs: {}, style: { setProperty() {} },
     addEventListener(name, fn) { (this.events[name] ||= []).push(fn); },
     fire(name, data = {}) { for (const fn of this.events[name] || []) fn(data); },
+    dispatchEvent(event) { this.fire(event.type, event); },
     setAttribute(name, value) { this.attrs[name] = value; }
   });
   const video = name => Object.assign(element(), {
@@ -32,14 +33,14 @@ function setup({ reduced = false, mobile = false, blocked = false } = {}) {
   let observer;
   const timers = new Map();
   let timerId = 0;
-  vm.runInNewContext(source, { window, document, setTimeout: fn => { timers.set(++timerId, fn); return timerId; }, clearTimeout: id => timers.delete(id), IntersectionObserver: class { constructor(fn) { observer = fn; } observe() {} } });
+  vm.runInNewContext(source, { window, document, CustomEvent: class { constructor(type, options) { this.type = type; Object.assign(this, options); } }, setTimeout: fn => { timers.set(++timerId, fn); return timerId; }, clearTimeout: id => timers.delete(id), IntersectionObserver: class { constructor(fn) { observer = fn; } observe() {} } });
   const visible = value => observer([{ isIntersecting: value }]);
   const ready = async () => {
     for (const v of [before, after]) { v.readyState = 1; v.fire('loadedmetadata'); }
     for (const v of [before, after]) { v.readyState = 4; v.fire('canplay'); }
     await flush();
   };
-  return { before, after, handle, toggle, status, motion, document, window, visible, ready, timers, upgrade, unblock: () => { blocked = false; } };
+  return { before, after, handle, toggle, status, stage, motion, document, window, visible, ready, timers, upgrade, unblock: () => { blocked = false; } };
 }
 
 test('inline comparison loads on entry, plays both sources and pauses offscreen', async () => {
@@ -148,4 +149,32 @@ test('a play promise aborted by HD replacement cannot block the new playback att
   assert.ok(!s.before.paused && !s.after.paused);
   assert.equal(s.toggle.textContent, 'Pause comparison');
   assert.equal(s.status.textContent, '');
+});
+
+test('a never-decoded about preview signals recovery and starts decoded HD at the configured opening', async () => {
+  const s = setup(), failures = [];
+  s.stage.addEventListener('video-loader:preview-failed', event => failures.push(event.detail.reason));
+  s.visible(true); s.after.fire('error'); s.before.fire('error');
+  assert.deepEqual(failures, ['media-error']);
+  assert.equal(s.toggle.textContent, 'Retry comparison');
+  s.upgrade.begin({ recovery: true });
+  assert.equal(s.upgrade.intent(s.after).paused, false);
+  assert.equal(s.upgrade.intent(s.after).time, 5.25);
+  s.upgrade.finish(); await flush();
+  assert.ok(!s.before.paused && !s.after.paused);
+  assert.equal(s.after.currentTime, 5.25);
+  assert.equal(s.toggle.textContent, 'Pause comparison');
+  assert.equal(s.before.loads, 1);
+});
+
+test('about timeout is a genuine recovery signal and a user pause survives rescue', async () => {
+  const s = setup(), failures = [];
+  s.stage.addEventListener('video-loader:preview-failed', event => failures.push(event.detail.reason));
+  s.visible(true); [...s.timers.values()][0]();
+  assert.deepEqual(failures, ['timeout']);
+  s.upgrade.begin({ recovery: true }); s.upgrade.finish(); await flush();
+  s.toggle.fire('click'); s.after.fire('error');
+  s.upgrade.begin({ recovery: true }); s.upgrade.finish(); await flush();
+  assert.ok(s.before.paused && s.after.paused);
+  assert.equal(s.toggle.textContent, 'Play comparison');
 });

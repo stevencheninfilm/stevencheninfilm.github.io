@@ -53,14 +53,18 @@
     };
     frameRequest = after.requestVideoFrameCallback(tick);
   };
-  const showError = () => {
+  const showError = (reason = 'upgrade-failed') => {
     if (switching()) return;
+    const notifyFailure = !failed && (reason === 'timeout' || reason === 'media-error');
     ++generation;
     clearTimeout(loadTimer);
     loading = false; ready = false; failed = true; playPending = false;
     stop();
     toggle.textContent = 'Retry comparison';
     status.textContent = 'Video unavailable. Retry to load both views.';
+    if (notifyFailure) stage.dispatchEvent(new CustomEvent('video-loader:preview-failed', {
+      bubbles: true, detail: { videos, reason }
+    }));
   };
   const play = async () => {
     if (playPending || !ready || !shouldPlay()) return;
@@ -98,7 +102,7 @@
       video.src = mobile.matches ? video.dataset.srcMobile : video.dataset.src;
       video.load();
     });
-    loadTimer = setTimeout(showError, 25000);
+    loadTimer = setTimeout(() => showError('timeout'), 25000);
   };
   function update() {
     if (failed) return;
@@ -125,7 +129,7 @@
     });
     video.addEventListener('canplay', checkReady);
     video.addEventListener('seeked', checkReady);
-    video.addEventListener('error', showError);
+    video.addEventListener('error', () => showError('media-error'));
   });
   after.addEventListener('timeupdate', () => sync());
   after.addEventListener('seeked', () => sync(true));
@@ -136,6 +140,8 @@
     playPending = false;
     clearTimeout(loadTimer);
     setIntent({ paused: !wantsPlay() });
+    if (event.detail.recovery && !opened.has(after)) setIntent({ time: 5.25 });
+    if (event.detail.recovery) videos.forEach(video => opened.add(video));
     stop();
   });
   const finishUpgrade = event => {

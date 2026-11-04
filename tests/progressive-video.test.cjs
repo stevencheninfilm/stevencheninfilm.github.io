@@ -218,26 +218,27 @@ test('a native seeking controller can forward the same intent without recursive 
   assert.equal(s.videos[0].currentTime, 7.9);
 });
 
-test('the runtime queues one visible group, cancels a departed group, and waits for a returning preview frame', async () => {
-  let now = 0, timerId = 0, observer;
+function runtime({ readiness = [[3], [3]], fetcher } = {}) {
+  let now = 0, timerId = 0, urlId = 0, observer;
   const timers = new Map(), calls = [];
   const classList = { contains: () => false };
   const makeRoot = () => Object.assign(new EventTarget(), {
     dataset: {}, isConnected: true, closest: () => null
   });
-  const roots = [makeRoot(), makeRoot()];
-  const videos = roots.map((root, i) => Object.assign(new Media(`low-${i}.mp4`), {
-    dataset: { srcHd: `hd-${i}.mp4` },
+  const roots = readiness.map(makeRoot);
+  const members = roots.map((root, i) => readiness[i].map((readyState, j) => Object.assign(new Media(`low-${i}-${j}.mp4`), {
+    readyState, dataset: { srcHd: `hd-${i}-${j}.mp4` },
     closest: selector => selector === '[data-progressive-group]' ? root : null,
     getBoundingClientRect: () => ({ width: 640, height: 360, top: 100, bottom: 460 })
-  }));
+  })));
+  const videos = members.flat();
   const document = Object.assign(new EventTarget(), {
     querySelectorAll: () => videos, baseURI: 'https://example.test/', hidden: false,
     body: { classList }, createElement: () => new Media()
   });
   const win = Object.assign(new EventTarget(), {
     document, navigator: {}, innerHeight: 900, AbortController, Blob,
-    URL: { createObjectURL: () => 'blob:hd', revokeObjectURL() {} },
+    URL: { createObjectURL: () => `blob:hd-${++urlId}`, revokeObjectURL() {} },
     getComputedStyle: () => ({ display: 'block', visibility: 'visible' }),
     CustomEvent: class extends Event { constructor(name, opts) { super(name, opts); this.detail = opts.detail; } },
     setTimeout(fn, ms) { const id = ++timerId; timers.set(id, { fn, at: now + ms }); return id; },
@@ -246,6 +247,7 @@ test('the runtime queues one visible group, cancels a departed group, and waits 
     MutationObserver: class { observe() {} disconnect() {} },
     fetch(url, { signal }) {
       const call = { url, aborted: false }; calls.push(call);
+      if (fetcher) return fetcher(url, { signal });
       return new Promise((resolve, reject) => signal.addEventListener('abort', () => {
         call.aborted = true; reject(Object.assign(new Error('canceled'), { name: 'AbortError' }));
       }, { once: true }));
@@ -258,19 +260,29 @@ test('the runtime queues one visible group, cancels a departed group, and waits 
   };
   const originalNow = Date.now;
   Date.now = () => now;
+  const api = install(win);
+  return { api, calls, videos, members, roots, win, tick,
+    visible: (index, value = true) => observer([{ target: roots[index], isIntersecting: value }]),
+    fail(index, reason = 'timeout') { document.dispatchEvent(new win.CustomEvent('video-loader:preview-failed', { detail: { videos: members[index], reason } })); },
+    async close() { win.dispatchEvent(new Event('pagehide')); await flush(); Date.now = originalNow; }
+  };
+}
+
+test('the runtime queues one visible group, cancels a departed group, and waits for a returning preview frame', async () => {
+  const s = runtime();
+  const { api, calls, videos, tick } = s;
   try {
-    const api = install(win);
-    observer(roots.map(target => ({ target, isIntersecting: true })));
+    s.visible(0); s.visible(1);
     await tick(0); await tick(1210);
     assert.equal(calls.length, 1);
     assert.match(calls[0].url, /hd-0/);
-    observer([{ target: roots[0], isIntersecting: false }]);
+    s.visible(0, false);
     await tick(0); await tick(50);
     assert.equal(calls[0].aborted, true);
     assert.equal(calls.length, 2);
     assert.match(calls[1].url, /hd-1/);
     videos[0].readyState = 0;
-    observer([{ target: roots[0], isIntersecting: true }, { target: roots[1], isIntersecting: false }]);
+    s.visible(0); s.visible(1, false);
     await tick(0); await tick(50);
     assert.equal(calls[1].aborted, true);
     assert.equal(calls.length, 2, 'the old readyAt cannot bypass a new preview decode');
@@ -278,8 +290,64 @@ test('the runtime queues one visible group, cancels a departed group, and waits 
     await tick(0);
     assert.equal(calls.length, 3);
     assert.equal(calls.filter(call => !call.aborted).length, 1);
-    win.dispatchEvent(new Event('pagehide')); await flush();
+    await s.close();
     assert.ok(calls.every(call => call.aborted));
     assert.equal(api.status[0].quality, 'preview');
-  } finally { Date.now = originalNow; }
+  } finally { await s.close(); }
+});
+
+test('only an explicit preview failure lets a current undecoded pair recover atomically from HD', async () => {
+  const s = runtime({ readiness: [[0, 4]], fetcher: async () => response() });
+  let recovering = false;
+  s.roots[0].addEventListener('progressive-video:switch-start', event => {
+    recovering = event.detail.recovery;
+    assert.ok(s.members[0].every(video => s.api.isSwitching(video)));
+    s.api.setIntent(s.members[0][1], { paused: false, time: 1 });
+  });
+  try {
+    s.visible(0); await s.tick(0); await s.tick(20000);
+    assert.equal(s.calls.length, 0, 'ordinary slow previews retain priority over HD');
+    s.fail(0); await s.tick(200); await flush();
+    assert.equal(recovering, true);
+    assert.equal(s.calls.length, 2);
+    assert.equal(s.api.status[0].quality, 'hd');
+    assert.ok(s.members[0].every(video => video.src.startsWith('blob:') && video.currentTime === 1 && !video.paused));
+  } finally { await s.close(); }
+});
+
+test('preview-failed signals cannot load HD for hidden, offline or never-loaded media', async () => {
+  const s = runtime({ readiness: [[0, 0]] });
+  try {
+    s.fail(0); s.visible(0); await s.tick(20000);
+    assert.equal(s.calls.length, 0, 'offscreen failures are not latched');
+    s.win.navigator.onLine = false; s.fail(0); await s.tick(200);
+    assert.equal(s.calls.length, 0);
+    s.win.navigator.onLine = true;
+    s.members[0].forEach(video => { video.src = ''; });
+    s.fail(0); await s.tick(200);
+    assert.equal(s.calls.length, 0, 'stale currentSrc cannot authorize upgrading a detached source');
+  } finally { await s.close(); }
+});
+
+test('leaving during HD rescue aborts the pending request and never changes the preview source', async () => {
+  const s = runtime({ readiness: [[0, 4]] });
+  try {
+    s.visible(0); await s.tick(0); s.fail(0); await s.tick(200);
+    assert.equal(s.calls.length, 1);
+    s.visible(0, false); await s.tick(0); await s.tick(50);
+    assert.equal(s.calls[0].aborted, true);
+    assert.equal(s.api.status[0].quality, 'preview');
+    assert.ok(s.members[0].every(video => video.src.startsWith('low-')));
+  } finally { await s.close(); }
+});
+
+test('an unsuccessful HD rescue remains bounded rather than repeatedly downloading the same files', async () => {
+  const s = runtime({ readiness: [[0, 4]], fetcher: async () => ({ ok: false }) });
+  try {
+    s.visible(0); await s.tick(0); s.fail(0); await s.tick(200); await s.tick(50); await s.tick(50000);
+    assert.equal(s.calls.length, 2);
+    assert.equal(s.api.status[0].attempts, 2);
+    assert.equal(s.api.status[0].quality, 'preview');
+    assert.ok(s.members[0].every(video => video.src.startsWith('low-')));
+  } finally { await s.close(); }
 });

@@ -16,10 +16,10 @@ module.exports = function progressiveFixture(window, root, videos) {
   };
   return {
     intent: video => window.ProgressiveVideo.getIntent(video),
-    begin() {
+    begin(options = {}) {
       videos.forEach(video => { intents.set(video, snapshot(video)); durations.set(video, video.duration); });
       switching = true;
-      root.fire('progressive-video:switch-start', { detail: { videos } });
+      root.fire('progressive-video:switch-start', { detail: { videos, ...options } });
     },
     reset(video) {
       video.pause(); video.currentTime = 0; video.duration = NaN; video.readyState = 0;

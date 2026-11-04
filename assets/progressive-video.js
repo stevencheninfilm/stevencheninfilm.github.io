@@ -299,13 +299,13 @@
       let group = byRoot.get(root);
       if (!group) {
         group = { root, videos: [], quality: 'preview', transaction: null, failures: 0, attempts: 0,
-          readyAt: 0, started: false, visible: !win.IntersectionObserver, bytes: 0 };
+          readyAt: 0, started: false, previewFailed: false, visible: !win.IntersectionObserver, bytes: 0 };
         groups.push(group); byRoot.set(root, group); roots.add(root);
       }
       group.videos.push(video); byVideo.set(video, group);
     });
     const current = group => {
-      if (doc.hidden || stopped || !group.visible || !group.root.isConnected) return false;
+      if (doc.hidden || stopped || win.navigator.onLine === false || !group.visible || !group.root.isConnected) return false;
       const card = group.root.closest('.deck-card');
       if (card && (!(card.classList.contains('is-active') || card.classList.contains('is-slide-layer'))
           || card.closest('.project-deck')?.classList.contains('is-strip')
@@ -348,8 +348,11 @@
       const slow = connection?.saveData || /(^|-)2g$|3g/.test(connection?.effectiveType || '');
       group.readyAt = Date.now() + (slow ? 4000 : 1200);
     };
-    const hasPreviewFrame = group => group.videos.every(video => video.readyState >= 2
-      && (video.currentSrc || video.getAttribute('src')));
+    // currentSrc may keep its old URL briefly after the preview owner removes
+    // src to cancel a departed request. Only attached sources authorize work.
+    const hasLoadedSources = group => group.videos.every(video => video.getAttribute('src')
+      || video.querySelector?.('source[src]')?.getAttribute('src'));
+    const hasPreviewFrame = group => hasLoadedSources(group) && group.videos.every(video => video.readyState >= 2);
     const start = async group => {
       active = group; group.attempts++;
       const room = MAX_HELD_BYTES - heldBytes;
@@ -364,10 +367,12 @@
           mark(group, state);
           if (state === 'switching') event(group, 'switch-start', {
             time: detail.intents.get(group.videos.at(-1))?.time || 0,
-            playing: !detail.intents.get(group.videos.at(-1))?.paused
+            playing: !detail.intents.get(group.videos.at(-1))?.paused,
+            recovery: group.previewFailed
           });
           if (state === 'hd') {
             group.quality = 'hd';
+            group.previewFailed = false;
             group.videos.forEach(video => { video.dataset.progressiveQuality = 'hd'; });
             return event(group, 'switch-end', { quality: 'hd', handled: false });
           }
@@ -401,7 +406,7 @@
         if (group.quality === 'hd' || group.failures >= 2 || group.attempts >= 6 || !current(group)) continue;
         // A departed preview may have been unloaded by its owner. The earlier
         // readyAt timestamp must not let HD outrun its first frame on return.
-        if (!hasPreviewFrame(group)) continue;
+        if (!hasPreviewFrame(group) && !(group.previewFailed && hasLoadedSources(group))) continue;
         refreshReady(group);
         if (!group.started) continue;
         const remaining = group.readyAt - Date.now();
@@ -432,7 +437,24 @@
     }
     const mutation = new win.MutationObserver(() => schedule());
     mutation.observe(doc.body, { subtree: true, attributes: true, attributeFilter: ['class', 'aria-hidden', 'hidden'] });
+    doc.addEventListener('video-loader:preview-failed', e => {
+      const failed = e.detail?.videos;
+      if (!Array.isArray(failed)) return;
+      const matching = new Set(failed.map(video => byVideo.get(video)).filter(Boolean));
+      matching.forEach(group => {
+        if (group.quality === 'hd' || !current(group) || !hasLoadedSources(group)
+          || !group.videos.every(video => failed.includes(video))
+          || ['switching', 'restoring'].includes(group.transaction?.state)) return;
+        // Only the preview owner's explicit timeout/error can bypass the first
+        // frame gate. An ordinary slow preview still gets the connection first.
+        group.previewFailed = true;
+        group.started = true;
+        group.readyAt = Math.min(group.readyAt || Infinity, Date.now() + 200);
+        schedule(200);
+      });
+    });
     doc.addEventListener('visibilitychange', () => schedule());
+    win.addEventListener('online', () => schedule());
     win.addEventListener('resize', () => schedule());
     win.addEventListener('pagehide', e => {
       active?.transaction?.abort();

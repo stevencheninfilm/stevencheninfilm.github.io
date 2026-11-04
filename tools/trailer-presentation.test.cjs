@@ -28,7 +28,10 @@ test('video remains native, inline, manually started, with all recovery routes',
     assert.match(video, new RegExp('\\b' + attribute + '\\b'));
   }
   assert.doesNotMatch(video, /autoplay|\bmuted\b/);
-  assert.match(video, /preload="metadata"/);
+  assert.match(video, /preload="none"/);
+  assert.doesNotMatch(video, /\ssrc\s*=/, 'the trailer must not download before a deliberate play action');
+  assert.match(video, /data-src="[^\"]*xuantian-jie-trailer-540p-preview-v1\.mp4"/);
+  assert.match(video, /data-src-hd="[^\"]*xuantian-jie-trailer-1080p-hd-v1\.mp4"/);
   assert.match(section, /class="xj-video-play"[^>]*hidden/);
   for (const hook of ['data-xj-player', 'xj-player-status', 'xj-player-help', 'xj-player-message', 'xj-player-retry']) {
     assert.ok(section.includes(hook), hook);
@@ -115,16 +118,35 @@ test('viewing chapter label fits its text and stays single-line across font and 
 });
 
 function playerFixture() {
+  let userGesture = false;
   const make = () => ({ dataset: {}, hidden: true, listeners: {},
     addEventListener(type, callback) { this.listeners[type] = callback; },
     emit(type) { this.listeners[type]?.(); }
   });
   const shell = make(), video = make(), button = make(), window = make();
+  const attributes = {};
+  const markup = section.match(/<video\b[^>]*>/)[0];
+  video.dataset.src = markup.match(/\sdata-src="([^"]+)"/)[1];
+  video.dataset.srcHd = markup.match(/\sdata-src-hd="([^"]+)"/)[1];
+  video.getAttribute = name => attributes[name] ?? null;
+  Object.defineProperty(video, 'src', { get: () => attributes.src || '', set: value => { attributes.src = value; } });
+  const emitButton = button.emit;
+  button.emit = function (type) {
+    userGesture = type === 'click';
+    try { emitButton.call(this, type); }
+    finally { userGesture = false; }
+  };
   const elements = { video, '.xj-video-play': button, '.xj-player-status': make(),
     '.xj-player-help': make(), '.xj-player-message': make(), '.xj-player-retry': make() };
   shell.querySelector = selector => elements[selector];
-  Object.assign(video, { paused: true, readyState: 0, error: null, playCalls: 0,
-    play() { this.playCalls++; this.paused = false; this.emit('play'); return Promise.resolve(); }, load() {} });
+  Object.assign(video, { paused: true, readyState: 0, error: null, preload: 'none', playCalls: 0, loadCalls: 0, playRequests: [],
+    play() {
+      this.playCalls++;
+      this.playRequests.push({ userGesture, source: this.getAttribute('src'), preload: this.preload });
+      this.paused = false; this.emit('play'); return Promise.resolve();
+    },
+    load() { this.loadCalls++; }
+  });
   Object.assign(window, { setTimeout() { return 1; }, clearTimeout() {} });
   vm.runInNewContext(fs.readFileSync(path.join(root, 'assets/xuantian-player.js'), 'utf8'), {
     document: { querySelector: () => shell }, window, navigator: { onLine: true }
@@ -136,10 +158,18 @@ test('initial cover stays compact; first click expands immediately without delay
   const f = playerFixture();
   assert.equal(f.shell.dataset.screenExpanded, undefined);
   assert.equal(f.video.playCalls, 0);
+  assert.equal(f.video.loadCalls, 0);
+  assert.equal(f.video.getAttribute('src'), null);
+  assert.equal(f.video.preload, 'none');
   f.button.emit('click');
   assert.equal(f.shell.dataset.screenExpanded, 'true');
   assert.equal(f.shell.dataset.playerState, 'loading');
   assert.equal(f.video.playCalls, 1);
+  assert.equal(f.video.loadCalls, 1);
+  assert.deepEqual(f.video.playRequests[0], { userGesture: true, source: f.video.dataset.src, preload: 'auto' },
+    'the native preview play call must happen synchronously inside the first click, without waiting for HD');
+  assert.equal(f.video.muted, false);
+  assert.equal(f.video.controls, true);
 });
 
 test('native playback also expands and pause/buffering/replay do not collapse the screen', () => {
