@@ -30,19 +30,6 @@ html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process 
   letter-spacing: .055em;
   color: #eee7df;
 }
-html:lang(zh) .home-page .deck-card--cat-nest .deck-project-title {
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
-  font-size: clamp(42px, 5vw, 78px);
-  font-style: normal;
-  font-weight: 500;
-  line-height: 1.1;
-  letter-spacing: .02em;
-}
-html:lang(zh) .home-page .deck-card--cat-nest .deck-project-title > small {
-  margin-top: 8px;
-  font-family: Georgia, "Times New Roman", serif;
-  font-style: italic;
-}
 @media (orientation: portrait) and (max-width: 900px) {
   html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process { margin-top: 8px; font-size: 12px; }
   html:lang(en) .home-page :is(.deck-card--detail, .deck-card--previs) .comparison-copy h1 {
@@ -50,7 +37,6 @@ html:lang(zh) .home-page .deck-card--cat-nest .deck-project-title > small {
     line-height: 1.05;
   }
   html:lang(zh) .home-page .deck-project-title > small[lang="en"] { font-size: 12px; }
-  html:lang(zh) .home-page .deck-card--cat-nest .deck-project-title { font-size: clamp(30px, 8vw, 44px); }
 }
 @media (max-width: 360px) {
   html:lang(en) .home-page .home-header .primary-nav { gap: 8px; font-size: 11px; }

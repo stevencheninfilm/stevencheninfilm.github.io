@@ -28,7 +28,11 @@ test('both home languages keep the same ten projects and responsive media', () =
   for (const html of [english, chinese]) {
     assert.match(html, /data-site-language="zh"/);
     assert.match(html, /data-site-language="en"/);
-    assert.match(html, /href="index.html" data-home-replay/);
+    const nav = html.match(/<nav class="primary-nav"[^>]*>([^]*?)<\/nav>/)[1];
+    assert.match(nav, /href="\.\.\/projects\/cat-nest.html"[^>]*>Vibe Coding<\/a>/);
+    assert.match(nav, /href="\.\.\/ai\/index.html"/);
+    assert.match(nav, /href="\.\.\/film\/Film.html"/);
+    assert.doesNotMatch(nav, /home-project-jump|data-home-replay|is-active/);
   }
 });
 
