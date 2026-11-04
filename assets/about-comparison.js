@@ -9,11 +9,27 @@
     if (!frame || !handle || !toggle || !status || !before || !after) return;
 
     const workflowPanel = stage.closest?.('[data-workflow-item]');
+    const languageContext = stage.closest?.('[lang], [data-video-lang]');
+    const language = languageContext?.dataset.videoLang || languageContext?.getAttribute('lang') || stage.dataset.videoLang || document.documentElement?.lang || 'en';
+    const chinese = /^zh(?:-|$)/i.test(language.trim());
+    const words = chinese ? {
+      before: '运镜预演', after: 'AI画面',
+      play: '播放对比', pause: '暂停对比', retry: '重试对比',
+      loading: '正在加载两侧画面…',
+      unavailable: '视频暂时无法播放，请重试加载两侧画面。',
+      start: '点按播放，开始观看两侧画面。'
+    } : {
+      before: '3D previs', after: 'AI render',
+      play: 'Play comparison', pause: 'Pause comparison', retry: 'Retry comparison',
+      loading: 'Loading both views…',
+      unavailable: 'Video unavailable. Retry to load both views.',
+      start: 'Press Play to start both views.'
+    };
     const requestedStart = stage.dataset.startTime?.trim();
     const startTime = requestedStart && Number.isFinite(Number(requestedStart)) && Number(requestedStart) >= 0
       ? Number(requestedStart) : 5.25;
-    const beforeLabel = stage.dataset.beforeLabel?.trim() || '3D previs';
-    const afterLabel = stage.dataset.afterLabel?.trim() || 'AI render';
+    const beforeLabel = stage.dataset.beforeLabel?.trim() || words.before;
+    const afterLabel = stage.dataset.afterLabel?.trim() || words.after;
     const videos = [before, after];
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const mobile = window.matchMedia('(max-width: 600px)');
@@ -34,7 +50,9 @@
       stage.style.setProperty('--compare-split', `${split}%`);
       const rounded = Math.round(split);
       handle.setAttribute('aria-valuenow', String(rounded));
-      handle.setAttribute('aria-valuetext', `${rounded} percent ${beforeLabel}, ${100 - rounded} percent ${afterLabel}`);
+      handle.setAttribute('aria-valuetext', chinese
+        ? `${rounded}% ${beforeLabel}，${100 - rounded}% ${afterLabel}`
+        : `${rounded} percent ${beforeLabel}, ${100 - rounded} percent ${afterLabel}`);
     };
     const sync = (force = false) => {
       if (switching() || before.readyState < 1 || after.readyState < 1 || before.seeking || after.seeking) return;
@@ -64,8 +82,8 @@
       clearTimeout(loadTimer);
       loading = false; ready = false; failed = true; playPending = false;
       stop();
-      toggle.textContent = 'Retry comparison';
-      status.textContent = 'Video unavailable. Retry to load both views.';
+      toggle.textContent = words.retry;
+      status.textContent = words.unavailable;
       if (notifyFailure) stage.dispatchEvent(new CustomEvent('video-loader:preview-failed', {
         bubbles: true, detail: { videos, reason }
       }));
@@ -82,12 +100,12 @@
       if (results.some(result => result.status === 'rejected')) {
         paused = true;
         stop();
-        toggle.textContent = 'Play comparison';
-        status.textContent = 'Press Play to start both views.';
+        toggle.textContent = words.play;
+        status.textContent = words.start;
         return;
       }
       status.textContent = '';
-      toggle.textContent = 'Pause comparison';
+      toggle.textContent = words.pause;
       track();
     };
     const checkReady = () => {
@@ -99,7 +117,7 @@
     };
     const load = () => {
       loading = true; failed = false;
-      status.textContent = 'Loading both views…';
+      status.textContent = words.loading;
       // Each comparison owns its source pair and native decoding state.
       videos.forEach(video => {
         video.muted = true;
@@ -113,15 +131,15 @@
       if (switching()) {
         setIntent({ paused: !wantsPlay() });
         stop();
-        toggle.textContent = wantsPlay() ? 'Pause comparison' : 'Play comparison';
+        toggle.textContent = wantsPlay() ? words.pause : words.play;
         return;
       }
       if (!shouldPlay()) {
         stop();
-        toggle.textContent = 'Play comparison';
+        toggle.textContent = words.play;
         return;
       }
-      toggle.textContent = 'Pause comparison';
+      toggle.textContent = words.pause;
       if (!ready && !loading) load();
       if (ready) play();
     }

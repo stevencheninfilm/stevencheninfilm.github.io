@@ -6,7 +6,7 @@ const vm = require('node:vm');
 const source = fs.readFileSync(path.join(__dirname, '../assets/site-language.js'), 'utf8');
 
 function setup({ url = 'https://stevencheninfilm.com/index.html', preference = null,
-  storageDenied = false, browserLanguage = 'en-US', page = '-1', lang = 'en' } = {}) {
+  storageDenied = false, browserLanguage = 'en-US', page = '-1', lang = 'en', workflow = null } = {}) {
   const location = new URL(url);
   const replacements = [];
   location.replace = target => replacements.push(target);
@@ -28,9 +28,9 @@ function setup({ url = 'https://stevencheninfilm.com/index.html', preference = n
       setItem(key, value) { if (storageDenied) throw new Error('blocked'); storage.set(key, value); },
     },
     document: {
-      documentElement: { lang },
+      documentElement: { lang, clientHeight: 900 },
       querySelectorAll: () => links,
-      querySelector: () => card,
+      querySelector: selector => selector.includes('data-workflow-item') ? workflow : card,
       addEventListener(name, listener) {
         if (!listeners.has(name)) listeners.set(name, []);
         listeners.get(name).push(listener);
@@ -162,4 +162,33 @@ test('modified and cancelled clicks preserve browser behavior and do not save a 
 test('static endpoint explicitly declares unknown geography under the versioned contract', () => {
   assert.deepEqual(JSON.parse(fs.readFileSync(path.join(__dirname, '../site-region.txt'), 'utf8')),
     { version: 1, country: null });
+});
+
+test('AI root entry uses the same preference and regional defaults without returning to the homepage', async () => {
+  const saved = setup({ url: 'https://stevencheninfilm.com/ai/index.html#dlss-detail', preference: 'zh' });
+  assert.equal(saved.requests.length, 0);
+  assert.deepEqual(saved.replacements, ['https://stevencheninfilm.com/zh/ai/index.html#dlss-detail']);
+  const cn = setup({ url: 'https://stevencheninfilm.com/ai/?source=work#real-cinema-to-ai' });
+  await cn.respond({ header: 'CN' });
+  assert.deepEqual(cn.replacements, ['https://stevencheninfilm.com/zh/ai/index.html?source=work#real-cinema-to-ai']);
+  for (const locale of ['en', 'zh']) {
+    const explicit = setup({ url: `https://stevencheninfilm.com/${locale}/ai/index.html#camera-previs-to-ai`,
+      preference: locale === 'en' ? 'zh' : 'en', lang: locale === 'zh' ? 'zh-Hans' : 'en' });
+    assert.equal(explicit.requests.length, 0);
+    assert.deepEqual(explicit.replacements, []);
+    assert.equal(new URL(explicit.links[0].href).pathname, '/en/ai/index.html');
+    assert.equal(new URL(explicit.links[1].href).pathname, '/zh/ai/index.html');
+  }
+});
+
+test('AI language switch follows the visible workflow after scrolling and preserves query parameters', () => {
+  const workflow = { id: 'real-cinema-to-ai', getBoundingClientRect: () => ({ top: 180, bottom: 760 }) };
+  const h = setup({ url: 'https://stevencheninfilm.com/zh/ai/index.html?source=work#dlss-detail', lang: 'zh-Hans', workflow });
+  h.fire('click', { target: h.links[0] });
+  assert.equal(h.links[0].href, 'https://stevencheninfilm.com/en/ai/index.html?source=work#real-cinema-to-ai');
+  assert.equal(h.storage.get('steven-site-language'), 'en');
+  workflow.getBoundingClientRect = () => ({ top: -900, bottom: -100 });
+  h.location.hash = '#feel';
+  h.fire('pointerdown', { target: h.links[1] });
+  assert.equal(new URL(h.links[1].href).hash, '#feel', 'an offscreen workflow cannot replace another project anchor');
 });

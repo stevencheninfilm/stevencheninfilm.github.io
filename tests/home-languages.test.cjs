@@ -22,15 +22,16 @@ test('both home languages keep the same ten projects and responsive media', () =
   assert.match(english, /Real Cinema<br>to AI Video/);
   assert.doesNotMatch(chinese, /class="detail-copy__english"[^>]*>3D Camera Previs to AI Video/);
   assert.match(english, /class="detail-copy__english"[^>]*>3D Camera Previs to AI Video/);
-  assert.match(chinese, /comparison-title-link" href="\.\.\/ai\/index.html#dlss-detail">重塑每一处细节<\/a>/);
-  assert.match(english, /comparison-title-link" href="\.\.\/ai\/index.html#dlss-detail">Redefine every detail\.<\/a>/);
+  assert.match(chinese, /comparison-title-link" href="\/zh\/ai\/index.html#dlss-detail">重塑每一处细节<\/a>/);
+  assert.match(english, /comparison-title-link" href="\/en\/ai\/index.html#dlss-detail">Redefine every detail\.<\/a>/);
   assert.doesNotMatch(english, /data-(?:video|player)-lang="zh"/);
   for (const html of [english, chinese]) {
     assert.match(html, /data-site-language="zh"/);
     assert.match(html, /data-site-language="en"/);
     const nav = html.match(/<nav class="primary-nav"[^>]*>([^]*?)<\/nav>/)[1];
     assert.match(nav, /href="\.\.\/projects\/cat-nest.html"[^>]*>Vibe Coding<\/a>/);
-    assert.match(nav, /href="\.\.\/ai\/index.html"/);
+    const locale = html.includes('<html lang="zh-Hans">') ? 'zh' : 'en';
+    assert.ok(nav.includes(`href="/${locale}/ai/index.html"`));
     assert.match(nav, /href="\.\.\/film\/Film.html"/);
     assert.doesNotMatch(nav, /home-project-jump|data-home-replay|is-active/);
   }
