@@ -11,6 +11,16 @@
 .ai-page--zh {
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif;
 }
+.ai-page--zh .site-header {
+  padding-block: max(20px, env(safe-area-inset-top)) 20px;
+}
+.ai-page--zh .wordmark { font-size: 14px; }
+.ai-page--zh .wordmark-role { font-size: 10px; }
+.ai-page--zh .primary-nav {
+  gap: clamp(24px, 2.2vw, 40px);
+  font-size: clamp(14px, 1.05vw, 17px);
+  letter-spacing: .025em;
+}
 .ai-page--zh :is(h1, h2, h3, .project-number, .meta-list dt) {
   letter-spacing: 0;
   text-transform: none;
@@ -93,6 +103,82 @@
 .ai-page .ai-partnerships-copy h2 { margin: 0 0 10px; font-size: 15px; font-weight: 400; line-height: 1.5; }
 .ai-page .ai-partnerships-copy p { max-width: 76em; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.85; }
 .ai-page .ai-partnerships-copy p + p { margin-top: 8px; }
+.ai-page--zh .industry-partnerships { padding-block: clamp(32px, 3vw, 48px); }
+.ai-page--zh .industry-partnerships__image-link {
+  aspect-ratio: 1774 / 747;
+  overflow: hidden;
+}
+.ai-page--zh .industry-partnerships__image-link img { transform: translateY(-7.9%); }
+.ai-page--zh .ai-partnerships-copy { margin-bottom: 28px; }
+.ai-page--zh .ai-partnerships-copy h2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 22px;
+  margin: 0;
+  font-size: clamp(28px, 3vw, 48px);
+  line-height: 1.25;
+}
+.ai-page--zh .ai-partnerships-copy h2 .ai-localized-english {
+  margin: 0;
+  font-size: 14px;
+  letter-spacing: .025em;
+}
+
+/* A wide canvas gives the film the main column and its context a quiet side rail. */
+@media (min-width: 1200px) and (min-height: 651px) {
+  .ai-page--zh .ai-workflows__layout {
+    grid-template-columns: clamp(180px, 12vw, 210px) minmax(0, 1fr);
+    gap: 28px;
+    padding-top: 18px;
+  }
+  .ai-page--zh .ai-workflows__item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(210px, 14vw, 232px);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 18px 24px;
+    align-items: start;
+  }
+  .ai-page--zh .ai-workflows__title { grid-column: 1 / -1; }
+  .ai-page--zh .ai-workflows__title > p { margin-bottom: 6px; }
+  .ai-page--zh .ai-workflows__title h2 {
+    font-size: clamp(38px, 3.2vw, 54px);
+    line-height: 1.2;
+  }
+  .ai-page--zh .ai-workflows__title .ai-localized-english {
+    margin: 6px 0 0;
+    font-size: 16px;
+  }
+  .ai-page--zh .ai-workflows__item > :is(.ab-compare, .workflow-player) {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+    align-self: stretch;
+  }
+  .ai-page--zh .ai-workflows__description {
+    grid-column: 2;
+    grid-row: 2;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    min-width: 0;
+    padding-top: 2px;
+  }
+  .ai-page--zh .ai-workflows__description h3 { font-size: 16px; }
+  .ai-page--zh .ai-workflows__description p { font-size: 13px; line-height: 1.9; }
+  .ai-page--zh .ai-workflows__credits {
+    align-items: start;
+    gap: 10px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 11px;
+    white-space: normal;
+  }
+  .ai-page--zh .ai-workflows.is-enhanced .ai-workflows__pin { padding-bottom: 20px; }
+  .ai-page--zh .ai-workflows.is-enhanced .ai-workflows__item > :is(.ab-compare, .workflow-player) {
+    align-items: start;
+    justify-content: start;
+  }
+}
 
 @media (max-width: 960px) {
   .ai-page .site-header {
@@ -112,6 +198,7 @@
     letter-spacing: .035em;
   }
   .ai-page .primary-nav a { min-width: 44px; justify-content: center; padding-inline: 3px; }
+  .ai-page--zh .primary-nav { font-size: 14px; letter-spacing: 0; }
 }
 
 @media (max-width: 680px) {
@@ -137,4 +224,5 @@
   .ai-page--zh .ai-news__steps button { font-size: 11px; }
   .ai-page .ai-partnerships-copy { margin-bottom: 20px; }
   .ai-page .ai-partnerships-copy p { font-size: 12px; }
+  .ai-page--zh .ai-partnerships-copy h2 { gap: 6px 16px; }
 }
