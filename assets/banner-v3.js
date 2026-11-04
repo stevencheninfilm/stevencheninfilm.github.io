@@ -3,6 +3,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   const card = stage.closest('.deck-card');
   const deck = stage.closest('.project-deck');
   const frame = stage.querySelector('.comparison-frame');
+  const visual = stage.querySelector('.comparison-visual') || frame;
   const handle = stage.querySelector('.comparison-handle');
   const before = stage.querySelector('.comparison-video--before');
   const after = stage.querySelector('.comparison-video--after');
@@ -12,6 +13,12 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   const mediaReady = () => videos.every(video => video.dataset.videoLoaderManaged !== 'true' || video.dataset.videoLoaderReady === 'true');
   const master = after;
   const child = before;
+  const controls = stage.querySelector('[data-comparison-controls]');
+  const toggle = stage.querySelector('[data-comparison-play]');
+  const seek = stage.querySelector('[data-comparison-seek]');
+  const clock = stage.querySelector('[data-comparison-time]');
+  const sound = stage.querySelector('[data-comparison-sound]');
+  const controlsDelay = Math.max(0, Number(stage.dataset.controlsDelay) || 0);
   const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   const mobileMedia = window.matchMedia('(max-width: 600px)');
   const initialTime = Number(stage.dataset.startTime ?? 5.25);
@@ -28,7 +35,33 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   let copyTimer = null;
   let buffering = false;
   let autoplayBlocked = false;
+  let userPaused = false;
+  let scrubbing = false;
+  let resumeAfterSeek = false;
+  let wasActive = false;
+  let controlsTimer = null;
+  let controlsReady = !controlsDelay;
   const canContinue = () => videos.every(video => video.readyState >= 3 && !video.seeking);
+  const timeLabel = value => `${Math.floor((value || 0) / 60)}:${String(Math.floor((value || 0) % 60)).padStart(2, '0')}`;
+  const duration = () => {
+    const lengths = videos.map(video => video.duration).filter(value => Number.isFinite(value) && value > 0);
+    return lengths.length === videos.length ? Math.min(...lengths) : 0;
+  };
+  const drawControls = () => {
+    if (!controls) return;
+    const length = duration();
+    const percentage = length ? Math.min(100, master.currentTime / length * 100) : 0;
+    if (!scrubbing) seek.value = percentage;
+    seek.style.setProperty('--seek', `${scrubbing ? seek.value : percentage}%`);
+    seek.disabled = !length;
+    seek.setAttribute('aria-valuetext', `${timeLabel(master.currentTime)}，共 ${timeLabel(length)}`);
+    clock.textContent = `${timeLabel(master.currentTime)} / ${timeLabel(length)}`;
+    toggle.textContent = master.paused ? '播放' : '暂停';
+    toggle.setAttribute('aria-label', master.paused ? '播放对比视频' : '暂停对比视频');
+    sound.textContent = master.muted ? '声音关闭' : '声音开启';
+    sound.setAttribute('aria-label', master.muted ? '开启视频声音' : '关闭视频声音');
+    sound.setAttribute('aria-pressed', String(!master.muted));
+  };
 
   const setSplit = (value) => {
     split = clamp(value, 4, 96);
@@ -42,6 +75,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
     if (loaded || motionPreference.matches) return;
     loaded = true;
     videos.forEach((video) => {
+      video.defaultMuted = true;
       video.muted = true;
       if (video.dataset.videoLoaderManaged === 'true') return;
       const source = mobileMedia.matches && video.dataset.srcMobile ? video.dataset.srcMobile : video.dataset.src;
@@ -66,7 +100,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
     });
   };
 
-  const shouldPlay = () => {
+  const isActive = () => {
     const visibleCard = card.classList.contains('is-active') || card.classList.contains('is-slide-layer');
     return visibleCard
       && !deck.classList.contains('is-strip')
@@ -74,6 +108,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
       && !document.hidden
       && !motionPreference.matches;
   };
+  const shouldPlay = () => isActive() && !userPaused && !scrubbing;
 
   const seekToOpeningFrame = () => {
     if (initialSeeked) return;
@@ -156,6 +191,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   const pausePair = () => {
     stopFrameSync();
     videos.forEach((video) => video.pause());
+    drawControls();
   };
 
   const holdForBuffer = (video, stalled = false) => {
@@ -172,11 +208,35 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
 
   const updatePlayback = () => {
     handle.tabIndex = card.classList.contains('is-active') && !deck.classList.contains('is-strip') ? 0 : -1;
+    const active = isActive();
+    if (active && !wasActive) {
+      userPaused = false;
+      videos.forEach(video => { video.defaultMuted = true; video.muted = true; });
+    }
+    wasActive = active;
+    if (controls) {
+      if (!active) {
+        window.clearTimeout(controlsTimer);
+        controlsTimer = null;
+        controlsReady = !controlsDelay;
+      } else if (!controlsReady && controlsTimer === null) {
+        controlsTimer = window.setTimeout(() => {
+          controlsTimer = null;
+          if (!isActive()) return;
+          controlsReady = true;
+          controls.setAttribute('data-visible', 'true');
+          controls.inert = false;
+        }, controlsDelay);
+      }
+      controls.setAttribute('data-visible', String(active && controlsReady));
+      controls.inert = !active || !controlsReady;
+    }
     if (shouldPlay()) {
       playPair();
     } else {
       pausePair();
     }
+    drawControls();
   };
 
   master.addEventListener('play', () => {
@@ -194,7 +254,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   master.addEventListener('seeking', () => holdForBuffer(master));
   master.addEventListener('seeked', () => { syncChild(true); resumeBufferedPair(); });
   master.addEventListener('ratechange', () => syncChild(true));
-  master.addEventListener('timeupdate', () => syncChild(false));
+  master.addEventListener('timeupdate', () => { syncChild(false); drawControls(); });
   child.addEventListener('play', () => {
     if (!shouldPlay() || !mediaReady() || buffering || autoplayBlocked) {
       child.pause();
@@ -209,10 +269,66 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
     video.addEventListener('canplay', resumeBufferedPair);
     video.addEventListener('video-loader:ready', updatePlayback);
     video.addEventListener('video-loader:play', () => { autoplayBlocked = false; startPair(); });
+    for (const event of ['loadedmetadata', 'durationchange', 'play', 'pause', 'volumechange']) video.addEventListener(event, drawControls);
   });
 
+  if (controls) {
+    controls.hidden = false;
+    // Seeking, toggling sound, and slider keys belong to this player rather than
+    // the project deck or the comparison divider.
+    for (const event of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel', 'click', 'keydown', 'keyup', 'wheel']) {
+      controls.addEventListener(event, e => e.stopPropagation());
+    }
+    toggle.addEventListener('click', () => {
+      userPaused = !master.paused;
+      if (userPaused) pausePair();
+      else { autoplayBlocked = false; playPair(); }
+      drawControls();
+    });
+    sound.addEventListener('click', () => {
+      // The enhanced side supplies the one audio track. Playing two tracks would
+      // create an echo even when both pictures are synchronized.
+      child.muted = true;
+      master.muted = !master.muted;
+      drawControls();
+    });
+    const beginSeek = () => {
+      if (seek.disabled || scrubbing || !isActive()) return;
+      resumeAfterSeek = !master.paused && !userPaused;
+      scrubbing = true;
+      pausePair();
+    };
+    const endSeek = () => {
+      if (!scrubbing) return;
+      scrubbing = false;
+      if (resumeAfterSeek && !userPaused) startPair();
+      drawControls();
+    };
+    seek.addEventListener('pointerdown', event => {
+      beginSeek();
+      if (scrubbing) seek.setPointerCapture?.(event.pointerId);
+    });
+    seek.addEventListener('input', () => {
+      const length = duration();
+      if (!length || !isActive()) return;
+      const target = clamp(Number(seek.value) / 100 * length, 0, Math.max(0, length - .08));
+      // Mark both sides as buffering before assigning either time; synchronous
+      // seeking events must not let one picture continue on the old frame.
+      buffering = true;
+      pausePair();
+      initialSeeked = true;
+      videos.forEach(video => { video.currentTime = target; });
+      if (!scrubbing && !userPaused) resumeBufferedPair();
+      drawControls();
+    });
+    for (const event of ['pointerup', 'pointercancel', 'lostpointercapture', 'change', 'blur']) seek.addEventListener(event, endSeek);
+  }
+
   const splitFromPointer = (clientX) => {
-    const rect = frame.getBoundingClientRect();
+    // The visual wrapper is display: contents on desktop and has no own box.
+    // Mobile gives it the 16:9 picture box; otherwise use the full-width frame.
+    const visualRect = visual.getBoundingClientRect();
+    const rect = visualRect.width ? visualRect : frame.getBoundingClientRect();
     if (!rect.width) return split;
     return ((clientX - rect.left) / rect.width) * 100;
   };
@@ -230,7 +346,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
 
   frame.addEventListener('pointerdown', (event) => {
     if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
-    if (event.target.closest('a, .video-loading-retry')) return;
+    if (event.target.closest('a, .video-loading-retry, [data-comparison-controls]')) return;
     const startedOnHandle = Boolean(event.target.closest('.comparison-handle'));
     if (event.pointerType === 'touch' && !startedOnHandle) return;
     event.preventDefault();

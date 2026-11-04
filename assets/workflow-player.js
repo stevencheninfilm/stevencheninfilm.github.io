@@ -5,6 +5,10 @@
 
   document.querySelectorAll('[data-workflow-player]').forEach(player => {
     const video = player.querySelector('video');
+    const chinese = player.dataset.playerLang === 'zh';
+    const words = chinese
+      ? { retry: '重试', play: '播放', pause: '暂停', soundOff: '静音', soundOn: '声音开启', unmute: '开启声音', mute: '关闭声音', start: '点按播放，开始观看。', unavailable: '视频暂时不可用，请点按重试。' }
+      : { retry: 'Retry', play: 'Play', pause: 'Pause', soundOff: 'Sound off', soundOn: 'Sound on', unmute: 'Unmute video', mute: 'Mute video', start: 'Press Play to start the film.', unavailable: 'Video unavailable. Select Retry to load it again.' };
     video.defaultMuted = true;
     video.muted = true;
     const controls = player.querySelector('[data-player-controls]');
@@ -40,18 +44,18 @@
       if (!scrubbing) seek.value = percentage;
       seek.style.setProperty('--seek', `${scrubbing ? seek.value : percentage}%`);
       seek.disabled = !duration;
-      seek.setAttribute('aria-valuetext', `${time(video.currentTime)} of ${time(duration)}`);
+      seek.setAttribute('aria-valuetext', chinese ? `${time(video.currentTime)}，共 ${time(duration)}` : `${time(video.currentTime)} of ${time(duration)}`);
       clock.textContent = `${time(video.currentTime)} / ${time(duration)}`;
-      toggle.textContent = failed ? 'Retry' : video.paused ? 'Play' : 'Pause';
-      toggle.setAttribute('aria-label', `${failed ? 'Retry' : video.paused ? 'Play' : 'Pause'} video`);
-      sound.textContent = video.muted ? 'Sound off' : 'Sound on';
-      sound.setAttribute('aria-label', video.muted ? 'Unmute video' : 'Mute video');
+      toggle.textContent = failed ? words.retry : video.paused ? words.play : words.pause;
+      toggle.setAttribute('aria-label', chinese ? `${toggle.textContent}视频` : `${toggle.textContent} video`);
+      sound.textContent = video.muted ? words.soundOff : words.soundOn;
+      sound.setAttribute('aria-label', video.muted ? words.unmute : words.mute);
       sound.setAttribute('aria-pressed', String(!video.muted));
     };
     const play = () => {
       if (!canPlay()) return;
       video.play().then(() => { if (!canPlay()) video.pause(); }).catch(() => {
-        if (canPlay()) { paused = true; status.textContent = 'Press Play to start the film.'; draw(); }
+        if (canPlay()) { paused = true; status.textContent = words.start; draw(); }
       });
     };
     const load = () => {
@@ -122,7 +126,7 @@
     for (const event of ['timeupdate', 'durationchange', 'loadedmetadata', 'play', 'pause', 'volumechange']) video.addEventListener(event, draw);
     video.addEventListener('canplay', () => { status.textContent = ''; play(); });
     video.addEventListener('error', () => {
-      failed = true; video.pause(); status.textContent = 'Video unavailable. Select Retry to load it again.'; draw();
+      failed = true; video.pause(); status.textContent = words.unavailable; draw();
     });
     if ('IntersectionObserver' in window) new IntersectionObserver(entries => {
       visible = entries[0].isIntersecting; update();

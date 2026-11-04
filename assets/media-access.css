@@ -56,8 +56,9 @@
   font-size: 11px; color: #fff; text-underline-offset: 4px;
   text-shadow: 0 1px 8px #000;
 }
+.detail-quality-icon { display: inline-block; width: 17px; height: 17px; margin-left: 3px; vertical-align: -4px; }
 .project-deck.is-strip .detail-quality-link { display: none; }
 @media (orientation: portrait) and (max-width: 900px) {
-  .home-page .detail-quality-link { bottom: auto; top: 48%; right: 12px; font-size: 10px; }
-  .deck-card--detail .video-loading-ui.is-progressive { bottom: auto; top: 36%; }
+  .home-page .detail-quality-link { position: relative; flex: 0 0 auto; align-self: flex-end; bottom: auto; top: auto; right: auto; min-height: 30px; margin-right: 15px; padding: 5px 0; font-size: 11px; line-height: 20px; text-shadow: none; }
+  .deck-card--detail .video-loading-ui.is-progressive { bottom: auto; top: 10%; }
 }

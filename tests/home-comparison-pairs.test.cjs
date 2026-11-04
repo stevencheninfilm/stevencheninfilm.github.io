@@ -20,7 +20,7 @@ function element(extra = {}) {
   }, extra);
 }
 
-function setup({ mobile = false, reduced = false, loading = false, managed = false } = {}) {
+function setup({ mobile = false, reduced = false, loading = false, managed = false, controls = false, visualWidth = null } = {}) {
   const observers = [], frames = new Map();
   let frameId = 0, timerId = 0;
   const timers = new Map();
@@ -30,7 +30,11 @@ function setup({ mobile = false, reduced = false, loading = false, managed = fal
     const card = element();
     if (index === 0) card.classList.add('is-active');
     const frame = element({ getBoundingClientRect: () => ({ left: 0, width: 1000 }) });
+    const visual = visualWidth === null ? null : element({ getBoundingClientRect: () => ({ left: 100, width: visualWidth }) });
     const handle = element();
+    const playerControls = index === 0 && controls ? {
+      root: element({ hidden: true }), toggle: element(), seek: element({ value: 0, disabled: true }), clock: element(), sound: element()
+    } : null;
     const videos = ['before', 'after'].map(side => element({
       dataset: { src: `${index}-${side}.mp4`, srcMobile: `${index}-${side}-mobile.mp4`, ...(managed ? { videoLoaderManaged: 'true' } : {}) },
       currentTime: 0, duration: 20, playbackRate: 1, readyState: 0, paused: true, muted: false, loads: 0,
@@ -43,18 +47,21 @@ function setup({ mobile = false, reduced = false, loading = false, managed = fal
       cancelVideoFrameCallback(id) { frames.delete(id); }
     }));
     const stage = element({
-      dataset: index === 0 ? { startTime: '0', beforeLabel: '原始画面', afterLabel: '增强细节' } : {},
+      dataset: index === 0 ? { startTime: '0', beforeLabel: '原始画面', afterLabel: '增强细节', ...(controls ? { controlsDelay: '3000' } : {}) } : {},
       closest: selector => selector === '.deck-card' ? card : deck,
-      querySelector: selector => ({ '.comparison-frame': frame, '.comparison-handle': handle, '.comparison-video--before': videos[0], '.comparison-video--after': videos[1] })[selector]
+      querySelector: selector => ({ '.comparison-frame': frame, '.comparison-visual': visual, '.comparison-handle': handle, '.comparison-video--before': videos[0], '.comparison-video--after': videos[1],
+        '[data-comparison-controls]': playerControls?.root, '[data-comparison-play]': playerControls?.toggle, '[data-comparison-seek]': playerControls?.seek,
+        '[data-comparison-time]': playerControls?.clock, '[data-comparison-sound]': playerControls?.sound })[selector]
     });
     stage.style.setProperty = (name, value) => { stage.properties[name] = value; };
-    return { stage, card, frame, handle, videos };
+    return { stage, card, frame, handle, videos, controls: playerControls };
   });
   const document = element({ body, hidden: false, querySelectorAll: () => pairs.map(pair => pair.stage) });
   const window = { matchMedia: query => query.includes('reduced-motion') ? motion : { matches: mobile }, setTimeout(fn) { timers.set(++timerId, fn); return timerId; }, clearTimeout(id) { timers.delete(id); } };
   vm.runInNewContext(source, { document, window, CustomEvent: class { constructor(type) { this.type = type; } }, MutationObserver: class { constructor(fn) { this.fn = fn; } observe(target) { observers.push({ target, fn: this.fn }); } } });
   const notify = target => observers.filter(observer => observer.target === target).forEach(observer => observer.fn());
   return { pairs, document, deck, body, frames,
+    runTimers() { const pending = [...timers.values()]; timers.clear(); pending.forEach(fn => fn()); },
     select(index) { pairs.forEach((pair, i) => { pair.card.classList[i === index ? 'add' : 'remove']('is-active'); notify(pair.card); }); },
     strip(value) { deck.classList[value ? 'add' : 'remove']('is-strip'); notify(deck); },
     opening(value) { body.classList[value ? 'add' : 'remove']('is-v3-loading'); notify(body); },
@@ -82,6 +89,71 @@ test('two comparisons load independently and preserve their own opening frames',
   assert.ok(app.pairs[0].videos.every(video => video.loads === 1 && !video.paused));
 });
 
+test('comparison controls pause both pictures, preserve manual pause through buffering, and expose only one audio track', async () => {
+  const app = setup({ controls: true, mobile: true }); await flush();
+  const pair = app.pairs[0], controls = pair.controls;
+  assert.equal(controls.root.hidden, false);
+  assert.equal(controls.root.attrs['data-visible'], 'false', 'controls wait for uninterrupted dwell on this project');
+  app.runTimers();
+  assert.equal(controls.root.attrs['data-visible'], 'true');
+  assert.equal(controls.seek.disabled, false);
+  assert.equal(controls.toggle.textContent, '暂停');
+  assert.equal(controls.clock.textContent, '0:00 / 0:20');
+  controls.toggle.fire('click');
+  assert.ok(pair.videos.every(video => video.paused));
+  pair.videos.forEach(video => { video.readyState = 3; video.fire('canplay'); });
+  assert.ok(pair.videos.every(video => video.paused), 'buffer recovery must respect explicit pause');
+  assert.equal(controls.toggle.textContent, '播放');
+  controls.toggle.fire('click'); await flush();
+  assert.ok(pair.videos.every(video => !video.paused));
+  controls.sound.fire('click');
+  assert.equal(pair.videos[0].muted, true);
+  assert.equal(pair.videos[1].muted, false);
+  assert.equal(controls.sound.textContent, '声音开启');
+  app.select(1); await flush();
+  assert.equal(controls.root.attrs['data-visible'], 'false');
+  app.select(0); await flush();
+  assert.ok(pair.videos.every(video => video.muted), 'returning to a project starts quietly');
+  assert.ok(app.pairs[1].videos.every(video => video.loads === 1), 'only an explicitly visited second project loads');
+});
+
+test('comparison seeking moves both pictures and resumes only after both decoders are ready', async () => {
+  const app = setup({ controls: true }); await flush();
+  const pair = app.pairs[0], controls = pair.controls;
+  pair.videos.forEach(video => { video.readyState = 3; });
+  controls.seek.fire('pointerdown', { pointerId: 6 });
+  controls.seek.fire('pointercancel'); await flush();
+  assert.ok(pair.videos.every(video => !video.paused), 'canceling an unchanged seek restores playback');
+  controls.seek.fire('pointerdown', { pointerId: 7 });
+  controls.seek.value = 60;
+  controls.seek.fire('input');
+  assert.ok(pair.videos.every(video => video.paused && video.currentTime === 12));
+  assert.equal(controls.clock.textContent, '0:12 / 0:20');
+  pair.videos[0].readyState = 2;
+  controls.seek.fire('pointerup'); await flush();
+  assert.ok(pair.videos.every(video => video.paused), 'one buffering decoder holds the comparison');
+  pair.videos[0].readyState = 3; pair.videos[0].fire('canplay'); await flush();
+  assert.ok(pair.videos.every(video => !video.paused));
+  controls.toggle.fire('click');
+  controls.seek.value = 90; controls.seek.fire('input');
+  pair.videos.forEach(video => video.fire('seeked')); await flush();
+  assert.ok(pair.videos.every(video => video.paused && video.currentTime === 18), 'seeking while manually paused stays paused');
+  assert.ok(app.pairs[1].videos.every(video => video.loads === 0), 'scrubbing never loads another project');
+});
+
+test('comparison controls keep keyboard and pointer events inside the player and cancel dwell on leaving', async () => {
+  const app = setup({ controls: true }); await flush();
+  const controls = app.pairs[0].controls;
+  for (const type of ['pointerdown', 'pointermove', 'click', 'keydown', 'wheel']) {
+    let stopped = false;
+    controls.root.fire(type, { stopPropagation() { stopped = true; } });
+    assert.ok(stopped, type);
+  }
+  app.select(1); await flush();
+  app.runTimers();
+  assert.equal(controls.root.attrs['data-visible'], 'false', 'a stale timer cannot reveal controls for a departed card');
+});
+
 test('keyboard reveal updates only its own divider and localized labels', async () => {
   const app = setup(); await flush();
   const event = app.key(0, 'ArrowRight');
@@ -96,6 +168,17 @@ test('keyboard reveal updates only its own divider and localized labels', async 
   assert.equal(app.pairs[0].stage.properties['--compare-split'], '52%');
   app.key(1, 'Home');
   assert.equal(app.pairs[1].handle.attrs['aria-valuenow'], '4');
+});
+
+test('pointer reveal uses the mobile picture width and falls back for a display-contents desktop wrapper', async () => {
+  for (const [visualWidth, expected] of [[0, '75%'], [800, '81.25%']]) {
+    const app = setup({ visualWidth }); await flush();
+    app.pairs[0].frame.fire('pointerdown', {
+      isPrimary: true, pointerType: 'mouse', button: 0, pointerId: 1, clientX: 750,
+      target: { closest: () => null }, preventDefault() {}, stopPropagation() {}
+    });
+    assert.equal(app.pairs[0].stage.properties['--compare-split'], expected);
+  }
 });
 
 test('opening animation, strip mode, and hidden page suspend both video pairs', async () => {

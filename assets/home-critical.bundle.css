@@ -1313,7 +1313,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
   left: 50%;
   width: min(86%, 860px);
 }
-.home-page .deck-card--detail .comparison-copy h1 {
+.home-page :is(.deck-card--detail, .deck-card--previs) .comparison-copy h1 {
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: clamp(36px, 4.7vw, 76px);
   font-weight: 500;
@@ -1352,43 +1352,100 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
   .home-v2 .home-pagination { right: calc(max(clamp(18px, 3.3vw, 64px), env(safe-area-inset-right)) + 10 * clamp(68px, 5.2vw, 100px) + 63px); }
 }
 
+/* Keep media geometry separate from the reading area on portrait phones. */
+.comparison-visual { display: contents; }
+.comparison-player-controls { position: absolute; z-index: 12; left: 7vw; right: 7vw; bottom: 112px; color: #fff; text-shadow: 0 1px 8px #000; transition: opacity 1.2s ease-in-out; }
+.comparison-player-controls[data-visible="false"] { opacity: 0; visibility: hidden; pointer-events: none; }
+.project-deck.is-strip .comparison-player-controls { display: none; }
+.home-page .comparison-stage.is-interacting .comparison-copy { opacity: 1; transform: translate(-50%, -50%); }
+.home-page .comparison-copy em { transition: opacity .35s ease, visibility .35s; }
+.home-page .comparison-stage.is-interacting .comparison-copy em { opacity: 0; visibility: hidden; }
+.home-page .cinema-home .cinema-home__title { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; font-weight: 500; letter-spacing: .01em; line-height: 1.2; }
+.cinema-home__title span[lang="en"] { margin-top: 14px; font-family: inherit; font-size: clamp(14px, 1.4vw, 20px); font-weight: 400; letter-spacing: .04em; line-height: 1.4; }
+
 @media (orientation: portrait) and (max-width: 900px) {
-  .home-page .deck-card--detail .comparison-frame {
-    inset: 96px max(8px, env(safe-area-inset-right)) 142px max(8px, env(safe-area-inset-left));
+  .home-page .project-deck:not(.is-strip) .deck-card--comparison .comparison-frame {
+    inset: max(110px, calc(env(safe-area-inset-top) + 82px)) max(8px, env(safe-area-inset-right)) 146px max(8px, env(safe-area-inset-left));
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: clamp(20px, 4svh, 38px);
     height: auto;
     aspect-ratio: auto;
     transform: none;
-    background: #07080a;
+    overflow: visible;
+    background: transparent;
+    border-radius: 0;
   }
-  .deck-card--detail .comparison-video--before,
-  .deck-card--detail .comparison-after { top: 0; height: 52%; }
-  .deck-card--detail .comparison-video { object-fit: contain; }
-  .deck-card--detail .comparison-after .comparison-video { height: 100%; }
-  .deck-card--detail .comparison-divider { bottom: 48%; }
-  .deck-card--detail .comparison-handle { top: 26%; }
-  .home-page .deck-card--detail .comparison-copy {
-    top: 57%;
+  .comparison-visual { position: relative; display: block; flex: 0 0 auto; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 8px; isolation: isolate; }
+  .deck-card--comparison .comparison-video--before,
+  .deck-card--comparison .comparison-after { inset: 0; height: 100%; }
+  .deck-card--comparison .comparison-video { object-fit: contain; }
+  .deck-card--comparison .comparison-after .comparison-video { height: 100%; }
+  .deck-card--comparison .comparison-divider { top: 0; bottom: 0; height: auto; }
+  .deck-card--comparison .comparison-handle { top: 50%; }
+  .home-page .deck-card--comparison .comparison-copy {
+    position: relative;
+    flex: 0 0 auto;
+    top: auto;
+    left: auto;
     width: 96%;
-    transform: translate(-50%, 0);
+    margin-top: 24px;
+    transform: none;
+    filter: none;
   }
-  .home-page .deck-card--detail .comparison-copy h1 { font-size: clamp(27px, 7vw, 45px); line-height: 1.25; }
-  .home-page .detail-copy .comparison-tool-line { margin-bottom: 12px; font-size: 8px; letter-spacing: .06em; }
+  .home-page :is(.deck-card--detail, .deck-card--previs) .comparison-copy h1 { font-size: clamp(25px, 6.8vw, 43px); line-height: 1.3; letter-spacing: .015em; }
+  .home-page .detail-copy .comparison-tool-line { margin-bottom: 12px; font-size: clamp(8px, 2.15vw, 11px); letter-spacing: .04em; }
   .home-page .detail-copy p.detail-copy__english { margin-top: 8px; font-size: 11px; }
   .home-page .detail-copy p.detail-copy__process { margin-top: 16px; font-size: 14px; }
   .detail-copy time { margin-top: 10px; font-size: 10px; }
-  .home-page .deck-card--detail .detail-copy em { margin-top: 16px; padding: 8px 13px; font-size: 12px; }
-  .detail-copy em small { font-size: 8px; }
-  .home-page .deck-card--detail .comparison-stage.is-interacting .comparison-copy { transform: translate(-50%, 0) scale(.97); }
-  .project-deck.is-strip .deck-card--detail .comparison-frame { inset: 0; height: 100%; }
-  .project-deck.is-strip .deck-card--detail .comparison-video--before,
-  .project-deck.is-strip .deck-card--detail .comparison-after { height: 100%; }
-  .project-deck.is-strip .deck-card--detail .comparison-video { object-fit: cover; }
+  .home-page .deck-card--comparison .detail-copy em { margin-top: 19px; padding: 12px 18px; font-size: clamp(16px, 4vw, 20px); line-height: 1.1; letter-spacing: .025em; }
+  .detail-copy em small { margin-left: 10px; font-size: 10px; }
+  .home-page .deck-card--comparison .comparison-stage.is-interacting .comparison-copy { transform: none; }
+  .deck-card--comparison .comparison-label { gap: 6px; min-height: 25px; font-size: 10px; letter-spacing: .02em; }
+  .deck-card--comparison .comparison-label small { font-size: 8px; letter-spacing: .04em; opacity: .65; }
+  /* The project arrows keep their existing full-height hit zones. Transport
+     buttons and the entire seek track stay inside those zones at every width. */
+  .home-page .home-stage { --mobile-transport-side: calc(clamp(8px, calc(18vw - 58px), 158px) + clamp(48px, 6.5vw, 86px) + 8px); }
+  .home-page .comparison-player-controls { position: relative; flex: 0 0 auto; left: auto; right: auto; bottom: auto; width: calc(100% - var(--mobile-transport-side) - var(--mobile-transport-side)); margin-top: 4px; min-height: 40px; text-shadow: none; gap: 9px; }
+  .comparison-player-controls button { font-size: 11px; }
+  .comparison-player-controls output { font-size: 9px; }
+  .comparison-player-controls + .detail-quality-link + .comparison-copy { margin-top: 12px; }
+  .home-page .cinema-home { inset: max(110px, calc(env(safe-area-inset-top) + 82px)) max(8px, env(safe-area-inset-right)) 146px max(8px, env(safe-area-inset-left)); display: flex; flex-direction: column; justify-content: center; align-items: center; padding-top: clamp(20px, 4svh, 38px); }
+  .cinema-home > .workflow-player { position: relative; order: 0; inset: auto; width: 100%; flex: 0 0 auto; }
+  .cinema-home .workflow-player__picture { position: relative; inset: auto; flex: 0 0 auto; width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; }
+  .cinema-home .workflow-player__picture::after { display: none; }
+  .cinema-home .workflow-player video { object-fit: contain; }
+  .cinema-home .workflow-player__controls { position: relative; left: auto; right: auto; bottom: auto; width: calc(100% - var(--mobile-transport-side) - var(--mobile-transport-side)); align-self: center; margin-top: 4px; min-height: 40px; gap: 9px; text-shadow: none; }
+  .cinema-home .workflow-player__controls output { font-size: 9px; }
+  .cinema-home .workflow-player__status { position: relative; left: auto; bottom: auto; padding: 0; background: none; }
+  .cinema-home__heading { position: relative; order: 1; left: auto; top: auto; width: 96%; margin-top: 24px; transform: none; gap: 14px; text-shadow: none; }
+  .home-page .cinema-home .cinema-home__title { font-size: clamp(25px, 6.8vw, 43px); }
+  .cinema-home__kicker { font-size: clamp(8px, 2.05vw, 10px); gap: 8px 10px; letter-spacing: .035em; }
+  .cinema-home__kicker .project-tool-logo { width: 12px; height: 12px; flex-basis: 12px; }
+  .cinema-home__title span[lang="en"] { margin-top: 10px; font-size: 12px; }
+  .cinema-home__meta { font-size: 10px; }
+  .project-deck.is-strip .comparison-visual { display: contents; }
+  .project-deck.is-strip .cinema-home { display: block; padding: 0; }
+  .project-deck.is-strip .cinema-home > .workflow-player { position: absolute; inset: 0; width: 100%; }
+  .project-deck.is-strip .cinema-home .workflow-player__picture { position: absolute; inset: 0; aspect-ratio: auto; border-radius: 0; }
+  .project-deck.is-strip .cinema-home .workflow-player video { object-fit: cover; }
 }
-@media (orientation: portrait) and (max-height: 740px) {
-  .home-page .deck-card--detail .comparison-frame { top: 82px; bottom: 130px; }
-  .home-page .deck-card--detail .comparison-copy { top: 51%; }
+@media (orientation: portrait) and (max-width: 560px) {
+  .home-page .home-stage { --mobile-transport-side: 52px; }
+}
+@media (orientation: portrait) and (max-width: 900px) and (max-height: 740px) {
+  .home-page .project-deck:not(.is-strip) .deck-card--comparison .comparison-frame,
+  .home-page .cinema-home { top: 85px; bottom: 130px; padding-top: 8px; }
+  .home-page .deck-card--comparison .comparison-copy,
+  .cinema-home__heading { margin-top: 16px; }
+  .home-page .detail-copy .comparison-tool-line { margin-bottom: 8px; }
   .home-page .detail-copy p.detail-copy__process { margin-top: 10px; }
-  .home-page .deck-card--detail .detail-copy em { margin-top: 10px; }
+  .home-page .deck-card--comparison .detail-copy em { margin-top: 12px; padding: 9px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .comparison-player-controls, .home-page .comparison-copy em { transition: none; }
 }
 
 /* Source: assets/cat-nest-home.css */
@@ -1700,8 +1757,9 @@ html.tvc-fallback-running .project-dialog[open]::after { animation: tvc-artwork-
   font-size: 11px; color: #fff; text-underline-offset: 4px;
   text-shadow: 0 1px 8px #000;
 }
+.detail-quality-icon { display: inline-block; width: 17px; height: 17px; margin-left: 3px; vertical-align: -4px; }
 .project-deck.is-strip .detail-quality-link { display: none; }
 @media (orientation: portrait) and (max-width: 900px) {
-  .home-page .detail-quality-link { bottom: auto; top: 48%; right: 12px; font-size: 10px; }
-  .deck-card--detail .video-loading-ui.is-progressive { bottom: auto; top: 36%; }
+  .home-page .detail-quality-link { position: relative; flex: 0 0 auto; align-self: flex-end; bottom: auto; top: auto; right: auto; min-height: 30px; margin-right: 15px; padding: 5px 0; font-size: 11px; line-height: 20px; text-shadow: none; }
+  .deck-card--detail .video-loading-ui.is-progressive { bottom: auto; top: 10%; }
 }
