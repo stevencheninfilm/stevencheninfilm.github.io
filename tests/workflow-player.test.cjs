@@ -11,7 +11,7 @@ const element = () => ({
   setAttribute(name, value) { this.attrs[name] = value; },
   setPointerCapture() {},
 });
-function setup({ mobile = false, reduced = false, blocked = false, delay = 0 } = {}) {
+function setup({ mobile = false, reduced = false, blocked = false, delay = 0, chinese = false } = {}) {
   let selected = true, strip = false, mutation, intersection;
   let now = 0, timerId = 0;
   const timers = new Map();
@@ -26,7 +26,7 @@ function setup({ mobile = false, reduced = false, blocked = false, delay = 0 } =
   });
   const controls = element(), toggle = element(), seek = Object.assign(element(), { value: 0 }), clock = element(), sound = element(), status = element();
   const player = {
-    dataset: { controlsDelay: String(delay) },
+    dataset: { controlsDelay: String(delay), playerLang: chinese ? 'zh' : 'en' },
     querySelector: selector => ({ video, '[data-player-controls]': controls, '[data-player-toggle]': toggle, '[data-player-seek]': seek, '[data-player-time]': clock, '[data-player-sound]': sound, '[data-player-status]': status })[selector],
     closest: selector => ({ '.deck-card': card, '.project-deck': deck })[selector],
   };
@@ -113,4 +113,16 @@ test('home transport appears after three uninterrupted seconds and restarts afte
 test('detail page transport remains available immediately without the homepage delay', () => {
   const s = setup(); s.visible(true);
   assert.equal(s.controls.attrs['data-visible'], 'true'); assert.equal(s.controls.inert, false);
+});
+
+
+test('Chinese-led home transport keeps play, seek, sound and retry labels localized', async () => {
+  const s = setup({ chinese: true }); s.visible(true); await flush();
+  assert.equal(s.toggle.textContent, '暂停');
+  assert.equal(s.sound.textContent, '静音');
+  s.toggle.fire('click'); assert.equal(s.toggle.textContent, '播放');
+  s.sound.fire('click'); assert.equal(s.sound.textContent, '声音开启');
+  assert.match(s.seek.attrs['aria-valuetext'], /共 0:36/);
+  s.video.fire('error'); assert.equal(s.toggle.textContent, '重试');
+  assert.equal(s.status.textContent, '视频暂时不可用，请点按重试。');
 });
