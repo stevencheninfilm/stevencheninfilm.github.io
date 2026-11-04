@@ -4,6 +4,7 @@ const vm = require('node:vm');
 const fs = require('node:fs');
 const source = fs.readFileSync(require.resolve('../assets/workflow-player.js'), 'utf8');
 const flush = () => new Promise(resolve => setImmediate(resolve));
+const progressiveFixture = require('./progressive-controller-fixture.cjs');
 const element = () => ({
   events: {}, attrs: {}, style: { setProperty() {} },
   addEventListener(name, fn) { (this.events[name] ||= []).push(fn); },
@@ -25,14 +26,15 @@ function setup({ mobile = false, reduced = false, blocked = false, delay = 0, ch
     play() { if (blocked) return Promise.reject(Error('autoplay blocked')); this.paused = false; this.fire('play'); return Promise.resolve(); }
   });
   const controls = element(), toggle = element(), seek = Object.assign(element(), { value: 0 }), clock = element(), sound = element(), status = element();
-  const player = {
+  const player = Object.assign(element(), {
     dataset: { controlsDelay: String(delay), playerLang: chinese ? 'zh' : 'en' },
     querySelector: selector => ({ video, '[data-player-controls]': controls, '[data-player-toggle]': toggle, '[data-player-seek]': seek, '[data-player-time]': clock, '[data-player-sound]': sound, '[data-player-status]': status })[selector],
     closest: selector => ({ '.deck-card': card, '.project-deck': deck })[selector],
-  };
+  });
   const motion = Object.assign(element(), { matches: reduced });
   const document = Object.assign(element(), { documentElement: { lang: pageLang }, hidden: false, querySelectorAll: () => [player] });
   const window = Object.assign(element(), { IntersectionObserver: true });
+  const upgrade = progressiveFixture(window, player, [video]);
   vm.runInNewContext(source, {
     window, document, matchMedia: query => query.includes('reduced') ? motion : { matches: mobile },
     IntersectionObserver: class { constructor(fn) { intersection = fn; } observe() {} },
@@ -40,7 +42,7 @@ function setup({ mobile = false, reduced = false, blocked = false, delay = 0, ch
     setTimeout: (fn, ms) => { const id = ++timerId; timers.set(id, { fn, at: now + ms }); return id; },
     clearTimeout: id => timers.delete(id),
   });
-  return { video, controls, toggle, seek, clock, sound, status, motion, document, window,
+  return { video, controls, toggle, seek, clock, sound, status, motion, document, window, upgrade,
     visible: value => intersection([{ isIntersecting: value }]),
     select(value, overview = false) { selected = value; strip = overview; mutation(); },
     unblock() { blocked = false; },
@@ -127,7 +129,6 @@ test('Chinese-led home transport keeps play, seek, sound and retry labels locali
   assert.equal(s.status.textContent, '视频暂时不可用，请点按重试。');
 });
 
-
 test('page language takes precedence over a legacy player language flag, including errors and autoplay help', async () => {
   for (const [pageLang, chinese, expected] of [
     ['zh-Hans', false, { play: '播放', sound: '静音', start: '点按播放，开始观看。', retry: '重试', error: '视频暂时不可用，请点按重试。' }],
@@ -142,4 +143,38 @@ test('page language takes precedence over a legacy player language flag, includi
     assert.equal(s.toggle.textContent, expected.retry);
     assert.equal(s.status.textContent, expected.error);
   }
+});
+
+test('HD replacement keeps the displayed progress and latest pause, seek and sound choices', async () => {
+  const s = setup(); s.visible(true); await flush();
+  s.video.currentTime = 12; s.video.fire('timeupdate');
+  s.upgrade.begin(); s.upgrade.reset(s.video);
+  assert.equal(s.clock.textContent, '0:12 / 0:36');
+  assert.equal(s.toggle.textContent, 'Pause');
+  s.toggle.fire('click');
+  s.seek.value = 80; s.seek.fire('input');
+  s.sound.fire('click');
+  assert.equal(s.upgrade.finish().handled, true); await flush();
+  assert.ok(Math.abs(s.video.currentTime - 29.2) < .001); assert.equal(s.video.paused, true);
+  assert.equal(s.video.muted, false); assert.equal(s.video.loads, 1);
+  assert.equal(s.clock.textContent, '0:29 / 0:36');
+  assert.equal(s.toggle.textContent, 'Play'); assert.equal(s.status.textContent, '');
+  s.toggle.fire('click'); await flush(); assert.equal(s.video.paused, false);
+});
+
+test('HD-aborted play promises and offscreen completion cannot latch a false playback failure', async () => {
+  const s = setup(); let rejectOld;
+  const normalPlay = s.video.play;
+  s.video.play = function () {
+    this.play = normalPlay;
+    return new Promise((_, reject) => { rejectOld = reject; });
+  };
+  s.visible(true);
+  s.upgrade.begin(); s.upgrade.reset(s.video); s.upgrade.finish();
+  rejectOld({ name: 'AbortError' }); await flush();
+  assert.equal(s.video.paused, false); assert.equal(s.status.textContent, '');
+  s.upgrade.begin(); s.select(false); s.upgrade.finish('error'); await flush();
+  assert.equal(s.video.paused, true);
+  s.select(true); await flush();
+  assert.equal(s.video.paused, false); assert.equal(s.video.loads, 1);
 });

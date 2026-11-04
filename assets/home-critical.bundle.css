@@ -1752,7 +1752,7 @@ html.tvc-fallback-running .project-dialog[open]::after { animation: tvc-artwork-
 .tvc-services > .viewing-link-group > a { display: inline-flex; min-height: 44px; align-items: center; font-size: 13px; text-decoration: none; }
 @media (max-width: 900px) { .project-feature--reverse > .film-player { order: 0; } }
 .home-page .detail-quality-link {
-  position: absolute; z-index: 13; left: auto; top: auto; right: 22px; bottom: 96px;
+  position: absolute; z-index: 13; left: auto; top: auto; right: 22px; bottom: 156px;
   width: auto; max-width: none; transform: none; padding: 8px 12px;
   font-size: 11px; color: #fff; text-underline-offset: 4px;
   text-shadow: 0 1px 8px #000;

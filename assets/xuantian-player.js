@@ -1,6 +1,6 @@
 (() => {
-  // Native URL playback preserves range requests and iOS user activation.
-  // Do not fetch the whole movie into a Blob or gate taps on canplay.
+  // The preview still starts natively inside the user gesture. The shared
+  // quality loader can prepare HD later without delaying that first play.
   const shell = document.querySelector('[data-xj-player]');
   if (!shell) return;
   const video = shell.querySelector('video');
@@ -14,6 +14,7 @@
   let state = 'idle';
   let timer = 0;
   let attempt = 0;
+  const switching = () => window.ProgressiveVideo?.isSwitching(video) === true;
   const clearTimer = () => { window.clearTimeout(timer); timer = 0; };
   const render = (next, copy = '') => {
     state = next;
@@ -32,6 +33,7 @@
     render('error', copy);
   };
   const startWaiting = () => {
+    if (switching()) return;
     clearTimer();
     render('loading');
     timer = window.setTimeout(() => {
@@ -49,7 +51,16 @@
   };
 
   const requestPlay = (reload = false) => {
-    if (reload || video.error) video.load();
+    if (switching()) {
+      window.ProgressiveVideo.setIntent(video, { paused: false, muted: false });
+      return;
+    }
+    const needsSource = !video.getAttribute('src') && video.dataset.src;
+    if (needsSource) video.src = video.dataset.src;
+    if (reload || video.error || needsSource) {
+      video.preload = 'auto';
+      video.load();
+    }
     const currentAttempt = ++attempt;
     video.muted = false;
     video.controls = true;
@@ -59,7 +70,7 @@
       const playback = video.play();
       if (playback && typeof playback.catch === 'function') {
         playback.catch((error) => {
-          if (currentAttempt !== attempt) return;
+          if (currentAttempt !== attempt || switching()) return;
           if (error?.name === 'AbortError' && video.paused) {
             clearTimer();
             render('idle');
@@ -81,14 +92,39 @@
   video.addEventListener('waiting', () => { if (!video.paused) startWaiting(); });
   video.addEventListener('playing', () => { clearTimer(); render('playing'); });
   video.addEventListener('pause', () => {
+    if (switching()) return;
     ++attempt;
     clearTimer();
     if (!video.error) render('idle');
   });
   video.addEventListener('ended', () => { ++attempt; clearTimer(); render('idle'); });
-  video.addEventListener('error', () => { ++attempt; showHelp(failureMessage()); });
+  video.addEventListener('error', () => {
+    if (switching()) return;
+    ++attempt; showHelp(failureMessage());
+  });
+  shell.addEventListener('progressive-video:switch-start', () => {
+    ++attempt;
+    clearTimer();
+  });
+  const qualityReady = (event) => {
+    if (event?.detail) event.detail.handled = true;
+    clearTimer();
+    const intent = window.ProgressiveVideo?.getIntent(video);
+    if (intent?.paused !== false || document.hidden || shell.closest?.('[hidden]')) {
+      render('idle');
+      return;
+    }
+    // Resume the existing choice of sound. requestPlay() is intentionally not
+    // used here because it turns sound on for a fresh user-initiated screening.
+    try {
+      Promise.resolve(video.play()).catch(() => render('idle'));
+    } catch { render('idle'); }
+  };
+  shell.addEventListener('progressive-video:switch-end', qualityReady);
+  shell.addEventListener('progressive-video:switch-error', qualityReady);
   window.addEventListener('pagehide', () => { ++attempt; clearTimer(); });
   window.addEventListener('pageshow', () => {
+    if (switching()) return;
     clearTimer();
     if (video.error) showHelp(failureMessage());
     else if (video.paused || video.ended) render('idle');

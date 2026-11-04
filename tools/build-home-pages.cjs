@@ -16,7 +16,7 @@ function renderPage(file, language, root = ROOT) {
   let html = fs.readFileSync(path.join(root, `locales/home.${language}.html`), 'utf8');
   const nested = file.includes('/');
   if (nested) {
-    html = html.replace(/\b(href|src|poster|data-src|data-src-mobile|data-poster|data-preview|data-poster-preview|data-link|srcset|data-srcset)="([^"]+)"/g,
+    html = html.replace(/\b(href|src|poster|data-src|data-src-mobile|data-src-hd|data-poster|data-preview|data-poster-preview|data-link|srcset|data-srcset)="([^"]+)"/g,
       (match, attribute, value) => {
         if (/^(?:[a-z][a-z\d+.-]*:|\/|#)/i.test(value)) return match;
         return `${attribute}="../${value}"`;

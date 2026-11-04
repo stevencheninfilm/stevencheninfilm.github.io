@@ -48,6 +48,12 @@
     let phase = 'idle', action = 'retry', inView = !('IntersectionObserver' in window);
     let run = 0, hintTimer = 0, deadlineTimer = 0, focusTimer = 0;
     let settingSources = false, restoreFocusAfterRetry = false;
+    let upgrading = false;
+    const switching = () => upgrading || videos.some(video => window.ProgressiveVideo?.isSwitching(video));
+    const pauseVideos = () => videos.forEach(video => {
+      if (switching()) window.ProgressiveVideo?.setIntent(video, { paused: true });
+      video.pause();
+    });
 
     const visible = () => !document.hidden && (homeCard
       ? homeDeck && !homeDeck.classList.contains('is-strip') &&
@@ -75,7 +81,7 @@
       if (addedTabIndex) target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
     };
     const showPlay = () => {
-      if (!visible() || phase !== 'ready') return;
+      if (switching() || !visible() || phase !== 'ready') return;
       action = 'play';
       label.textContent = copy.playStatus;
       statusText.textContent = copy.playStatus;
@@ -85,14 +91,15 @@
       overlay.hidden = false;
     };
     const resumeAutoplay = () => {
-      if (!visible() || staticOnly()) return;
+      if (switching() || !visible() || staticOnly()) return;
+      const currentRun = run;
       // Homepage comparison playback remains owned by its synchronization controller.
       videos.filter(video => video.autoplay).forEach(video => {
-        video.play().catch(showPlay);
+        video.play().catch(() => { if (run === currentRun) showPlay(); });
       });
     };
     const finish = () => {
-      if (phase === 'idle' || phase === 'static' || settingSources) return;
+      if (switching() || phase === 'idle' || phase === 'static' || settingSources) return;
       clearTimers();
       phase = 'ready';
       markReady(true);
@@ -105,10 +112,10 @@
       resumeAutoplay();
     };
     const checkReady = () => {
-      if ((phase === 'loading' || phase === 'error') && videos.every(video => video.readyState >= READY_STATE)) finish();
+      if (!switching() && (phase === 'loading' || phase === 'error') && videos.every(video => video.readyState >= READY_STATE)) finish();
     };
     const showError = () => {
-      if (phase === 'idle' || phase === 'static' || settingSources) return;
+      if (switching() || phase === 'idle' || phase === 'static' || settingSources) return;
       clearTimers();
       phase = 'error';
       markReady(false);
@@ -128,6 +135,7 @@
       }
     };
     const cancelPending = (nextPhase = 'idle') => {
+      if (switching()) { pauseVideos(); return; }
       ++run;
       clearTimers();
       markReady(false);
@@ -144,7 +152,7 @@
       hide();
     };
     const start = (reload = false) => {
-      if (!visible()) return;
+      if (switching() || !visible()) return;
       if (staticOnly()) {
         if (phase === 'loading' || phase === 'error') cancelPending('static');
         else { phase = 'static'; markReady(false); videos.forEach(video => video.pause()); }
@@ -186,6 +194,10 @@
       checkReady();
     };
     const update = () => {
+      if (switching()) {
+        if (!visible() || staticOnly()) pauseVideos();
+        return;
+      }
       if (!visible()) {
         if (phase === 'loading') cancelPending();
         else if (phase === 'error') cancelPending('error');
@@ -208,6 +220,7 @@
       video.dataset.videoLoaderManaged = 'true';
       video.dataset.videoLoaderReady = 'false';
       video.addEventListener('loadedmetadata', () => {
+        if (switching()) return;
         const position = resumeTimes.get(video);
         if (position !== undefined && phase === 'loading') {
           resumeTimes.delete(video);
@@ -219,9 +232,35 @@
       ['loadeddata', 'canplay', 'playing'].forEach(event => video.addEventListener(event, checkReady));
       video.addEventListener('error', showError);
     });
+    group.addEventListener('progressive-video:switch-start', event => {
+      if (!event.detail?.videos?.some(video => videos.includes(video))) return;
+      upgrading = true;
+      ++run;
+      clearTimers();
+      // The decoded preview remains ready throughout an optional quality change.
+      hide(copy.ready);
+    });
+    const finishUpgrade = event => {
+      if (!event.detail?.videos?.some(video => videos.includes(video)) || !upgrading) return;
+      upgrading = false;
+      if (staticOnly()) {
+        phase = 'static'; markReady(false); pauseVideos(); hide(copy.staticReady);
+      } else if (event.detail.reason === 'canceled' && !visible() && videos.every(video => !video.error)) {
+        // Background media decoding can be suspended. The engine has restored
+        // the preview URLs and will restore their playheads on metadata; do not
+        // turn this normal cancellation into an offscreen Retry state.
+        phase = 'ready'; markReady(true); hide(copy.ready);
+      } else if (videos.every(video => video.readyState >= READY_STATE && !video.error)) {
+        phase = 'loading'; finish();
+      } else {
+        phase = 'loading'; showError();
+      }
+    };
+    group.addEventListener('progressive-video:switch-end', finishUpgrade);
+    group.addEventListener('progressive-video:switch-error', finishUpgrade);
     group.addEventListener('video-loader:play-blocked', showPlay);
     retry.addEventListener('click', () => {
-      if (!visible()) return;
+      if (switching() || !visible()) return;
       if (action === 'play') {
         hide(copy.ready);
         if (homeCard) videos.forEach(video => video.dispatchEvent(new CustomEvent('video-loader:play')));
@@ -232,6 +271,7 @@
       }
     });
     motionPreference.addEventListener('change', () => {
+      if (switching()) { update(); return; }
       if (staticOnly()) {
         if (phase === 'loading' || phase === 'error') cancelPending('static');
         else { phase = 'static'; markReady(false); videos.forEach(video => video.pause()); }
@@ -239,6 +279,7 @@
       } else update();
     });
     window.addEventListener('pagehide', () => {
+      if (switching()) { pauseVideos(); return; }
       if (phase === 'loading') cancelPending();
       else videos.forEach(video => video.pause());
     });

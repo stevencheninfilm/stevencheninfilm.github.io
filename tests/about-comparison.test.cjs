@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(require('node:path').join(__dirname, '../assets/about-comparison.js'), 'utf8');
 const flush = () => new Promise(resolve => setImmediate(resolve));
+const progressiveFixture = require('./progressive-controller-fixture.cjs');
 
 function setup({ reduced = false, mobile = false, blocked = false } = {}) {
   const element = () => ({
@@ -27,6 +28,7 @@ function setup({ reduced = false, mobile = false, blocked = false } = {}) {
   const motion = Object.assign(element(), { matches: reduced });
   const document = Object.assign(element(), { hidden: false, querySelector: () => stage });
   const window = Object.assign(element(), { matchMedia: query => query.includes('reduced') ? motion : { matches: mobile }, IntersectionObserver: true });
+  const upgrade = progressiveFixture(window, stage, [before, after]);
   let observer;
   const timers = new Map();
   let timerId = 0;
@@ -37,7 +39,7 @@ function setup({ reduced = false, mobile = false, blocked = false } = {}) {
     for (const v of [before, after]) { v.readyState = 4; v.fire('canplay'); }
     await flush();
   };
-  return { before, after, handle, toggle, status, motion, document, window, visible, ready, timers, unblock: () => { blocked = false; } };
+  return { before, after, handle, toggle, status, motion, document, window, visible, ready, timers, upgrade, unblock: () => { blocked = false; } };
 }
 
 test('inline comparison loads on entry, plays both sources and pauses offscreen', async () => {
@@ -109,4 +111,41 @@ test('autoplay denial leaves an explicit working play button', async () => {
   assert.equal(s.before.paused, true);
   s.unblock(); s.toggle.fire('click'); await flush();
   assert.equal(s.before.paused, false); assert.equal(s.after.paused, false);
+});
+
+test('HD metadata does not reapply the opening seek and a rollback preserves an explicit pause', async () => {
+  const s = setup(); s.visible(true); await s.ready();
+  s.before.currentTime = s.after.currentTime = 6.8;
+  s.upgrade.begin(); s.upgrade.reset(s.before); s.upgrade.reset(s.after);
+  assert.equal(s.toggle.textContent, 'Pause comparison');
+  assert.equal(s.timers.size, 0);
+  assert.equal(s.upgrade.finish().handled, true); await flush();
+  assert.equal(s.before.currentTime, 6.8); assert.equal(s.after.currentTime, 6.8);
+  assert.equal(s.after.paused, false);
+  s.upgrade.begin(); s.toggle.fire('click');
+  s.upgrade.reset(s.before); s.upgrade.reset(s.after);
+  s.upgrade.finish('error'); await flush();
+  assert.ok(s.before.paused && s.after.paused);
+  assert.equal(s.toggle.textContent, 'Play comparison');
+  assert.equal(s.before.loads, 1, 'rollback must not trigger the preview load path again');
+  s.toggle.fire('click'); await flush();
+  assert.equal(s.after.paused, false);
+  s.upgrade.downloadError();
+  assert.equal(s.toggle.textContent, 'Pause comparison', 'an optional HD download failure is not a preview failure');
+});
+
+test('a play promise aborted by HD replacement cannot block the new playback attempt', async () => {
+  const s = setup();
+  let rejectOld;
+  const normalPlay = s.before.play;
+  s.before.play = function () {
+    this.play = normalPlay;
+    return new Promise((_, reject) => { rejectOld = reject; });
+  };
+  s.visible(true); await s.ready();
+  s.upgrade.begin(); s.upgrade.finish();
+  rejectOld({ name: 'AbortError' }); await flush();
+  assert.ok(!s.before.paused && !s.after.paused);
+  assert.equal(s.toggle.textContent, 'Pause comparison');
+  assert.equal(s.status.textContent, '');
 });

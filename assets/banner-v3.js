@@ -45,26 +45,33 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   let wasActive = false;
   let controlsTimer = null;
   let controlsReady = !controlsDelay;
+  let upgrading = false, playGeneration = 0, knownDuration = 0;
+  const switching = () => upgrading || Boolean(window.ProgressiveVideo?.isSwitching(master));
+  const intent = video => window.ProgressiveVideo?.getIntent(video) || { paused: video.paused, time: video.currentTime, muted: video.muted };
+  const setIntent = (video, patch) => window.ProgressiveVideo?.setIntent(video, patch);
   const canContinue = () => videos.every(video => video.readyState >= 3 && !video.seeking);
   const timeLabel = value => `${Math.floor((value || 0) / 60)}:${String(Math.floor((value || 0) % 60)).padStart(2, '0')}`;
   const duration = () => {
     const lengths = videos.map(video => video.duration).filter(value => Number.isFinite(value) && value > 0);
-    return lengths.length === videos.length ? Math.min(...lengths) : 0;
+    const length = lengths.length === videos.length ? Math.min(...lengths) : 0;
+    if (!switching() && length) knownDuration = length;
+    return switching() ? knownDuration || length : length;
   };
   const drawControls = () => {
     if (!controls) return;
     const length = duration();
-    const percentage = length ? Math.min(100, master.currentTime / length * 100) : 0;
+    const state = switching() ? intent(master) : { time: master.currentTime, paused: master.paused, muted: master.muted };
+    const percentage = length ? Math.min(100, state.time / length * 100) : 0;
     if (!scrubbing) seek.value = percentage;
     seek.style.setProperty('--seek', `${scrubbing ? seek.value : percentage}%`);
     seek.disabled = !length;
-    seek.setAttribute('aria-valuetext', chinese ? `${timeLabel(master.currentTime)}，共 ${timeLabel(length)}` : `${timeLabel(master.currentTime)} of ${timeLabel(length)}`);
-    clock.textContent = `${timeLabel(master.currentTime)} / ${timeLabel(length)}`;
-    toggle.textContent = master.paused ? words.play : words.pause;
-    toggle.setAttribute('aria-label', master.paused ? words.playLabel : words.pauseLabel);
-    sound.textContent = master.muted ? words.soundOff : words.soundOn;
-    sound.setAttribute('aria-label', master.muted ? words.unmute : words.mute);
-    sound.setAttribute('aria-pressed', String(!master.muted));
+    seek.setAttribute('aria-valuetext', chinese ? `${timeLabel(state.time)}，共 ${timeLabel(length)}` : `${timeLabel(state.time)} of ${timeLabel(length)}`);
+    clock.textContent = `${timeLabel(state.time)} / ${timeLabel(length)}`;
+    toggle.textContent = state.paused ? words.play : words.pause;
+    toggle.setAttribute('aria-label', state.paused ? words.playLabel : words.pauseLabel);
+    sound.textContent = state.muted ? words.soundOff : words.soundOn;
+    sound.setAttribute('aria-label', state.muted ? words.unmute : words.mute);
+    sound.setAttribute('aria-pressed', String(!state.muted));
   };
 
   const setSplit = (value) => {
@@ -112,10 +119,11 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
       && !document.hidden
       && !motionPreference.matches;
   };
-  const shouldPlay = () => isActive() && !userPaused && !scrubbing;
+  const shouldPlay = () => !switching() && isActive() && !userPaused && !scrubbing;
+  const switchPaused = () => !isActive() || userPaused || autoplayBlocked || (scrubbing && !resumeAfterSeek);
 
   const seekToOpeningFrame = () => {
-    if (initialSeeked) return;
+    if (initialSeeked || switching()) return;
     initialSeeked = true;
     videos.forEach((video) => {
       const seek = () => {
@@ -128,7 +136,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   };
 
   const syncChild = (force = false) => {
-    if (master.readyState < 1 || child.readyState < 1 || master.seeking || child.seeking) return;
+    if (switching() || master.readyState < 1 || child.readyState < 1 || master.seeking || child.seeking) return;
     if (buffering && !force) return;
     child.playbackRate = master.playbackRate;
     const childLimit = Number.isFinite(child.duration) ? Math.max(0, child.duration - .04) : master.currentTime;
@@ -164,10 +172,11 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
     // for that seek once, rather than playing one side while the other catches up.
     if (buffering && !canContinue()) return;
     buffering = false;
+    const generation = playGeneration;
     videos.forEach((video) => {
       if (!video.paused) return;
       video.play().catch(error => {
-        if (error.name === 'NotAllowedError' && shouldPlay() && !autoplayBlocked) {
+        if (generation === playGeneration && error.name === 'NotAllowedError' && shouldPlay() && !autoplayBlocked) {
           autoplayBlocked = true;
           pausePair();
           frame.dispatchEvent(new CustomEvent('video-loader:play-blocked'));
@@ -216,6 +225,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
     if (active && !wasActive) {
       userPaused = false;
       videos.forEach(video => { video.defaultMuted = true; video.muted = true; });
+      if (switching()) videos.forEach(video => setIntent(video, { muted: true }));
     }
     wasActive = active;
     if (controls) {
@@ -235,6 +245,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
       controls.setAttribute('data-visible', String(active && controlsReady));
       controls.inert = !active || !controlsReady;
     }
+    if (switching()) setIntent(master, { paused: switchPaused() });
     if (shouldPlay()) {
       playPair();
     } else {
@@ -276,6 +287,27 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
     for (const event of ['loadedmetadata', 'durationchange', 'play', 'pause', 'volumechange']) video.addEventListener(event, drawControls);
   });
 
+  stage.addEventListener('progressive-video:switch-start', event => {
+    if (!event.detail?.videos?.includes(master)) return;
+    upgrading = true;
+    ++playGeneration;
+    // The engine owns the temporary pause; preserve the user's transport intent.
+    setIntent(master, { paused: switchPaused() });
+    buffering = false;
+    pausePair();
+  });
+  const finishUpgrade = event => {
+    if (!event.detail?.videos?.includes(master) || !upgrading) return;
+    event.detail.handled = true;
+    upgrading = false;
+    ++playGeneration;
+    userPaused = intent(master).paused;
+    buffering = false;
+    updatePlayback();
+  };
+  stage.addEventListener('progressive-video:switch-end', finishUpgrade);
+  stage.addEventListener('progressive-video:switch-error', finishUpgrade);
+
   if (controls) {
     controls.hidden = false;
     // Seeking, toggling sound, and slider keys belong to this player rather than
@@ -284,7 +316,8 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
       controls.addEventListener(event, e => e.stopPropagation());
     }
     toggle.addEventListener('click', () => {
-      userPaused = !master.paused;
+      userPaused = switching() ? !intent(master).paused : !master.paused;
+      if (switching()) setIntent(master, { paused: userPaused });
       if (userPaused) pausePair();
       else { autoplayBlocked = false; playPair(); }
       drawControls();
@@ -293,18 +326,21 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
       // The enhanced side supplies the one audio track. Playing two tracks would
       // create an echo even when both pictures are synchronized.
       child.muted = true;
-      master.muted = !master.muted;
+      const muted = switching() ? !intent(master).muted : !master.muted;
+      if (switching()) { setIntent(child, { muted: true }); setIntent(master, { muted }); }
+      master.muted = muted;
       drawControls();
     });
     const beginSeek = () => {
       if (seek.disabled || scrubbing || !isActive()) return;
-      resumeAfterSeek = !master.paused && !userPaused;
+      resumeAfterSeek = !(switching() ? intent(master).paused : master.paused) && !userPaused;
       scrubbing = true;
       pausePair();
     };
     const endSeek = () => {
       if (!scrubbing) return;
       scrubbing = false;
+      if (switching()) setIntent(master, { paused: !resumeAfterSeek || userPaused });
       if (resumeAfterSeek && !userPaused) startPair();
       drawControls();
     };
@@ -321,7 +357,8 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
       buffering = true;
       pausePair();
       initialSeeked = true;
-      videos.forEach(video => { video.currentTime = target; });
+      if (switching()) setIntent(master, { time: target });
+      else videos.forEach(video => { video.currentTime = target; });
       if (!scrubbing && !userPaused) resumeBufferedPair();
       drawControls();
     });

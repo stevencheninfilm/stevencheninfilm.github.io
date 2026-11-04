@@ -73,7 +73,11 @@ test('published episodes retain distinct destinations and closing links point to
   const trailer = html.split('id="trailer-platforms"')[1].split('</nav>')[0];
   assert.match(trailer, /a13797765/);
   assert.match(trailer, /xd9IZhTjrTY/);
-  assert.match(html, /src="\.\.\/assets\/videos\/xuantian-jie\/xuantian-jie-trailer\.mp4"/);
+  const nativeTrailer = html.match(/<video class="xj-video"[^>]*>/)[0];
+  assert.match(nativeTrailer, /preload="none"/);
+  assert.match(nativeTrailer, /data-src="\.\.\/assets\/videos\/xuantian-jie\/xuantian-jie-trailer-540p-preview-v1\.mp4"/);
+  assert.match(nativeTrailer, /data-src-hd="\.\.\/assets\/videos\/xuantian-jie\/xuantian-jie-trailer-1080p-hd-v1\.mp4"/);
+  assert.doesNotMatch(nativeTrailer, /\ssrc="/, 'the hidden trailer does not start a full-file download');
 });
 
 test('platforms prioritize Douyin, Bilibili, Xinpianchang, then each episode’s supplied fourth platform', () => {

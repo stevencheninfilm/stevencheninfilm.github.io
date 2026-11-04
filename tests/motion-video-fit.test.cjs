@@ -35,7 +35,8 @@ test('matching poster replaces the unrelated image and video bytes are untouched
 test('native playback, lazy loading and reduced-motion behavior remain intact', () => {
   assert.match(motion, /autoplay muted loop playsinline preload="none"/);
   assert.match(motion, /data-video-loading data-video-static-on-reduced-motion/);
-  assert.match(motion, /data-src="\.\.\/assets\/videos\/veo-after-video-silent\.mp4"/);
+  assert.match(motion, /data-src="\.\.\/assets\/videos\/veo-after-video-preview-v1\.mp4"/);
+  assert.match(motion, /data-src-hd="\.\.\/assets\/videos\/veo-after-video-silent\.mp4"/);
   assert.match(motion, /video-loading-retry/);
 });
 

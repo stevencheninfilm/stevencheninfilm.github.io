@@ -24,10 +24,15 @@
     let controlsTimer = 0, controlsReady = !controlsDelay;
     let visible = false, wasActive = false, loaded = false, paused = false;
     let manual = false, scrubbing = false, resume = false, failed = false;
+    let upgrading = false, playGeneration = 0, knownDuration = 0;
+    const switching = () => upgrading || Boolean(window.ProgressiveVideo?.isSwitching(video));
+    const intent = () => window.ProgressiveVideo?.getIntent(video) || { paused: video.paused, time: video.currentTime, muted: video.muted };
+    const setIntent = patch => window.ProgressiveVideo?.setIntent(video, patch);
     const active = () => visible && !document.hidden &&
       (!card || (card.classList.contains('is-active') && !deck.classList.contains('is-strip'))) &&
       (!panel || panel.getAttribute('aria-hidden') !== 'true');
-    const canPlay = () => active() && !paused && !scrubbing && (!motion.matches || manual);
+    const wantsPlay = () => active() && !paused && (!scrubbing || resume) && (!motion.matches || manual);
+    const canPlay = () => !switching() && !scrubbing && wantsPlay();
     const paintControls = isActive => {
       controls.setAttribute('data-visible', String(controlsReady));
       controls.inert = !isActive || !controlsReady;
@@ -39,24 +44,33 @@
       paintControls(false);
     };
     const draw = () => {
-      const duration = Number.isFinite(video.duration) ? video.duration : 0;
-      const percentage = duration ? Math.min(100, video.currentTime / duration * 100) : 0;
+      const length = Number.isFinite(video.duration) ? video.duration : 0;
+      if (!switching() && length) knownDuration = length;
+      const duration = switching() ? knownDuration || length : length;
+      const state = switching() ? intent() : { time: video.currentTime, paused: video.paused, muted: video.muted };
+      const percentage = duration ? Math.min(100, state.time / duration * 100) : 0;
       if (!scrubbing) seek.value = percentage;
       seek.style.setProperty('--seek', `${scrubbing ? seek.value : percentage}%`);
       seek.disabled = !duration;
-      seek.setAttribute('aria-valuetext', chinese ? `${time(video.currentTime)}，共 ${time(duration)}` : `${time(video.currentTime)} of ${time(duration)}`);
-      clock.textContent = `${time(video.currentTime)} / ${time(duration)}`;
-      toggle.textContent = failed ? words.retry : video.paused ? words.play : words.pause;
+      seek.setAttribute('aria-valuetext', chinese ? `${time(state.time)}，共 ${time(duration)}` : `${time(state.time)} of ${time(duration)}`);
+      clock.textContent = `${time(state.time)} / ${time(duration)}`;
+      toggle.textContent = failed ? words.retry : state.paused ? words.play : words.pause;
       toggle.setAttribute('aria-label', chinese ? `${toggle.textContent}视频` : `${toggle.textContent} video`);
-      sound.textContent = video.muted ? words.soundOff : words.soundOn;
-      sound.setAttribute('aria-label', video.muted ? words.unmute : words.mute);
-      sound.setAttribute('aria-pressed', String(!video.muted));
+      sound.textContent = state.muted ? words.soundOff : words.soundOn;
+      sound.setAttribute('aria-label', state.muted ? words.unmute : words.mute);
+      sound.setAttribute('aria-pressed', String(!state.muted));
     };
     const play = () => {
       if (!canPlay()) return;
-      video.play().then(() => { if (!canPlay()) video.pause(); }).catch(() => {
-        if (canPlay()) { paused = true; status.textContent = words.start; draw(); }
-      });
+      const generation = ++playGeneration;
+      const rejected = () => {
+        if (generation === playGeneration && canPlay()) { paused = true; status.textContent = words.start; draw(); }
+      };
+      try {
+        Promise.resolve(video.play()).then(() => {
+          if (generation === playGeneration && !canPlay()) video.pause();
+        }).catch(rejected);
+      } catch (_) { rejected(); }
     };
     const load = () => {
       if (loaded) return;
@@ -70,6 +84,7 @@
         paused = false;
         // Every new visit starts quietly; sound remains an explicit choice within it.
         video.muted = true;
+        if (switching()) setIntent({ muted: true });
       }
       wasActive = isActive;
       if (!isActive) resetControls();
@@ -83,6 +98,7 @@
         }, controlsDelay);
       }
       paintControls(isActive);
+      if (switching()) setIntent({ paused: !wantsPlay() });
       if (canPlay() && !failed) { load(); play(); }
       else video.pause();
       draw();
@@ -94,21 +110,27 @@
     }
     toggle.addEventListener('click', () => {
       if (failed) { failed = false; loaded = false; paused = false; }
-      else paused = !video.paused;
+      else paused = switching() ? !intent().paused : !video.paused;
       manual = true;
       status.textContent = '';
       update();
     });
-    sound.addEventListener('click', () => { video.muted = !video.muted; draw(); });
+    sound.addEventListener('click', () => {
+      const muted = switching() ? !intent().muted : !video.muted;
+      if (switching()) setIntent({ muted });
+      video.muted = muted;
+      draw();
+    });
     const beginSeek = () => {
       if (seek.disabled || scrubbing) return;
-      resume = !video.paused;
+      resume = !(switching() ? intent().paused : video.paused);
       scrubbing = true;
       video.pause();
     };
     const endSeek = () => {
       if (!scrubbing) return;
       scrubbing = false;
+      if (switching()) setIntent({ paused: !resume || paused || !active() });
       if (resume && canPlay()) play();
       draw();
     };
@@ -117,17 +139,41 @@
       if (scrubbing) seek.setPointerCapture(event.pointerId);
     });
     seek.addEventListener('input', () => {
-      if (Number.isFinite(video.duration) && video.duration > 0) {
-        video.currentTime = Math.min(video.duration - .04, Math.max(0, Number(seek.value) / 100 * video.duration));
+      const duration = switching() ? knownDuration : video.duration;
+      if (Number.isFinite(duration) && duration > 0) {
+        const target = Math.min(duration - .04, Math.max(0, Number(seek.value) / 100 * duration));
+        if (switching()) setIntent({ time: target });
+        else video.currentTime = target;
       }
       draw();
     });
     for (const event of ['pointerup', 'pointercancel', 'lostpointercapture', 'change', 'blur']) seek.addEventListener(event, endSeek);
     for (const event of ['timeupdate', 'durationchange', 'loadedmetadata', 'play', 'pause', 'volumechange']) video.addEventListener(event, draw);
-    video.addEventListener('canplay', () => { status.textContent = ''; play(); });
+    video.addEventListener('canplay', () => { if (switching()) return; status.textContent = ''; play(); });
     video.addEventListener('error', () => {
+      if (switching()) return;
       failed = true; video.pause(); status.textContent = words.unavailable; draw();
     });
+    player.addEventListener('progressive-video:switch-start', event => {
+      if (!event.detail?.videos?.includes(video)) return;
+      upgrading = true;
+      ++playGeneration;
+      setIntent({ paused: !wantsPlay() });
+      video.pause();
+      draw();
+    });
+    const finishUpgrade = event => {
+      if (!event.detail?.videos?.includes(video) || !upgrading) return;
+      event.detail.handled = true;
+      upgrading = false;
+      ++playGeneration;
+      paused = intent().paused;
+      failed = Boolean(video.error);
+      status.textContent = failed ? words.unavailable : '';
+      update();
+    };
+    player.addEventListener('progressive-video:switch-end', finishUpgrade);
+    player.addEventListener('progressive-video:switch-error', finishUpgrade);
     if ('IntersectionObserver' in window) new IntersectionObserver(entries => {
       visible = entries[0].isIntersecting; update();
     }, { threshold: .1 }).observe(player);
@@ -135,7 +181,11 @@
     const observer = new MutationObserver(update);
     for (const element of [card, deck, panel].filter(Boolean)) observer.observe(element, { attributes: true, attributeFilter: ['class', 'aria-hidden'] });
     document.addEventListener('visibilitychange', update);
-    window.addEventListener('pagehide', () => { wasActive = false; resetControls(); video.pause(); });
+    window.addEventListener('pagehide', () => {
+      ++playGeneration;
+      if (switching()) setIntent({ paused: true });
+      wasActive = false; resetControls(); video.pause();
+    });
     window.addEventListener('pageshow', update);
     motion.addEventListener('change', () => { manual = false; update(); });
     update();
