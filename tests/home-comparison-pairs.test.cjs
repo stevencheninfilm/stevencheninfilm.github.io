@@ -32,7 +32,7 @@ function setup({ mobile = false, reduced = false, loading = false, managed = fal
     if (index === 0) card.classList.add('is-active');
     const frame = element({ getBoundingClientRect: () => ({ left: 0, width: 1000 }) });
     const visual = visualWidth === null ? null : element({ getBoundingClientRect: () => ({ left: 100, width: visualWidth }) });
-    const handle = element();
+    const handle = element(), copy = element({ inert: false });
     const playerControls = index === 0 && controls ? {
       root: element({ hidden: true }), toggle: element(), seek: element({ value: 0, disabled: true }), clock: element(), sound: element()
     } : null;
@@ -50,19 +50,19 @@ function setup({ mobile = false, reduced = false, loading = false, managed = fal
     const stage = element({
       dataset: index === 0 ? { startTime, beforeLabel: '原始画面', afterLabel: '增强细节', ...(controls ? { controlsDelay: '3000' } : {}) } : {},
       closest: selector => selector === '.deck-card' ? card : deck,
-      querySelector: selector => ({ '.comparison-frame': frame, '.comparison-visual': visual, '.comparison-handle': handle, '.comparison-video--before': videos[0], '.comparison-video--after': videos[1],
+      querySelector: selector => ({ '.comparison-frame': frame, '.comparison-visual': visual, '.comparison-handle': handle, '.comparison-copy': copy, '.comparison-video--before': videos[0], '.comparison-video--after': videos[1],
         '[data-comparison-controls]': playerControls?.root, '[data-comparison-play]': playerControls?.toggle, '[data-comparison-seek]': playerControls?.seek,
         '[data-comparison-time]': playerControls?.clock, '[data-comparison-sound]': playerControls?.sound })[selector]
     });
     stage.style.setProperty = (name, value) => { stage.properties[name] = value; };
-    return { stage, card, frame, handle, videos, controls: playerControls };
+    return { stage, card, frame, handle, copy, videos, controls: playerControls };
   });
   const document = element({ body, documentElement: { lang: language }, hidden: false, querySelectorAll: () => pairs.map(pair => pair.stage) });
-  const window = { matchMedia: query => query.includes('reduced-motion') ? motion : { matches: mobile }, setTimeout(fn) { timers.set(++timerId, fn); return timerId; }, clearTimeout(id) { timers.delete(id); } };
+  const window = element({ matchMedia: query => query.includes('reduced-motion') ? motion : { matches: mobile }, setTimeout(fn) { timers.set(++timerId, fn); return timerId; }, clearTimeout(id) { timers.delete(id); } });
   const upgrade = progressiveFixture(window, pairs[0].stage, pairs[0].videos);
   vm.runInNewContext(source, { document, window, CustomEvent: class { constructor(type) { this.type = type; } }, MutationObserver: class { constructor(fn) { this.fn = fn; } observe(target) { observers.push({ target, fn: this.fn }); } } });
   const notify = target => observers.filter(observer => observer.target === target).forEach(observer => observer.fn());
-  return { pairs, document, deck, body, frames, upgrade,
+  return { pairs, document, window, deck, body, frames, upgrade,
     runTimers() { const pending = [...timers.values()]; timers.clear(); pending.forEach(fn => fn()); },
     select(index) { pairs.forEach((pair, i) => { pair.card.classList[i === index ? 'add' : 'remove']('is-active'); notify(pair.card); }); },
     strip(value) { deck.classList[value ? 'add' : 'remove']('is-strip'); notify(deck); },
@@ -181,6 +181,68 @@ test('pointer reveal uses the mobile picture width and falls back for a display-
     });
     assert.equal(app.pairs[0].stage.properties['--compare-split'], expected);
   }
+});
+
+const dragEvent = (extra = {}) => ({
+  isPrimary: true, pointerType: 'mouse', button: 0, pointerId: 7, clientX: 750,
+  target: { closest: () => null }, preventDefault() {}, stopPropagation() {}, ...extra
+});
+
+test('both comparison copies hide only during pointer dragging and recover on release', async () => {
+  const app = setup(); await flush();
+  for (const [index, pair] of app.pairs.entries()) {
+    app.select(index); await flush();
+    pair.frame.fire('pointerdown', dragEvent());
+    assert.ok(pair.stage.classList.contains('is-interacting'));
+    assert.equal(pair.copy.inert, true, 'a hidden title cannot receive keyboard or pointer activation');
+    pair.frame.fire('pointerup', dragEvent({ pointerId: 99 }));
+    assert.ok(pair.stage.classList.contains('is-interacting'), 'another pointer cannot finish the drag');
+    pair.frame.fire('pointerup', dragEvent());
+    assert.equal(pair.stage.classList.contains('is-interacting'), false);
+    assert.equal(pair.copy.inert, false, 'release begins restoring the whole copy without a second timer');
+    app.key(index, 'ArrowLeft');
+    assert.equal(pair.stage.classList.contains('is-interacting'), false, 'keyboard comparison keeps the copy readable');
+  }
+});
+
+test('canceled or interrupted comparison drags never leave their titles hidden', async () => {
+  for (const interrupt of ['pointercancel', 'lostpointercapture', 'blur', 'pagehide', 'hidden', 'strip', 'project', 'opening']) {
+    const app = setup(); await flush();
+    const pair = app.pairs[0];
+    let captured = false, releases = 0;
+    pair.frame.setPointerCapture = () => { captured = true; };
+    pair.frame.hasPointerCapture = () => captured;
+    pair.frame.releasePointerCapture = id => {
+      captured = false; releases++;
+      pair.frame.fire('lostpointercapture', { pointerId: id });
+    };
+    pair.frame.fire('pointerdown', dragEvent());
+    if (interrupt === 'hidden') { app.document.hidden = true; app.document.fire('visibilitychange'); }
+    else if (interrupt === 'strip') app.strip(true);
+    else if (interrupt === 'project') app.select(1);
+    else if (interrupt === 'opening') app.opening(true);
+    else if (interrupt === 'blur' || interrupt === 'pagehide') app.window.fire(interrupt);
+    else pair.frame.fire(interrupt, dragEvent());
+    assert.equal(pair.stage.classList.contains('is-interacting'), false, interrupt);
+    assert.equal(pair.copy.inert, false, interrupt);
+    assert.equal(releases, 1, `${interrupt}: releasing capture must not reenter cleanup`);
+    pair.frame.fire('pointermove', dragEvent({ clientX: 200 }));
+    assert.equal(pair.stage.properties['--compare-split'], '75%', `${interrupt}: stale moves are ignored`);
+  }
+});
+
+test('title links and touch scrolling do not hide copy; static reduced-motion comparisons remain draggable', async () => {
+  const app = setup({ reduced: true }); await flush();
+  const pair = app.pairs[0];
+  pair.frame.fire('pointerdown', dragEvent({ target: { closest: selector => selector.startsWith('a,') ? {} : null } }));
+  pair.frame.fire('pointerdown', dragEvent({ pointerType: 'touch' }));
+  assert.equal(pair.stage.classList.contains('is-interacting'), false);
+  pair.frame.fire('pointerdown', dragEvent({ pointerType: 'touch', target: { closest: selector => selector === '.comparison-handle' ? {} : null } }));
+  assert.ok(pair.stage.classList.contains('is-interacting'));
+  assert.equal(pair.stage.properties['--compare-split'], '75%');
+  pair.frame.fire('pointerup', dragEvent());
+  assert.equal(pair.copy.inert, false);
+  assert.ok(pair.videos.every(video => video.loads === 0), 'static reveal does not force video loading');
 });
 
 test('opening animation, strip mode, and hidden page suspend both video pairs', async () => {

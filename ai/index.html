@@ -14,7 +14,7 @@
   <link rel="stylesheet" href="../assets/site.css?v=20260925-1">
   <link rel="stylesheet" href="../assets/portfolio.css?v=20260925-10">
   <link rel="stylesheet" href="../assets/industry-partnerships.css?v=20260925-1">
-  <link rel="stylesheet" href="../assets/cinema-workflows.css?v=20261023-7">
+  <link rel="stylesheet" href="../assets/cinema-workflows.css?v=20261104-comparison-1">
   <link rel="stylesheet" href="../assets/ai-news.css?v=20260925-3">
   <link rel="stylesheet" href="../assets/xuantian-brand.css?v=20260927-logo-1">
   <link rel="stylesheet" href="../assets/icp-footer.css?v=20261027-1">
@@ -33,24 +33,41 @@
     <section class="ai-cinema-banner" aria-labelledby="workflows-title">
       <img class="ai-cinema-banner__image" src="../assets/images/home/grand-theft-art-poster.jpg" width="1600" height="900" alt="" fetchpriority="high">
       <div class="ai-cinema-banner__copy">
-        <p class="ai-cinema-banner__label">AI Visuals / 05—2026</p>
+        <p class="ai-cinema-banner__label">AI Visuals / 2026</p>
         <h1 id="workflows-title">Cinema,<br><em>reimagined.</em></h1>
-        <p class="ai-cinema-banner__subtitle">Two ways into AI.</p>
+        <p class="ai-cinema-banner__subtitle">Three ways to reimagine the frame.</p>
       </div>
-      <div class="ai-cinema-banner__index" aria-hidden="true"><span>01 / 3D Camera Previs</span><span>02 / Real Cinema</span></div>
+      <div class="ai-cinema-banner__index" aria-hidden="true"><span>01 / DLSS + RTX</span><span>02 / 3D Camera Previs</span><span>03 / Real Cinema</span></div>
     </section>
     <section class="ai-workflows" id="cinema-workflows" aria-labelledby="workflows-title" data-workflows>
       <div class="ai-workflows__pin">
-        <header class="ai-workflows__eyebrow"><p>Filmmaking workflows</p><span>3D direction / Live-action transformation</span><span data-workflow-counter>01 / 02</span></header>
+        <header class="ai-workflows__eyebrow"><p>Filmmaking workflows</p><span>Detail / Direction / Transformation</span><span data-workflow-counter>01 / 03</span></header>
         <div class="ai-workflows__layout">
           <nav class="ai-workflows__directory" aria-label="Explore filmmaking workflows">
-            <a href="#camera-previs-to-ai" data-workflow-step="0" aria-current="true"><span class="ai-workflows__thumb"><img src="../assets/images/home/grand-theft-art-poster.jpg" width="320" height="180" alt=""></span><span><b>01</b> 3D Camera Previs <small>to AI</small></span></a>
-            <a href="#real-cinema-to-ai" data-workflow-step="1"><span class="ai-workflows__thumb"><img src="../assets/images/projects/journey-to-another-world/poster.jpg" width="1600" height="900" alt=""></span><span><b>02</b> Real Cinema <small>to AI Video</small></span></a>
+            <a href="#dlss-detail" data-workflow-step="0" aria-current="true"><span class="ai-workflows__thumb"><img src="../assets/images/home/dock/dlss-detail.webp" width="320" height="180" alt="" decoding="async"></span><span><b>01</b> DLSS + RTX <small>Detail</small></span></a>
+            <a href="#camera-previs-to-ai" data-workflow-step="1"><span class="ai-workflows__thumb"><img src="../assets/images/home/dock/grand-theft-art.webp" width="320" height="180" alt="" decoding="async"></span><span><b>02</b> 3D Camera Previs <small>to AI</small></span></a>
+            <a href="#real-cinema-to-ai" data-workflow-step="2"><span class="ai-workflows__thumb"><img src="../assets/images/home/dock/real-cinema.webp" width="320" height="180" alt="" decoding="async"></span><span><b>03</b> Real Cinema <small>to AI Video</small></span></a>
             <p class="ai-workflows__scroll">Scroll to explore <span aria-hidden="true">↓</span></p>
           </nav>
           <div class="ai-workflows__stage">
+            <article class="ai-workflows__item" id="dlss-detail" data-workflow-item aria-labelledby="dlss-title">
+              <header class="ai-workflows__title"><p>01 / Workflow Comparison · Seedance 2.5</p><h2 id="dlss-title">Redefine every detail.</h2><p class="ai-workflows__translation" lang="zh-Hans">重塑每一处细节</p></header>
+              <div class="ab-compare" data-about-comparison data-progressive-group data-start-time="1" data-before-label="original footage" data-after-label="DLSS + RTX enhanced">
+                <div class="ab-compare__frame">
+                  <video class="ab-compare__before" muted loop playsinline preload="none" width="1920" height="1080" poster="../assets/images/projects/dlss-detail/original-poster-mobile.webp" data-src="../assets/videos/dlss-detail/original-preview.mp4" data-src-hd="../assets/videos/dlss-detail/original-1080p.mp4" data-src-mobile="../assets/videos/dlss-detail/original-lite.mp4" aria-label="Original 1080p footage, synchronized with the DLSS + RTX enhanced version"></video>
+                  <div class="ab-compare__after" aria-hidden="true"><video muted loop playsinline preload="none" width="3840" height="2160" poster="../assets/images/projects/dlss-detail/enhanced-poster-mobile.webp" data-src="../assets/videos/dlss-detail/enhanced-preview-audio-v1.mp4" data-src-hd="../assets/videos/dlss-detail/enhanced-4k-audio-v1.mp4" data-src-mobile="../assets/videos/dlss-detail/enhanced-lite-audio-v1.mp4"></video></div>
+                  <span class="ab-compare__label ab-compare__label--before">ORIGINAL · 1080p</span>
+                  <span class="ab-compare__label ab-compare__label--after">DLSS + RTX · 4K OUTPUT</span>
+                  <span class="ab-compare__divider" aria-hidden="true"></span>
+                  <button class="ab-compare__handle" type="button" role="slider" aria-label="Reveal the original and DLSS + RTX enhanced comparison" aria-orientation="horizontal" aria-valuemin="4" aria-valuemax="96" aria-valuenow="50" aria-valuetext="50 percent original footage, 50 percent DLSS + RTX enhanced" aria-describedby="dlss-comparison-help"><span aria-hidden="true">↔</span></button>
+                </div>
+                <div class="ab-compare__controls"><p id="dlss-comparison-help">Drag to compare · <span lang="zh-Hans">左右拖动对比</span></p><button class="ab-compare__play" type="button" hidden>Play comparison</button><span class="ab-compare__status" role="status" aria-live="polite"></span></div>
+                <noscript><p><a href="../assets/videos/dlss-detail/original-1080p.mp4">Watch original</a> / <a href="../assets/videos/dlss-detail/enhanced-4k-audio-v1.mp4">Watch 4K enhanced</a></p></noscript>
+              </div>
+              <div class="ai-workflows__description"><div><h3>DLSS + RTX · 1080p → 4K</h3><p>Start with Seedance 2.5 footage, then refine it locally with DLSS + RTX, from 1080p to 4K. Drag the divider to compare texture, edges and fine detail in the same shot. <span lang="zh-Hans">本地生成，从 1080p 到 4K，逐帧对比细节变化。</span></p></div><div class="ai-workflows__credits"><span class="project-tool"><i class="project-tool-logo project-tool-logo--dreamina" aria-hidden="true"></i>Seedance 2.5</span><time datetime="2026-11">11/2026</time><a class="ai-workflows__quality" href="../assets/videos/dlss-detail/enhanced-4k-audio-v1.mp4">View full 4K ↗</a></div></div>
+            </article>
             <article class="ai-workflows__item" id="camera-previs-to-ai" data-workflow-item aria-labelledby="previs-title">
-              <header class="ai-workflows__title"><p>01 / 3D Camera Previs → AI</p><h2 id="previs-title">Direct the camera.<br><em>Reinvent the world.</em></h2></header>
+              <header class="ai-workflows__title"><p>02 / 3D Camera Previs → AI</p><h2 id="previs-title">Direct the camera.<br><em>Reinvent the world.</em></h2></header>
                       <div class="ab-compare" data-about-comparison data-progressive-group>
           <div class="ab-compare__frame">
             <video class="ab-compare__before" muted loop playsinline preload="none" width="1280" height="720" poster="../assets/images/home/grand-theft-art-before.jpg" data-src="../assets/videos/grand-theft-art/previs-preview.mp4" data-src-hd="../assets/videos/grand-theft-art/previs-hd-v1.mp4" data-src-mobile="../assets/videos/grand-theft-art/previs-lite.mp4" aria-label="Grand Theft Art — 3D camera previs"></video>
@@ -66,7 +83,7 @@
               <div class="ai-workflows__description"><div><h3>Grand Theft Art</h3><p>A shot begins with a camera move. Build the composition, blocking and movement in 3D, then carry that direction into an AI-rendered world. Drag the divider to see the same moment in both.</p></div><div class="ai-workflows__credits"><span class="project-tool"><i class="project-tool-logo project-tool-logo--dreamina" aria-hidden="true"></i>Seedance 2.0</span><time datetime="2026-05">05/2026</time></div></div>
             </article>
             <article class="ai-workflows__item" id="real-cinema-to-ai" data-workflow-item aria-labelledby="cinema-title">
-              <header class="ai-workflows__title"><p>02 / Real Cinema → AI Video</p><h2 id="cinema-title">Shot in reality.<br><em>Reimagined with AI.</em></h2></header>
+              <header class="ai-workflows__title"><p>03 / Real Cinema → AI Video</p><h2 id="cinema-title">Shot in reality.<br><em>Reimagined with AI.</em></h2></header>
               <div class="workflow-player" data-workflow-player>
               <div class="workflow-player__picture"><video data-workflow-video muted loop playsinline preload="none" width="1280" height="720" poster="../assets/images/projects/journey-to-another-world/poster.jpg" data-src="../assets/videos/journey-to-another-world/bts-720p.mp4" data-src-hd="../assets/videos/journey-to-another-world/bts-1080p-hd-v1.mp4" data-src-mobile="../assets/videos/journey-to-another-world/bts-mobile.mp4" aria-label="Journey to Another World — live-action to AI breakdown"></video></div>
               <div class="workflow-player__controls" data-player-controls hidden>
@@ -233,8 +250,8 @@
   <footer class="site-footer"><a href="mailto:kieen1454@gmail.com">Start a project ↗</a><span>© 2026 Steven Chen</span></footer>
   <script defer src="../assets/progressive-video.js?v=20261104-hd-2"></script>
   <script src="../assets/film-player.js?v=20261104-hd-1" defer></script>
-  <script src="../assets/ai-workflows.js?v=20261023-2" defer></script>
-  <script src="../assets/about-comparison.js?v=20261104-hd-2" defer></script>
+  <script src="../assets/ai-workflows.js?v=20261104-comparison-1" defer></script>
+  <script src="../assets/about-comparison.js?v=20261104-comparison-1" defer></script>
   <script src="../assets/workflow-player.js?v=20261104-hd-1" defer></script>
   <script src="../assets/video-loader.js?v=20261104-hd-2"></script>
   <script src="../assets/ai-news.js?v=20260925-2"></script>

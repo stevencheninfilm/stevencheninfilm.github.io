@@ -5,6 +5,9 @@
   const items = [...section.querySelectorAll('[data-workflow-item]')];
   const steps = [...section.querySelectorAll('[data-workflow-step]')];
   const counter = section.querySelector('[data-workflow-counter]');
+  const count = items.length;
+  if (!pin || !count || steps.length !== count || !counter) return;
+  section.style.setProperty('--workflow-count', count);
   const header = document.querySelector('.site-header');
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const compact = matchMedia('(max-height: 650px)');
@@ -22,14 +25,14 @@
       else item.removeAttribute('aria-hidden');
       steps[i].setAttribute('aria-current', String(i === index));
     });
-    counter.textContent = `${String(index + 1).padStart(2, '0')} / 02`;
+    counter.textContent = `${String(index + 1).padStart(2, '0')} / ${String(count).padStart(2, '0')}`;
   };
   const render = () => {
     frame = 0;
     if (staticLayout()) return;
     const progress = clamp(-section.getBoundingClientRect().top / range());
-    setActive(progress < .5 ? 0 : 1);
-    steps.forEach((step, i) => step.style.setProperty('--workflow-progress', clamp(progress * 2 - i)));
+    setActive(Math.min(count - 1, Math.floor(progress * count)));
+    steps.forEach((step, i) => step.style.setProperty('--workflow-progress', clamp(progress * count - i)));
   };
   const schedule = () => { if (!frame) frame = requestAnimationFrame(render); };
   const navigate = (index, behavior = 'smooth') => {
@@ -37,7 +40,8 @@
       items[index].scrollIntoView({ behavior: 'auto', block: 'start' });
       setActive(index);
     } else {
-      window.scrollTo({ top: start() + range() * (index ? .78 : .08), behavior });
+      // Land inside the selected story, away from a transition boundary.
+      window.scrollTo({ top: start() + range() * (index + .5) / count, behavior });
       if (behavior === 'instant' || behavior === 'auto') render();
     }
   };

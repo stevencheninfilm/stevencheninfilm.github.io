@@ -5,6 +5,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   const frame = stage.querySelector('.comparison-frame');
   const visual = stage.querySelector('.comparison-visual') || frame;
   const handle = stage.querySelector('.comparison-handle');
+  const copy = stage.querySelector('.comparison-copy');
   const before = stage.querySelector('.comparison-video--before');
   const after = stage.querySelector('.comparison-video--after');
   if (!card || !deck || !frame || !handle || !before || !after) return;
@@ -36,7 +37,6 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   let pairReady = null;
   let videoFrame = null;
   let activePointer = null;
-  let copyTimer = null;
   let buffering = false;
   let autoplayBlocked = false;
   let userPaused = false;
@@ -111,14 +111,14 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
     });
   };
 
-  const isActive = () => {
+  const isPresented = () => {
     const visibleCard = card.classList.contains('is-active') || card.classList.contains('is-slide-layer');
     return visibleCard
       && !deck.classList.contains('is-strip')
       && !document.body.classList.contains('is-v3-loading')
-      && !document.hidden
-      && !motionPreference.matches;
+      && !document.hidden;
   };
+  const isActive = () => isPresented() && !motionPreference.matches;
   const shouldPlay = () => !switching() && isActive() && !userPaused && !scrubbing;
   const switchPaused = () => !isActive() || userPaused || autoplayBlocked || (scrubbing && !resumeAfterSeek);
 
@@ -220,6 +220,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   };
 
   const updatePlayback = () => {
+    if (!isPresented()) resetPointer();
     handle.tabIndex = card.classList.contains('is-active') && !deck.classList.contains('is-strip') ? 0 : -1;
     const active = isActive();
     if (active && !wasActive) {
@@ -381,18 +382,26 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   };
 
   const beginInteraction = () => {
-    window.clearTimeout(copyTimer);
     stage.classList.add('is-interacting', 'is-dragging');
+    if (copy) copy.inert = true;
   };
 
   const endInteraction = () => {
-    stage.classList.remove('is-dragging');
-    window.clearTimeout(copyTimer);
-    copyTimer = window.setTimeout(() => stage.classList.remove('is-interacting'), 560);
+    stage.classList.remove('is-interacting', 'is-dragging');
+    if (copy) copy.inert = false;
+  };
+
+  const resetPointer = () => {
+    const pointer = activePointer;
+    // Releasing capture can synchronously dispatch lostpointercapture.
+    activePointer = null;
+    if (pointer !== null && frame.hasPointerCapture?.(pointer)) frame.releasePointerCapture(pointer);
+    endInteraction();
   };
 
   frame.addEventListener('pointerdown', (event) => {
     if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    if (!isPresented() || activePointer !== null) return;
     if (event.target.closest('a, .video-loading-retry, [data-comparison-controls]')) return;
     const startedOnHandle = Boolean(event.target.closest('.comparison-handle'));
     if (event.pointerType === 'touch' && !startedOnHandle) return;
@@ -415,13 +424,16 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
     if (event.pointerId !== activePointer) return;
     event.preventDefault();
     event.stopPropagation();
-    if (frame.hasPointerCapture?.(event.pointerId)) frame.releasePointerCapture(event.pointerId);
-    activePointer = null;
-    endInteraction();
+    resetPointer();
   };
 
   frame.addEventListener('pointerup', finishPointer);
   frame.addEventListener('pointercancel', finishPointer);
+  frame.addEventListener('lostpointercapture', (event) => {
+    if (event.pointerId === activePointer) resetPointer();
+  });
+  window.addEventListener('blur', resetPointer);
+  window.addEventListener('pagehide', resetPointer);
 
   handle.addEventListener('keydown', (event) => {
     const changes = {
@@ -437,9 +449,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
     if (!(event.key in changes)) return;
     event.preventDefault();
     event.stopPropagation();
-    beginInteraction();
     setSplit(split + changes[event.key]);
-    endInteraction();
   });
 
   handle.addEventListener('click', (event) => event.stopPropagation());
@@ -452,6 +462,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   document.addEventListener('visibilitychange', updatePlayback);
   motionPreference.addEventListener('change', (event) => {
     if (event.matches) {
+      resetPointer();
       pausePair();
       setSplit(50);
     } else {
