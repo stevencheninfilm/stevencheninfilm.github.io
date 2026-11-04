@@ -293,6 +293,12 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
     ++playGeneration;
     // The engine owns the temporary pause; preserve the user's transport intent.
     setIntent(master, { paused: switchPaused() });
+    if (event.detail.recovery && !initialSeeked) {
+      // A failed preview may never have delivered metadata or its opening seek.
+      // The fully decoded recovery source must start at the intended opening.
+      initialSeeked = true;
+      setIntent(master, { time: initialTime });
+    }
     buffering = false;
     pausePair();
   });

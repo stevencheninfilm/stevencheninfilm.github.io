@@ -15,7 +15,7 @@ function target(extra = {}) {
     removeEventListener(name, callback) { listeners.set(name, (listeners.get(name) || []).filter(fn => fn !== callback)); },
     emit(name, event = {}) { for (const callback of [...(listeners.get(name) || [])]) callback(event); },
     fire(name, event = {}) { this.emit(name, event); },
-    dispatchEvent(event) { this.emit(event.type, event); },
+    dispatchEvent(event) { this.emit(event.type, event); if (event.bubbles) this.parentElement?.dispatchEvent(event); },
     setAttribute(name, value) { this.attrs[name] = value; },
     removeAttribute(name) { delete this.attrs[name]; },
     getAttribute(name) { return this.attrs[name] || ''; },
@@ -23,13 +23,14 @@ function target(extra = {}) {
   }, extra);
 }
 
-function setup({ active = 0, reduced = false, mobile = false, home = true, hidden = false, zh = false } = {}) {
+function setup({ active = 0, reduced = false, mobile = false, home = true, hidden = false, zh = false, progressiveAncestor = false } = {}) {
   const requests = [], observers = [], intersections = [], timers = new Map();
   let timerId = 0, now = 0;
   const motion = target({ matches: reduced });
   const deck = target();
   const groups = [0, 1].map(index => {
     const card = target({ closest: () => deck });
+    const progressiveStage = progressiveAncestor ? target() : null;
     if (index === active) card.classList.add('is-active');
     const videos = ['before', 'after'].map(side => {
       const video = target({
@@ -41,6 +42,7 @@ function setup({ active = 0, reduced = false, mobile = false, home = true, hidde
           if (this.currentRequest) this.currentRequest.cancelled = true;
           this.readyState = 0;
           if (this.src) {
+            this.currentSrc = this.src;
             this.currentRequest = { url: this.src, video: this, cancelled: false };
             requests.push(this.currentRequest);
           } else this.currentRequest = null;
@@ -56,25 +58,26 @@ function setup({ active = 0, reduced = false, mobile = false, home = true, hidde
     const output = target(), label = target(), progress = target(), status = target(), retry = target({ hidden: true }), control = target();
     const overlay = target({ querySelector: selector => ({ output, '.video-loading-meta span': label, '[role="progressbar"]': progress, '.video-loading-status': status, '.video-loading-retry': retry })[selector] });
     const group = target({
+      parentElement: progressiveStage,
       dataset: zh ? { videoLang: 'zh', videoLoadingLabel: '对比视频加载中' } : {},
-      closest: selector => selector === '.deck-card--comparison' && home ? card : null,
+      closest: selector => selector === '[data-progressive-group]' ? progressiveStage : selector === '.deck-card--comparison' && home ? card : null,
       querySelectorAll: selector => selector === 'video' ? videos : [control],
       querySelector: () => overlay,
       hasAttribute: name => name === 'data-video-static-on-reduced-motion'
     });
-    return { group, card, videos, overlay, retry, control, status, output, progress, label };
+    return { group, progressiveStage, card, videos, overlay, retry, control, status, output, progress, label };
   });
   const document = target({ hidden, querySelectorAll: () => groups.map(item => item.group) });
   const window = target({ IntersectionObserver: true,
     matchMedia: query => query.includes('reduced-motion') ? motion : { matches: mobile },
     setTimeout: (callback, delay) => { timers.set(++timerId, { callback, at: now + delay }); return timerId; }, clearTimeout: id => timers.delete(id)
   });
-  const upgrade = progressiveFixture(window, groups[0].group, groups[0].videos);
+  const upgrade = progressiveFixture(window, groups[0].progressiveStage || groups[0].group, groups[0].videos);
   vm.runInNewContext(read('assets/video-loader.js'), {
     document, window, navigator: { onLine: true }, HTMLMediaElement: { HAVE_CURRENT_DATA: 2 },
     XMLHttpRequest: class { constructor() { throw Error('whole-file XHR must never be used'); } },
     URL: { createObjectURL() { throw Error('video playback must not wait for a Blob'); } },
-    CustomEvent: class { constructor(type) { this.type = type; } },
+    CustomEvent: class { constructor(type, options) { this.type = type; Object.assign(this, options); } },
     MutationObserver: class { constructor(callback) { this.callback = callback; } observe(element) { observers.push({ element, callback: this.callback }); } },
     IntersectionObserver: class { constructor(callback) { this.callback = callback; } observe(element) { intersections.push({ element, callback: this.callback }); } }
   });
@@ -252,4 +255,51 @@ test('an offscreen canceled upgrade can restore undecoded preview URLs without f
   assert.equal(app.requests.filter(request => request.video === pair.videos[0]).length, 1, 'returning retains the engine-restored source');
   readyPair(pair);
   assert.equal(pair.overlay.hidden, true);
+});
+
+test('a genuine preview deadline bubbles one recovery signal and a stage-rooted HD transaction clears Retry', () => {
+  const app = setup({ progressiveAncestor: true }), pair = app.groups[0], failures = [];
+  pair.progressiveStage.addEventListener('video-loader:preview-failed', event => failures.push(event));
+  app.advance(17999);
+  assert.equal(failures.length, 0);
+  app.advance(1);
+  assert.equal(failures.length, 1); assert.equal(failures[0].bubbles, true);
+  assert.equal(failures[0].detail.reason, 'timeout');
+  assert.ok(pair.videos.every((video, index) => failures[0].detail.videos[index] === video));
+  assert.equal(pair.retry.hidden, false);
+  pair.videos[0].emit('error'); app.advance(30000);
+  assert.equal(failures.length, 1, 'the same failed attempt does not enqueue HD repeatedly');
+  app.upgrade.begin({ recovery: true });
+  assert.equal(pair.overlay.hidden, true, 'a transaction on the ancestor stage reaches the frame loader');
+  pair.videos.forEach(video => app.upgrade.reset(video));
+  app.upgrade.finish();
+  assert.equal(pair.overlay.hidden, true); assert.equal(pair.retry.hidden, true);
+  assert.ok(pair.videos.every(video => video.dataset.videoLoaderReady === 'true'));
+  assert.equal(app.requests.length, 2, 'successful recovery does not reload the stuck preview');
+});
+
+test('native preview errors signal recovery, while an optional HD failure cannot signal another recovery', () => {
+  const app = setup({ progressiveAncestor: true }), pair = app.groups[0], failures = [];
+  pair.progressiveStage.addEventListener('video-loader:preview-failed', event => failures.push(event.detail.reason));
+  pair.videos[0].emit('error');
+  assert.deepEqual(failures, ['media-error']);
+  app.upgrade.begin({ recovery: true });
+  pair.videos.forEach(video => app.upgrade.reset(video));
+  app.upgrade.finish('error', { pending: true, reason: 'unavailable' });
+  assert.deepEqual(failures, ['media-error']);
+  assert.equal(pair.retry.hidden, false, 'a failed rescue retains the ordinary native retry');
+});
+
+test('Retry reattaches both source attributes after leaving an error, even when currentSrc retains stale URLs', () => {
+  const app = setup(), pair = app.groups[0];
+  const oldSources = pair.videos.map(video => video.currentSrc);
+  pair.videos[0].emit('error'); app.setActive(1); app.setActive(0);
+  assert.deepEqual(pair.videos.map(video => video.currentSrc), oldSources);
+  assert.ok(pair.videos.every(video => !video.getAttribute('src') && video.preload === 'none'));
+  assert.equal(pair.retry.hidden, false);
+  pair.retry.emit('click');
+  assert.deepEqual(pair.videos.map(video => video.getAttribute('src')), oldSources);
+  assert.ok(pair.videos.every(video => video.preload === 'auto'));
+  readyPair(pair);
+  assert.ok(pair.videos.every(video => video.dataset.videoLoaderReady === 'true'));
 });

@@ -21,7 +21,7 @@ function element(extra = {}) {
   }, extra);
 }
 
-function setup({ mobile = false, reduced = false, loading = false, managed = false, controls = false, visualWidth = null, language = 'en' } = {}) {
+function setup({ mobile = false, reduced = false, loading = false, managed = false, controls = false, visualWidth = null, language = 'en', startTime = '0' } = {}) {
   const observers = [], frames = new Map();
   let frameId = 0, timerId = 0;
   const timers = new Map();
@@ -48,7 +48,7 @@ function setup({ mobile = false, reduced = false, loading = false, managed = fal
       cancelVideoFrameCallback(id) { frames.delete(id); }
     }));
     const stage = element({
-      dataset: index === 0 ? { startTime: '0', beforeLabel: '原始画面', afterLabel: '增强细节', ...(controls ? { controlsDelay: '3000' } : {}) } : {},
+      dataset: index === 0 ? { startTime, beforeLabel: '原始画面', afterLabel: '增强细节', ...(controls ? { controlsDelay: '3000' } : {}) } : {},
       closest: selector => selector === '.deck-card' ? card : deck,
       querySelector: selector => ({ '.comparison-frame': frame, '.comparison-visual': visual, '.comparison-handle': handle, '.comparison-video--before': videos[0], '.comparison-video--after': videos[1],
         '[data-comparison-controls]': playerControls?.root, '[data-comparison-play]': playerControls?.toggle, '[data-comparison-seek]': playerControls?.seek,
@@ -363,4 +363,29 @@ test('finishing a quality switch offscreen cannot restart a departed comparison'
   assert.ok(pair.videos.every(video => video.paused && video.currentTime === 8));
   app.select(0); await flush();
   assert.ok(pair.videos.every(video => !video.paused && video.loads === 1));
+});
+
+test('a never-decoded preview recovers with the intended opening frame and playback instead of its forced pause', async () => {
+  const app = setup({ managed: true, startTime: '1' });
+  const [before, after] = app.pairs[0].videos;
+  before.src = 'stuck-before.mp4'; after.src = 'stuck-after.mp4';
+  assert.ok(before.paused && after.paused);
+  app.upgrade.begin({ recovery: true });
+  assert.equal(app.upgrade.intent(after).paused, false, 'native loader pause is not a user pause');
+  assert.equal(app.upgrade.intent(after).time, 1, 'recovery applies the opening frame that the preview never reached');
+  before.dataset.videoLoaderReady = after.dataset.videoLoaderReady = 'true';
+  app.upgrade.finish(); before.fire('video-loader:ready'); await flush();
+  assert.ok(!before.paused && !after.paused);
+  assert.equal(before.currentTime, 1); assert.equal(after.currentTime, 1);
+  assert.equal(before.loads + after.loads, 0, 'recovery must not re-enter the preview source loader');
+});
+
+test('a manually paused comparison remains paused when a failed preview is rescued', async () => {
+  const app = setup({ controls: true }); await flush();
+  const pair = app.pairs[0]; pair.videos.forEach(video => { video.currentTime = 7; });
+  pair.controls.toggle.fire('click');
+  app.upgrade.begin({ recovery: true });
+  assert.equal(app.upgrade.intent(pair.videos[1]).paused, true);
+  app.upgrade.finish(); await flush();
+  assert.ok(pair.videos.every(video => video.paused && video.currentTime === 7));
 });
