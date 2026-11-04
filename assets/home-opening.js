@@ -172,7 +172,7 @@
     const destination = new URL(event.currentTarget.href, window.location.href);
     // A real navigation resets the deck as well as the opening, even from strip
     // mode or a hash link. Modified clicks retain normal new-tab behavior.
-    if (destination.pathname === window.location.pathname) window.location.reload();
+    if (destination.pathname === window.location.pathname && destination.search === window.location.search) window.location.reload();
     else window.location.assign(destination.href);
   });
   window.addEventListener('resize', () => {

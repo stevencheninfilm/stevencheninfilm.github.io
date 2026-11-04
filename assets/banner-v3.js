@@ -22,8 +22,12 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   const mobileMedia = window.matchMedia('(max-width: 600px)');
   const initialTime = Number(stage.dataset.startTime ?? 5.25);
-  const beforeLabel = stage.dataset.beforeLabel || '3D previs';
-  const afterLabel = stage.dataset.afterLabel || 'AI render';
+  const chinese = /^zh(?:-|$)/i.test(document.documentElement?.lang || 'en');
+  const beforeLabel = stage.dataset.beforeLabel || (chinese ? '3D 运镜预演' : '3D previs');
+  const afterLabel = stage.dataset.afterLabel || (chinese ? 'AI 生成画面' : 'AI render');
+  const words = chinese
+    ? { play: '播放', pause: '暂停', playLabel: '播放对比视频', pauseLabel: '暂停对比视频', soundOff: '声音关闭', soundOn: '声音开启', unmute: '开启视频声音', mute: '关闭视频声音' }
+    : { play: 'Play', pause: 'Pause', playLabel: 'Play comparison video', pauseLabel: 'Pause comparison video', soundOff: 'Sound off', soundOn: 'Sound on', unmute: 'Unmute video', mute: 'Mute video' };
   const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
 
   let split = 50;
@@ -54,12 +58,12 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
     if (!scrubbing) seek.value = percentage;
     seek.style.setProperty('--seek', `${scrubbing ? seek.value : percentage}%`);
     seek.disabled = !length;
-    seek.setAttribute('aria-valuetext', `${timeLabel(master.currentTime)}，共 ${timeLabel(length)}`);
+    seek.setAttribute('aria-valuetext', chinese ? `${timeLabel(master.currentTime)}，共 ${timeLabel(length)}` : `${timeLabel(master.currentTime)} of ${timeLabel(length)}`);
     clock.textContent = `${timeLabel(master.currentTime)} / ${timeLabel(length)}`;
-    toggle.textContent = master.paused ? '播放' : '暂停';
-    toggle.setAttribute('aria-label', master.paused ? '播放对比视频' : '暂停对比视频');
-    sound.textContent = master.muted ? '声音关闭' : '声音开启';
-    sound.setAttribute('aria-label', master.muted ? '开启视频声音' : '关闭视频声音');
+    toggle.textContent = master.paused ? words.play : words.pause;
+    toggle.setAttribute('aria-label', master.paused ? words.playLabel : words.pauseLabel);
+    sound.textContent = master.muted ? words.soundOff : words.soundOn;
+    sound.setAttribute('aria-label', master.muted ? words.unmute : words.mute);
     sound.setAttribute('aria-pressed', String(!master.muted));
   };
 
@@ -68,7 +72,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
     const rounded = Math.round(split);
     stage.style.setProperty('--compare-split', `${split}%`);
     handle.setAttribute('aria-valuenow', String(rounded));
-    handle.setAttribute('aria-valuetext', `${rounded}% ${beforeLabel}, ${100 - rounded}% ${afterLabel}`);
+    handle.setAttribute('aria-valuetext', `${rounded}% ${beforeLabel}${chinese ? '，' : ', '}${100 - rounded}% ${afterLabel}`);
   };
 
   const loadVideos = () => {

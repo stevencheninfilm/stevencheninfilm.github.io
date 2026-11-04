@@ -5,7 +5,7 @@
 
   document.querySelectorAll('[data-workflow-player]').forEach(player => {
     const video = player.querySelector('video');
-    const chinese = player.dataset.playerLang === 'zh';
+    const chinese = /^zh(?:-|$)/i.test(document.documentElement?.lang || player.dataset.playerLang || 'en');
     const words = chinese
       ? { retry: '重试', play: '播放', pause: '暂停', soundOff: '静音', soundOn: '声音开启', unmute: '开启声音', mute: '关闭声音', start: '点按播放，开始观看。', unavailable: '视频暂时不可用，请点按重试。' }
       : { retry: 'Retry', play: 'Play', pause: 'Pause', soundOff: 'Sound off', soundOn: 'Sound on', unmute: 'Unmute video', mute: 'Mute video', start: 'Press Play to start the film.', unavailable: 'Video unavailable. Select Retry to load it again.' };

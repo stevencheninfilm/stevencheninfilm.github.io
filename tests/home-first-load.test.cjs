@@ -115,3 +115,18 @@ test('mobile dock loads only intersecting thumbnails and still supports browsers
   assert.deepEqual(app.unobserved, [app.images[0]]);
   assert.ok(setup(false).images.every(image => image.src), 'fallback thumbnails remain usable');
 });
+
+
+test('language links restore exact project IDs while missing or invalid IDs keep the first project', () => {
+  const source = read('assets/site.js');
+  const initialization = source.slice(0, source.indexOf("  let mode = 'expanded';")) + '\nreturn active;\n})();';
+  const cards = Array.from({ length: 10 }, (_, index) => ({ dataset: { page: String(index - 1) } }));
+  for (const [search, expected] of [['', 0], ['?project=-1', 0], ['?project=0', 1], ['?project=1', 2], ['?campaign=home&project=8', 9], ['?project=9', 0], ['?project=-2', 0], ['?project=1.5', 0], ['?project=', 0], ['?project=unknown', 0]]) {
+    const active = vm.runInNewContext(initialization, {
+      URLSearchParams,
+      window: { location: { search }, matchMedia: () => ({ matches: false }) },
+      document: { documentElement: { lang: 'zh-Hans' }, querySelector: () => ({}), querySelectorAll: selector => selector === '.deck-card' ? cards : [] }
+    });
+    assert.equal(active, expected, search || '(no query)');
+  }
+});

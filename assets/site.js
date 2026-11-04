@@ -10,10 +10,12 @@
   const thumbnailDock = document.querySelector('.thumbnail-dock');
   const loader = document.querySelector('.site-loader');
   const loaderPercent = document.querySelector('.loader-percent');
+  const chinese = /^zh(?:-|$)/i.test(document.documentElement?.lang || 'en');
   const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
   let reducedMotion = motionPreference.matches;
   const total = cards.length;
-  let active = 0;
+  const requestedProject = new URLSearchParams(window.location.search).get('project');
+  let active = Math.max(0, cards.findIndex(card => card.dataset.page === requestedProject));
   let mode = 'expanded';
   let locked = true;
   let pointerStart = null;
@@ -133,7 +135,7 @@
       else card.removeAttribute('aria-hidden');
       if (mode === 'strip') {
         card.setAttribute('role', 'button');
-        card.setAttribute('aria-label', `Open ${card.dataset.title}`);
+        card.setAttribute('aria-label', chinese ? `打开 ${card.dataset.title}` : `Open ${card.dataset.title}`);
       } else {
         card.removeAttribute('role');
         card.removeAttribute('aria-label');
@@ -158,7 +160,9 @@
     if (mode === 'strip') thumbnailDock.setAttribute('aria-hidden', 'true');
     else thumbnailDock.removeAttribute('aria-hidden');
     current.textContent = cards[active]?.dataset.page ?? String(active + 1);
-    pagination.setAttribute('aria-label', mode === 'strip' ? `Open ${cards[active].dataset.title}` : `Browse all ${total} projects`);
+    pagination.setAttribute('aria-label', mode === 'strip'
+      ? (chinese ? `打开 ${cards[active].dataset.title}` : `Open ${cards[active].dataset.title}`)
+      : (chinese ? `浏览全部 ${total} 个项目` : `Browse all ${total} projects`));
 
     cards.forEach((card, index) => {
       if (card.classList.contains('deck-card--comparison')) return;
@@ -348,7 +352,7 @@
       return;
     }
 
-    const leadImage = cards[0].querySelector('img');
+    const leadImage = cards[active].querySelector('img');
     const leadReady = leadImage?.decode ? leadImage.decode().catch(() => {}) : Promise.resolve();
     await Promise.race([leadReady, wait(240)]);
 
@@ -521,6 +525,8 @@
     });
   });
 
+  ensureCardMedia(active);
+  updateInterface();
   renderStrip(active);
   syncThumbnailGeometry();
   runLoader();
