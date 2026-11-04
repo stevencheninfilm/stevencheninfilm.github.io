@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="assets/about.css?v=20260925-2">
   <link rel="stylesheet" href="assets/icp-footer.css?v=20261027-1">
   <link rel="stylesheet" href="assets/media-access.css?v=20261103-2">
+  <link rel="stylesheet" href="assets/progressive-video-status.css?v=20261104-hd-status-1">
 </head>
 <body class="content-page about-page">
   <a class="skip-link" href="#main">Skip to profile</a>
@@ -63,6 +64,9 @@
           <div class="ab-compare__frame">
             <video class="ab-compare__before" muted loop playsinline preload="none" width="1280" height="720" poster="assets/images/home/grand-theft-art-before.jpg" data-src="assets/videos/grand-theft-art/previs-preview.mp4" data-src-hd="assets/videos/grand-theft-art/previs-hd-v1.mp4" data-src-mobile="assets/videos/grand-theft-art/previs-lite.mp4" aria-label="Grand Theft Art — 3D camera previs"></video>
             <div class="ab-compare__after" aria-hidden="true"><video muted loop playsinline preload="none" width="1280" height="720" poster="assets/images/home/grand-theft-art-poster.jpg" data-src="assets/videos/grand-theft-art/ai-render-preview.mp4" data-src-hd="assets/videos/grand-theft-art/ai-render-hd-v1.mp4" data-src-mobile="assets/videos/grand-theft-art/ai-render-lite.mp4"></video></div>
+            <div class="hd-status" data-progressive-status data-hd-state="waiting" hidden>
+  <span data-hd-label>HD pending</span><progress data-hd-progress max="100" aria-label="HD video download progress" hidden></progress><span data-hd-percent aria-hidden="true"></span><button type="button" data-hd-retry hidden>Retry HD</button>
+</div>
             <span class="ab-compare__label ab-compare__label--before">3D PREVIS</span>
             <span class="ab-compare__label ab-compare__label--after">AI RENDER</span>
             <span class="ab-compare__divider" aria-hidden="true"></span>
@@ -133,7 +137,8 @@
     </section>
   </main>
   <footer class="site-footer"><a href="index.html">Selected work ↗</a><span>© 2026 Steven Chen</span></footer>
-  <script defer src="assets/progressive-video.js?v=20261104-hd-2"></script>
+  <script defer src="assets/progressive-video.js?v=20261104-hd-status-1"></script>
+  <script defer src="assets/progressive-video-status.js?v=20261104-hd-status-1"></script>
   <script src="assets/about-comparison.js?v=20261104-comparison-1" defer></script>
   <footer class="site-registration" aria-label="网站备案信息"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" lang="zh-Hans">沪ICP备2026056937号-1</a></footer>
   <script src="assets/viewing-links.js?v=20261103-1" defer></script>

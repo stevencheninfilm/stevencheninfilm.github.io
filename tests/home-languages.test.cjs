@@ -52,6 +52,9 @@ test('HD upgrades resolve from every language route and comparison sides share o
       assert.ok(fs.existsSync(path.resolve(root, path.dirname(file), source)), `${file}: ${source}`);
     }
     assert.equal((html.match(/data-comparison data-progressive-group/g) || []).length, 2, file);
+    assert.equal((html.match(/data-progressive-status/g) || []).length, 3, file);
+    assert.doesNotMatch(html, /detail-quality-link|View 4K enhanced|查看 4K 增强版/);
+    assert.ok(html.indexOf('assets/progressive-video.js') < html.indexOf('assets/progressive-video-status.js'), file);
     assert.ok(html.indexOf('assets/progressive-video.js') < html.indexOf('assets/banner-v3.js'), file);
   }
 });

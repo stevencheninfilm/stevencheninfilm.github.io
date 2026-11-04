@@ -63,15 +63,21 @@
     });
   }
 
-  async function fetchBlob(url, { fetcher, signal, limit = MAX_FILE_BYTES, BlobClass = Blob }) {
+  async function fetchBlob(url, { fetcher, signal, limit = MAX_FILE_BYTES, BlobClass = Blob, onProgress = () => {} }) {
     const response = await fetcher(url, { signal, cache: 'force-cache', credentials: 'same-origin', priority: 'low' });
     if (!response.ok || response.type === 'opaque') throw new Error('HD download failed');
     const declared = Number(response.headers?.get('content-length'));
     if (declared > limit) throw new Error('HD file exceeds memory budget');
+    // Fetch exposes decoded bytes; a compressed Content-Length is not a valid
+    // denominator. Missing lengths stay indeterminate until the file completes.
+    const encoded = /\b(?:gzip|br|deflate|zstd)\b/i.test(response.headers?.get('content-encoding') || '');
+    const total = !encoded && Number.isFinite(declared) && declared > 0 ? declared : null;
+    onProgress({ loaded: 0, total });
     if (!response.body?.getReader) {
       const blob = await response.blob();
       if (signal.aborted) throw abortError();
       if (!blob.size || blob.size > limit) throw new Error('Invalid HD file size');
+      onProgress({ loaded: blob.size, total: blob.size });
       return blob;
     }
     const reader = response.body.getReader(), chunks = [];
@@ -84,12 +90,14 @@
         bytes += value.byteLength;
         if (bytes > limit) throw new Error('HD file exceeds memory budget');
         chunks.push(value);
+        onProgress({ loaded: bytes, total: total !== null && bytes <= total ? total : null });
       }
     } catch (error) {
       await reader.cancel().catch(() => {});
       throw error;
     } finally { reader.releaseLock(); }
     if (!bytes) throw new Error('Empty HD file');
+    onProgress({ loaded: bytes, total: bytes });
     return new BlobClass(chunks, { type: response.headers?.get('content-type') || 'video/mp4' });
   }
 
@@ -97,7 +105,7 @@
   // media doubles, including asynchronous errors and abandoned downloads.
   function createTransaction(options) {
     const { videos, sources, fetcher, createDecoder, createURL, revokeURL,
-      onState = () => {}, canCommit = () => true, makeCover = () => () => {},
+      onState = () => {}, onProgress = () => {}, canCommit = () => true, makeCover = () => () => {},
       setTimer = setTimeout, clearTimer = clearTimeout,
       fileLimit = MAX_FILE_BYTES, groupLimit = MAX_GROUP_BYTES,
       AbortControllerClass = AbortController, BlobClass = Blob } = options;
@@ -107,8 +115,19 @@
     const intents = new Map();
     const pendingInternalPauses = new Map();
     const nativeListeners = [];
-    let state = 'idle', committed = false, disposed = false, byteSize = 0;
-    const publish = (next, extra = {}) => { state = next; return onState(next, { videos, intents, byteSize, ...extra }); };
+    let state = 'idle', committed = false, disposed = false, byteSize = 0, timedOut = false, stallTimer = null;
+    const timeoutDownload = () => { timedOut = true; controller.abort(); };
+    const watchDownload = () => {
+      clearTimer(stallTimer);
+      stallTimer = setTimer(timeoutDownload, 45000);
+    };
+    const downloads = sources.map(() => ({ loaded: 0, total: null }));
+    const progress = () => {
+      const loaded = downloads.reduce((sum, item) => sum + item.loaded, 0);
+      const total = downloads.every(item => item.total !== null) ? downloads.reduce((sum, item) => sum + item.total, 0) : null;
+      return { loaded, total, percent: total > 0 ? Math.min(100, Math.floor(loaded / total * 100)) : null };
+    };
+    const publish = (next, extra = {}) => { state = next; return onState(next, { videos, intents, byteSize, ...progress(), ...extra }); };
     const assertCurrent = () => { if (signal.aborted || !canCommit()) throw abortError(); };
     const releaseDecoders = () => {
       decoders.splice(0).forEach(video => {
@@ -201,15 +220,26 @@
       abort() { controller.abort(); },
       dispose() { disposed = true; controller.abort(); releaseDecoders(); removeCovers(); releaseUrls(); removeNativeListeners(); },
       async run() {
-        const deadline = setTimer(() => controller.abort(), 120000);
+        const deadline = setTimer(timeoutDownload, 600000);
         let snapshots;
         try {
           publish('loading');
           // Fetch sequentially within the one active group, so an HD comparison
           // never opens competing full-file requests before preview playback.
-          for (const source of sources) {
+          for (const [index, source] of sources.entries()) {
             assertCurrent();
-            const blob = await fetchBlob(source, { fetcher, signal, limit: fileLimit, BlobClass });
+            watchDownload();
+            const blob = await fetchBlob(source, { fetcher, signal, limit: fileLimit, BlobClass,
+              onProgress(detail) {
+                assertCurrent();
+                watchDownload();
+                downloads[index] = detail;
+                const update = progress();
+                if (update.loaded > groupLimit) throw new Error('HD group exceeds memory budget');
+                onProgress(update);
+              }
+            });
+            clearTimer(stallTimer);
             byteSize += blob.size;
             if (byteSize > groupLimit) throw new Error('HD group exceeds memory budget');
             urls.push(createURL(blob));
@@ -246,6 +276,7 @@
           removeCovers();
           return { quality: 'hd', bytes: byteSize, urls: [...urls] };
         } catch (error) {
+          if (timedOut && error.name === 'AbortError') error = Object.assign(new Error('HD download timed out'), { name: 'TimeoutError' });
           if (snapshots && !disposed) {
             publish('restoring');
             if (canCommit()) {
@@ -274,7 +305,7 @@
           releaseUrls();
           throw error;
         } finally {
-          clearTimer(deadline); releaseDecoders(); removeNativeListeners();
+          clearTimer(deadline); clearTimer(stallTimer); releaseDecoders(); removeNativeListeners();
           if (!committed) releaseUrls();
         }
       }
@@ -285,7 +316,7 @@
     const doc = win.document;
     const entries = [...doc.querySelectorAll('video[data-src-hd]')];
     const groups = [], byVideo = new WeakMap(), byRoot = new Map();
-    let active = null, timer = null, stopped = false, heldBytes = 0;
+    let active = null, timer = null, idleRequest = null, stopped = false, heldBytes = 0;
     const roots = new Set();
     const setTimer = win.setTimeout.bind(win), clearTimer = win.clearTimeout.bind(win);
     const sourceFor = video => new URL(video.dataset.srcHd, doc.baseURI).href;
@@ -299,7 +330,8 @@
       let group = byRoot.get(root);
       if (!group) {
         group = { root, videos: [], quality: 'preview', transaction: null, failures: 0, attempts: 0,
-          readyAt: 0, started: false, previewFailed: false, visible: !win.IntersectionObserver, bytes: 0 };
+          readyAt: 0, started: false, previewFailed: false, visible: !win.IntersectionObserver, bytes: 0,
+          state: 'preview', progress: { loaded: 0, total: null, percent: null }, lastReport: null };
         groups.push(group); byRoot.set(root, group); roots.add(root);
       }
       group.videos.push(video); byVideo.set(video, group);
@@ -317,11 +349,26 @@
         && style.display !== 'none' && style.visibility !== 'hidden';
     };
     const mark = (group, state) => {
+      group.state = state;
       group.root.dataset.progressiveState = state;
       group.videos.forEach(video => {
         video.dataset.progressiveState = state;
         video.dataset.progressiveSwitching = String(state === 'switching' || state === 'restoring');
       });
+    };
+    const statusFor = group => ({
+      state: group.state, ...group.progress, quality: group.quality,
+      retryable: group.state === 'error' && group.quality !== 'hd' && heldBytes < MAX_HELD_BYTES,
+      videos: [...group.videos]
+    });
+    const report = (group, state, progress = group.progress) => {
+      group.progress = { loaded: progress.loaded, total: progress.total, percent: progress.percent };
+      mark(group, state);
+      const detail = statusFor(group);
+      const key = [state, detail.loaded, detail.total, detail.percent, detail.quality, detail.retryable].join('|');
+      if (key === group.lastReport) return;
+      group.lastReport = key;
+      event(group, 'state', detail);
     };
     const makeCover = video => {
       let canvas;
@@ -353,6 +400,16 @@
     const hasLoadedSources = group => group.videos.every(video => video.getAttribute('src')
       || video.querySelector?.('source[src]')?.getAttribute('src'));
     const hasPreviewFrame = group => hasLoadedSources(group) && group.videos.every(video => video.readyState >= 2);
+    const previewStarting = group => group.quality !== 'hd' && hasLoadedSources(group) && !group.previewFailed
+      && (!hasPreviewFrame(group) || group.videos.some(video => video.dataset.videoLoaderManaged === 'true'
+        && video.dataset.videoLoaderReady !== 'true'));
+    const resourcesReady = group => {
+      // A failed preview may need HD to become usable at all. Its bounded rescue
+      // bypasses resource waiting, while ordinary upgrades remain lower priority.
+      if (group.previewFailed) return true;
+      if (doc.readyState !== 'complete' || doc.body.classList.contains('is-v3-loading')) return false;
+      return !groups.some(other => (other !== group || active !== group) && current(other) && previewStarting(other));
+    };
     const start = async group => {
       active = group; group.attempts++;
       const room = MAX_HELD_BYTES - heldBytes;
@@ -363,8 +420,12 @@
         canCommit: () => current(group), makeCover, setTimer, clearTimer,
         groupLimit: Math.min(MAX_GROUP_BYTES, room),
         AbortControllerClass: win.AbortController, BlobClass: win.Blob,
+        onProgress(detail) { report(group, 'loading', detail); },
         onState(state, detail) {
-          mark(group, state);
+          if (state === 'loading') group.progress = { loaded: 0, total: null, percent: null };
+          // Source-switch events retain their original controller contract;
+          // status events additionally describe transfers and genuine failures.
+          if (state !== 'hd' && state !== 'preview') report(group, state, detail);
           if (state === 'switching') event(group, 'switch-start', {
             time: detail.intents.get(group.videos.at(-1))?.time || 0,
             playing: !detail.intents.get(group.videos.at(-1))?.paused,
@@ -374,11 +435,16 @@
             group.quality = 'hd';
             group.previewFailed = false;
             group.videos.forEach(video => { video.dataset.progressiveQuality = 'hd'; });
+            report(group, 'hd', detail);
             return event(group, 'switch-end', { quality: 'hd', handled: false });
           }
-          if (state === 'preview' && detail.error) return event(group, 'switch-error', {
-            reason: detail.error.name === 'AbortError' ? 'canceled' : 'unavailable', handled: false
-          });
+          if (state === 'preview' && detail.error) {
+            const canceled = detail.error.name === 'AbortError' || !current(group);
+            report(group, canceled ? 'preview' : 'error', detail);
+            return event(group, 'switch-error', {
+              reason: canceled ? 'canceled' : 'unavailable', handled: false
+            });
+          }
         }
       });
       group.transaction = transaction;
@@ -387,7 +453,6 @@
         group.bytes = result.bytes; heldBytes += result.bytes;
       } catch (error) {
         if (error.name !== 'AbortError') group.failures++;
-        mark(group, 'preview');
         transaction.dispose(); group.transaction = null;
       } finally {
         if (active === group) active = null;
@@ -398,7 +463,7 @@
       timer = null;
       if (stopped) return;
       if (active) {
-        if (!current(active)) active.transaction?.abort();
+        if (!current(active) || (active.transaction?.state === 'loading' && !resourcesReady(active))) active.transaction?.abort();
         return;
       }
       let nextDelay = Infinity;
@@ -409,20 +474,30 @@
         if (!hasPreviewFrame(group) && !(group.previewFailed && hasLoadedSources(group))) continue;
         refreshReady(group);
         if (!group.started) continue;
+        if (!resourcesReady(group)) { report(group, 'waiting'); continue; }
         const remaining = group.readyAt - Date.now();
-        if (remaining > 0) { nextDelay = Math.min(nextDelay, remaining); continue; }
+        if (remaining > 0) { report(group, 'waiting'); nextDelay = Math.min(nextDelay, remaining); continue; }
         if (heldBytes >= MAX_HELD_BYTES) continue;
-        start(group); return;
+        if (!group.previewFailed && win.requestIdleCallback) {
+          report(group, 'waiting');
+          idleRequest = win.requestIdleCallback(() => {
+            idleRequest = null;
+            if (!stopped && !active && current(group) && resourcesReady(group) && hasPreviewFrame(group)) start(group);
+            else schedule();
+          }, { timeout: 1000 });
+        } else start(group);
+        return;
       }
       if (Number.isFinite(nextDelay)) schedule(nextDelay + 10);
     };
     function schedule(delay = 0) {
       if (stopped) return;
       if (timer !== null) clearTimer(timer);
+      if (idleRequest !== null) { win.cancelIdleCallback?.(idleRequest); idleRequest = null; }
       timer = setTimer(pump, delay);
     }
     groups.forEach(group => {
-      mark(group, 'preview');
+      report(group, 'preview');
       group.videos.forEach(video => {
         for (const name of ['loadeddata', 'playing', 'canplay', 'play']) video.addEventListener(name, () => schedule());
       });
@@ -436,7 +511,7 @@
       roots.forEach(root => intersection.observe(root));
     }
     const mutation = new win.MutationObserver(() => schedule());
-    mutation.observe(doc.body, { subtree: true, attributes: true, attributeFilter: ['class', 'aria-hidden', 'hidden'] });
+    mutation.observe(doc.body, { subtree: true, attributes: true, attributeFilter: ['class', 'aria-hidden', 'hidden', 'data-video-loader-ready'] });
     doc.addEventListener('video-loader:preview-failed', e => {
       const failed = e.detail?.videos;
       if (!Array.isArray(failed)) return;
@@ -454,12 +529,14 @@
       });
     });
     doc.addEventListener('visibilitychange', () => schedule());
+    win.addEventListener('load', () => schedule());
     win.addEventListener('online', () => schedule());
     win.addEventListener('resize', () => schedule());
     win.addEventListener('pagehide', e => {
       active?.transaction?.abort();
       if (e.persisted) return;
       stopped = true; if (timer !== null) clearTimer(timer);
+      if (idleRequest !== null) win.cancelIdleCallback?.(idleRequest);
       intersection?.disconnect(); mutation.disconnect();
       groups.forEach(group => group.transaction?.dispose());
     });
@@ -469,8 +546,19 @@
       isSwitching(target) { const group = byVideo.get(target) || byRoot.get(target); return ['switching', 'restoring'].includes(group?.transaction?.state); },
       getIntent(video) { return byVideo.get(video)?.transaction?.getIntent(video) || snapshot(video); },
       setIntent(video, patch) { return byVideo.get(video)?.transaction?.setIntent(video, patch) || false; },
+      getStatus(target) { const group = byVideo.get(target) || byRoot.get(target); return group ? statusFor(group) : null; },
+      retry(target) {
+        const group = byVideo.get(target) || byRoot.get(target);
+        if (!group || group.state !== 'error' || group.quality === 'hd' || group === active
+          || !current(group) || !hasLoadedSources(group) || heldBytes >= MAX_HELD_BYTES) return false;
+        group.failures = 0; group.attempts = 0;
+        group.progress = { loaded: 0, total: null, percent: null };
+        report(group, 'waiting');
+        schedule();
+        return true;
+      },
       refresh: () => schedule(),
-      get status() { return groups.map(group => ({ quality: group.quality, state: group.transaction?.state || 'idle', attempts: group.attempts, bytes: group.bytes })); }
+      get status() { return groups.map(group => ({ ...statusFor(group), attempts: group.attempts, bytes: group.bytes })); }
     };
   }
   return { install, createTransaction, waitForFrame, fetchBlob, snapshot };

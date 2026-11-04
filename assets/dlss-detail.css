@@ -102,7 +102,7 @@
   .home-page .comparison-player-controls { position: relative; flex: 0 0 auto; left: auto; right: auto; bottom: auto; width: calc(100% - var(--mobile-transport-side) - var(--mobile-transport-side)); margin-top: 4px; min-height: 40px; text-shadow: none; gap: 9px; }
   .comparison-player-controls button { font-size: 11px; }
   .comparison-player-controls output { font-size: 9px; }
-  .comparison-player-controls + .detail-quality-link + .comparison-copy { margin-top: 12px; }
+  .comparison-player-controls + .hd-status + .comparison-copy { margin-top: 12px; }
   .home-page .cinema-home { inset: max(110px, calc(env(safe-area-inset-top) + 82px)) max(8px, env(safe-area-inset-right)) 146px max(8px, env(safe-area-inset-left)); display: flex; flex-direction: column; justify-content: center; align-items: center; padding-top: clamp(20px, 4svh, 38px); }
   .cinema-home > .workflow-player { position: relative; order: 0; inset: auto; width: 100%; flex: 0 0 auto; }
   .cinema-home .workflow-player__picture { position: relative; inset: auto; flex: 0 0 auto; width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; }
