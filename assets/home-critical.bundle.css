@@ -1177,7 +1177,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
   .ai-cinema-banner__index { display: none; }
 }
 
-/* Native scrolling advances two stories within one pinned editorial canvas. */
+/* Native scrolling advances workflow stories within one pinned editorial canvas. */
 .ai-workflows { --workflow-top: 100px; --workflow-accent: #e5be88; padding: var(--workflow-top) var(--pad) 40px; border-bottom: 1px solid var(--line); }
 .content-page:has(.ai-workflows) .site-header { background: #0b0b0b; }
 .ai-workflows__pin { max-width: 1720px; margin: 0 auto; }
@@ -1185,12 +1185,12 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 .ai-workflows__eyebrow > p { color: var(--ink); margin: 0; font-size: 12px; font-weight: 400; letter-spacing: .12em; }
 .ai-workflows__eyebrow > span:last-child { margin-left: auto; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .ai-workflows__layout { display: grid; grid-template-columns: clamp(180px, 18vw, 240px) minmax(0, 1fr); gap: clamp(28px, 4vw, 68px); padding-top: 22px; min-height: 0; }
-.ai-workflows__directory { display: flex; flex-direction: column; gap: 26px; align-self: center; border-left: 1px solid var(--line); }
+.ai-workflows__directory { display: flex; flex-direction: column; gap: clamp(12px, 2.4svh, 26px); align-self: center; border-left: 1px solid var(--line); }
 .ai-workflows__directory a { position: relative; display: grid; gap: 12px; padding-left: 18px; text-decoration: none; color: var(--muted); font-size: 11px; line-height: 1.5; transition: color .35s; }
 .ai-workflows__directory a::before { content: ''; position: absolute; left: -1px; top: 0; width: 2px; height: 100%; transform: scaleY(0); transform-origin: top; background: var(--workflow-accent); transition: transform .35s; }
 .ai-workflows__directory a[aria-current="true"] { color: var(--ink); }
 .ai-workflows__directory a[aria-current="true"]::before { transform: scaleY(1); }
-.ai-workflows__thumb { display: block; overflow: hidden; aspect-ratio: 16 / 9; opacity: .38; transition: opacity .35s; }
+.ai-workflows__thumb { display: block; overflow: hidden; aspect-ratio: 16 / 9; max-height: clamp(54px, 12svh, 112px); opacity: .38; transition: opacity .35s; }
 .ai-workflows__thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .ai-workflows__directory a:is([aria-current="true"], :hover) .ai-workflows__thumb { opacity: 1; }
 .ai-workflows__directory b { display: block; margin-bottom: 3px; font-weight: 400; color: var(--workflow-accent); font-size: 9px; letter-spacing: .06em; }
@@ -1204,12 +1204,14 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 .ai-workflows__title p { margin: 0 0 12px; color: var(--workflow-accent); font-size: 10px; text-transform: uppercase; letter-spacing: .12em; }
 .ai-workflows__title h2 { margin: 0; font-size: clamp(44px, min(6.3vw, 8svh), 82px); font-weight: 400; letter-spacing: -.055em; line-height: .98; }
 .ai-workflows__title em { font-style: normal; color: #aaa9a3; }
+.ai-workflows__title .ai-workflows__translation { margin: 12px 0 0; font-size: clamp(16px, 2vw, 24px); color: var(--muted); letter-spacing: .05em; text-transform: none; }
 .ai-workflows__description { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; flex-shrink: 0; }
 .ai-workflows__description h3 { margin: 0 0 8px; font-weight: 400; font-size: 15px; letter-spacing: -.02em; }
 .ai-workflows__description p { margin: 0; max-width: 760px; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .ai-workflows__credits { display: flex; flex-direction: column; gap: 12px; align-items: end; font-size: 10px; white-space: nowrap; }
 .ai-workflows__credits time { color: var(--muted); }
-.ai-workflows.is-enhanced { height: 250svh; padding-bottom: 0; }
+.ai-workflows__quality { color: var(--ink); text-underline-offset: 4px; }
+.ai-workflows.is-enhanced { height: calc(100svh + var(--workflow-count, 3) * 75svh); padding-bottom: 0; }
 .ai-workflows.is-enhanced .ai-workflows__pin { position: sticky; top: var(--workflow-top); height: calc(100svh - var(--workflow-top)); display: flex; flex-direction: column; padding-bottom: 28px; }
 .ai-workflows.is-enhanced .ai-workflows__layout { flex: 1; }
 .ai-workflows.is-enhanced .ai-workflows__stage { position: relative; }
@@ -1255,7 +1257,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
   .ai-workflows__description { grid-template-columns: 1fr; gap: 14px; }
   .ai-workflows__description h3 { font-size: 14px; }
   .ai-workflows__description p { font-size: 11px; line-height: 1.5; }
-  .ai-workflows__credits { flex-direction: row; justify-content: space-between; font-size: 9px; }
+  .ai-workflows__credits { flex-direction: row; flex-wrap: wrap; justify-content: space-between; gap: 8px 12px; font-size: 9px; }
   .ai-workflows.is-enhanced .ai-workflows__item > .ab-compare, .ai-workflows.is-enhanced .ai-workflows__item > .workflow-player { flex: 0 0 auto; }
   .ai-workflows .workflow-player__picture, .ai-workflows .ab-compare__frame { flex: none; }
   .ai-workflows.is-enhanced .ai-workflows__item { justify-content: center; }
@@ -1357,7 +1359,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 .comparison-player-controls { position: absolute; z-index: 12; left: 7vw; right: 7vw; bottom: 112px; color: #fff; text-shadow: 0 1px 8px #000; transition: opacity 1.2s ease-in-out; }
 .comparison-player-controls[data-visible="false"] { opacity: 0; visibility: hidden; pointer-events: none; }
 .project-deck.is-strip .comparison-player-controls { display: none; }
-.home-page .comparison-stage.is-interacting .comparison-copy { opacity: 1; transform: translate(-50%, -50%); }
+.home-page .comparison-stage.is-interacting .comparison-copy { opacity: 0; transform: translate(-50%, -50%); }
 .home-page .comparison-copy em { transition: opacity .35s ease, visibility .35s; }
 .home-page .comparison-stage.is-interacting .comparison-copy em { opacity: 0; visibility: hidden; }
 .home-page .cinema-home .cinema-home__title { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; font-weight: 500; letter-spacing: .01em; line-height: 1.2; }
@@ -1789,6 +1791,14 @@ html:lang(zh) .home-page .deck-project-title > small[lang="en"] {
   line-height: 1.4;
   letter-spacing: .04em;
 }
+html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process {
+  margin: 13px 0 0;
+  font-size: clamp(13px, 1.2vw, 18px);
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: .055em;
+  color: #eee7df;
+}
 html:lang(zh) .home-page .deck-card--cat-nest .deck-project-title {
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: clamp(42px, 5vw, 78px);
@@ -1803,6 +1813,7 @@ html:lang(zh) .home-page .deck-card--cat-nest .deck-project-title > small {
   font-style: italic;
 }
 @media (orientation: portrait) and (max-width: 900px) {
+  html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process { margin-top: 8px; font-size: 12px; }
   html:lang(en) .home-page :is(.deck-card--detail, .deck-card--previs) .comparison-copy h1 {
     font-size: clamp(27px, 7.4vw, 43px);
     line-height: 1.05;
