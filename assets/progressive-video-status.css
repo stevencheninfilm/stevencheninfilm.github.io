@@ -41,19 +41,15 @@
 }
 .hd-status button:hover, .hd-status button:focus-visible { border-color: #e5be88; color: #e5be88; }
 .hd-status button:focus-visible { outline: 1px solid #e5be88; outline-offset: 2px; }
-.home-page .comparison-frame > .hd-status { right: clamp(24px, 2.6vw, 48px); bottom: 156px; }
+.home-page .comparison-frame .hd-status { right: clamp(24px, 2.6vw, 48px); bottom: 156px; }
 .home-page .cinema-home .workflow-player__picture > .hd-status { right: clamp(24px, 7vw, 130px); bottom: 164px; }
 .film-player__picture > .hd-status, .xj-video-shell > .hd-status { bottom: 54px; }
 .project-deck.is-strip .hd-status { display: none; }
 @media (orientation: portrait) and (max-width: 900px) {
-  .home-page .comparison-frame > .hd-status {
-    position: relative;
-    flex: 0 0 auto;
-    right: auto;
-    bottom: auto;
-    align-self: flex-end;
-    margin: 4px var(--mobile-transport-side, 52px) 0 0;
-    max-width: calc(100% - 60px);
+  .home-page .comparison-visual > .hd-status {
+    right: 8px;
+    bottom: 8px;
+    max-width: calc(100% - 16px);
   }
   .home-page .cinema-home .workflow-player__picture > .hd-status { right: 8px; bottom: 8px; }
 }

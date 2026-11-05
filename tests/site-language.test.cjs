@@ -195,3 +195,44 @@ test('AI language switch follows the visible workflow after scrolling and preser
   h.fire('pointerdown', { target: h.links[1] });
   assert.equal(new URL(h.links[1].href).hash, '#feel', 'an offscreen workflow cannot replace another project anchor');
 });
+
+test('Avocado AI root uses regional and saved defaults within its own page family', async () => {
+  for (const preference of ['en', 'zh']) {
+    const saved = setup({ url: 'https://stevencheninfilm.com/avocado-ai/index.html?source=home&project=2#roadster', preference });
+    assert.equal(saved.requests.length, 0);
+    assert.deepEqual(saved.replacements, [`https://stevencheninfilm.com/${preference}/avocado-ai/index.html?source=home#roadster`]);
+  }
+  for (const pathname of ['/avocado-ai', '/avocado-ai/', '/avocado-ai/index.html']) {
+    const cn = setup({ url: `https://stevencheninfilm.com${pathname}?source=douyin&project=-1#tesla` });
+    await cn.respond({ header: 'CN' });
+    assert.deepEqual(cn.replacements, ['https://stevencheninfilm.com/zh/avocado-ai/index.html?source=douyin#tesla']);
+  }
+  const overseas = setup({ url: 'https://stevencheninfilm.com/avocado-ai/index.html', browserLanguage: 'zh-CN' });
+  await overseas.respond({ header: 'US' });
+  assert.deepEqual(overseas.replacements, [], 'overseas visitors keep the original English entry');
+});
+
+test('Avocado AI language links preserve film anchors without inheriting homepage project state', () => {
+  for (const locale of ['en', 'zh']) {
+    const h = setup({ url: `https://stevencheninfilm.com/${locale}/avocado-ai/index.html?source=home&project=1#roadster`,
+      preference: locale === 'en' ? 'zh' : 'en', lang: locale === 'zh' ? 'zh-Hans' : 'en', page: '8',
+      workflow: { id: 'dlss-detail', getBoundingClientRect: () => ({ top: 120, bottom: 800 }) } });
+    assert.equal(h.requests.length, 0, 'explicit language entries do not geolocate');
+    assert.deepEqual(h.replacements, []);
+    for (const link of h.links) {
+      h.fire('pointerdown', { target: link });
+      assert.equal(link.href, `https://stevencheninfilm.com/${link.dataset.siteLanguage}/avocado-ai/index.html?source=home#roadster`);
+    }
+    h.fire('click', { target: h.links[1] });
+    assert.equal(h.storage.get('steven-site-language'), 'zh');
+    assert.deepEqual(h.replacements, [], 'manual switching remains normal anchor navigation');
+  }
+});
+
+test('Avocado AI manual selection cancels a late region redirect and keeps its film anchor', async () => {
+  const h = setup({ url: 'https://stevencheninfilm.com/avocado-ai/index.html?project=0#tesla', storageDenied: true });
+  h.fire('click', { target: h.links[0] });
+  await h.respond({ header: 'CN' });
+  assert.deepEqual(h.replacements, []);
+  assert.equal(h.links[0].href, 'https://stevencheninfilm.com/en/avocado-ai/index.html#tesla');
+});

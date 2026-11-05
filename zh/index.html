@@ -19,8 +19,8 @@
   <title>Steven Chen｜AI 影像与电影创作</title>
   <link rel="preload" as="image" href="../assets/images/projects/dlss-detail/original-poster-mobile.webp" fetchpriority="high">
   <link rel="preload" as="image" href="../assets/images/projects/dlss-detail/enhanced-poster-mobile.webp" fetchpriority="high">
-  <link rel="stylesheet" href="../assets/home-critical.bundle.css?v=20261104-dock-gpt-1">
-  <script defer src="../assets/site-language.js?v=20261104-shotlab-1"></script>
+  <link rel="stylesheet" href="../assets/home-critical.bundle.css?v=20261104-avocado-5">
+  <script defer src="../assets/site-language.js?v=20261104-avocado-1"></script>
   <script defer src="../assets/tvc-transition.js?v=20260925-3"></script>
   <script>try { sessionStorage.setItem('steven-home-loader', 'seen'); } catch {}</script>
   <noscript><style>.v3-loader{display:none}.home-page.is-loading .home-interface,.home-v3.is-v3-loading .home-interface{opacity:1;visibility:visible;pointer-events:auto}</style></noscript>
@@ -69,6 +69,7 @@
     <nav class="primary-nav" aria-label="主导航">
       <a class="home-game-jump" href="../projects/cat-nest.html" lang="en">Vibe Coding</a>
       <a href="/zh/ai/index.html">AI 影像</a>
+      <a href="/zh/avocado-ai/index.html">鳄梨AI</a>
       <a href="../film/Film.html">电影</a>
       <a href="../about.html">关于</a>
     </nav>
@@ -93,16 +94,16 @@
             <button class="comparison-handle" type="button" role="slider" aria-label="拖动对比原始与增强画面" aria-orientation="horizontal" aria-valuemin="4" aria-valuemax="96" aria-valuenow="50" aria-valuetext="50% 原始画面，50% DLSS + RTX 增强">
               <span aria-hidden="true"><i>←</i><i>→</i></span>
             </button>
+
+            <div class="hd-status" data-progressive-status data-hd-state="waiting" hidden>
+              <span data-hd-label>高清待加载</span><progress data-hd-progress max="100" aria-label="高清视频加载进度" hidden></progress><span data-hd-percent aria-hidden="true"></span><button type="button" data-hd-retry hidden>重试替换</button>
+            </div>
             </div>
             <div class="comparison-player-controls workflow-player__controls" data-comparison-controls hidden>
               <button type="button" data-comparison-play aria-label="播放对比视频">播放</button>
               <output data-comparison-time aria-label="播放时间">0:00 / 0:00</output>
               <input type="range" min="0" max="100" step="0.1" value="0" disabled data-comparison-seek aria-label="拖动播放进度">
               <button type="button" data-comparison-sound aria-label="开启声音" aria-pressed="false">静音</button>
-            </div>
-
-            <div class="hd-status" data-progressive-status data-hd-state="waiting" hidden>
-              <span data-hd-label>高清待加载</span><progress data-hd-progress max="100" aria-label="高清视频加载进度" hidden></progress><span data-hd-percent aria-hidden="true"></span><button type="button" data-hd-retry hidden>重试替换</button>
             </div>
             <div class="comparison-copy detail-copy">
               <p class="comparison-tool-line" lang="en">WORKFLOW COMPARISON <i class="project-tool-logo project-tool-logo--dreamina" aria-hidden="true"></i>Seedance 2.5</p>
@@ -139,9 +140,9 @@
             <button class="comparison-handle" type="button" role="slider" aria-label="拖动对比 3D 运镜预演与 AI 画面" aria-orientation="horizontal" aria-valuemin="4" aria-valuemax="96" aria-valuenow="50" aria-valuetext="50% 3D 运镜预演，50% AI 生成画面">
               <span aria-hidden="true"><i>←</i><i>→</i></span>
             </button>
-            </div>
             <div class="hd-status" data-progressive-status data-hd-state="waiting" hidden>
               <span data-hd-label>高清待加载</span><progress data-hd-progress max="100" aria-label="高清视频加载进度" hidden></progress><span data-hd-percent aria-hidden="true"></span><button type="button" data-hd-retry hidden>重试替换</button>
+            </div>
             </div>
             <div class="comparison-copy detail-copy">
               <p class="comparison-tool-line" lang="en">WORKFLOW COMPARISON <i class="project-tool-logo project-tool-logo--dreamina" aria-hidden="true"></i>Seedance 2.0</p>
@@ -296,7 +297,7 @@
   <script defer src="../assets/home-opening-motion.js?v=20260925-2"></script>
   <script defer src="../assets/home-opening.js?v=20261104-lang-1"></script>
   <script defer src="../assets/video-loader.js?v=20261104-hd-2"></script>
-  <script defer src="../assets/workflow-player.js?v=20261104-hd-1"></script>
+  <script defer src="../assets/workflow-player.js?v=20261104-player-ended-1"></script>
   <script defer src="../assets/banner-v3.js?v=20261104-comparison-1"></script>
   <footer class="site-registration" aria-label="网站备案信息"><a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" lang="zh-Hans">沪ICP备2026056937号-1</a></footer>
   <script defer src="../assets/progressive-video-status.js?v=20261104-hd-status-1"></script>

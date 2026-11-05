@@ -12,7 +12,7 @@ const element = () => ({
   setAttribute(name, value) { this.attrs[name] = value; },
   setPointerCapture() {},
 });
-function setup({ mobile = false, reduced = false, blocked = false, delay = 0, chinese = false, pageLang = '' } = {}) {
+function setup({ mobile = false, reduced = false, blocked = false, delay = 0, chinese = false, pageLang = '', loop = true } = {}) {
   let selected = true, strip = false, mutation, intersection;
   let now = 0, timerId = 0;
   const timers = new Map();
@@ -20,10 +20,10 @@ function setup({ mobile = false, reduced = false, blocked = false, delay = 0, ch
   const deck = { classList: { contains: () => strip } };
   const video = Object.assign(element(), {
     dataset: { src: 'desktop.mp4', srcMobile: 'mobile.mp4' },
-    currentTime: 0, duration: 36.5, paused: true, muted: true, loads: 0,
+    currentTime: 0, duration: 36.5, paused: true, muted: true, loop, ended: false, loads: 0,
     load() { this.loads++; },
     pause() { this.paused = true; this.fire('pause'); },
-    play() { if (blocked) return Promise.reject(Error('autoplay blocked')); this.paused = false; this.fire('play'); return Promise.resolve(); }
+    play() { if (blocked) return Promise.reject(Error('autoplay blocked')); if (this.currentTime >= this.duration) this.currentTime = 0; this.ended = false; this.paused = false; this.fire('play'); return Promise.resolve(); }
   });
   const controls = element(), toggle = element(), seek = Object.assign(element(), { value: 0 }), clock = element(), sound = element(), status = element();
   const player = Object.assign(element(), {
@@ -177,4 +177,36 @@ test('HD-aborted play promises and offscreen completion cannot latch a false pla
   assert.equal(s.video.paused, true);
   s.select(true); await flush();
   assert.equal(s.video.paused, false); assert.equal(s.video.loads, 1);
+});
+
+
+test('a completed non-looping film stays paused through HD replacement and replays only when requested', async () => {
+  const s = setup({ loop: false }); s.visible(true); await flush();
+  const finishFilm = () => {
+    s.video.currentTime = s.video.duration;
+    s.video.paused = true; s.video.ended = true;
+    s.video.fire('ended');
+  };
+  finishFilm();
+  s.upgrade.begin(); s.upgrade.reset(s.video);
+  // A replacement source clears the native ended flag; completion is user intent.
+  s.video.ended = false;
+  s.upgrade.finish(); await flush();
+  assert.equal(s.video.paused, true, 'a late HD replacement must not restart a finished film');
+  assert.equal(s.toggle.textContent, 'Play');
+  // The HD engine clamps its restored seek just before the new duration.
+  s.video.currentTime = s.video.duration - .04;
+  s.toggle.fire('click'); await flush();
+  assert.equal(s.video.paused, false);
+  assert.equal(s.video.currentTime, 0, 'explicit Play replays from the beginning after the source changed');
+
+  finishFilm();
+  s.seek.fire('pointerdown', { pointerId: 1 }); s.seek.value = 25; s.seek.fire('input'); s.seek.fire('change');
+  s.toggle.fire('click'); await flush();
+  assert.equal(s.video.currentTime, s.video.duration / 4, 'an explicit seek overrides the completed position');
+  assert.equal(s.video.paused, false);
+
+  finishFilm(); s.select(false); s.select(true); await flush();
+  assert.equal(s.video.currentTime, 0, 'returning to an active film retains the existing replay policy');
+  assert.equal(s.video.paused, false);
 });

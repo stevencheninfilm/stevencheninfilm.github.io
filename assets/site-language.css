@@ -54,3 +54,42 @@
     font-size: 11px;
   }
 }
+
+/* At small phone widths, keep every primary link visible and put the
+   language choice on its own right-aligned row rather than shrinking type. */
+@media (max-width: 380px) {
+  .home-page { --home-header-height: calc(var(--home-header-top) + 88px + var(--home-header-bottom)); }
+  .home-page .home-header {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+    padding-bottom: calc(var(--home-header-bottom) + 44px);
+  }
+  .home-page .home-header .primary-nav { width: 100%; justify-content: center; gap: 10px; font-size: 12px; }
+  .home-page .site-language { top: calc(var(--home-header-top) + 44px); }
+}
+@media (max-width: 380px) and (orientation: portrait) {
+  .home-page .project-deck:not(.is-strip) .deck-card--comparison .comparison-frame,
+  .home-page .project-deck:not(.is-strip) .cinema-home {
+    top: calc(var(--home-header-top) + 100px);
+    /* Center when there is room, but never move the image and its labels
+       above the two-row navigation when short screens run out of space. */
+    justify-content: safe center;
+  }
+}
+/* Keep the full comparison and its controls above the thumbnail dock on
+   short phones. The video can shrink, with object-fit:contain preserving it. */
+@media (max-width: 380px) and (max-height: 620px) and (orientation: portrait) {
+  .home-page .project-deck:not(.is-strip) .deck-card--comparison .comparison-frame { bottom: 130px; justify-content: flex-start; }
+  .home-page .project-deck:not(.is-strip) .comparison-visual { flex: 0 1 auto; min-height: 100px; }
+  .home-page .deck-card--comparison .comparison-copy { margin-top: 8px; }
+  .home-page .detail-copy .comparison-tool-line { margin-bottom: 6px; }
+  .home-page .detail-copy p.detail-copy__english { margin-top: 4px; }
+  .home-page .detail-copy p.detail-copy__process { margin-top: 6px; }
+  .home-page .detail-copy time { margin-top: 6px; }
+  .home-page .deck-card--comparison .detail-copy em { margin-top: 8px; padding: 6px 14px; font-size: 13px; }
+}
+@media (max-width: 380px) and (orientation: landscape) {
+  .home-page .project-deck:not(.is-strip) .comparison-label {
+    top: calc(var(--home-header-top) + 96px - var(--comparison-inset, 0px));
+  }
+}
