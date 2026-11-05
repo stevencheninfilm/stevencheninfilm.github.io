@@ -64,3 +64,6 @@ html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process 
   .home-page .deck-card--shotlab .deck-project-title > small { font-size: 14px; }
   .home-page .deck-card--shotlab .project-tool-line { font-size: 12px; }
 }
+
+.home-page .deck-card--shotlab .project-tool-line--models { flex-wrap: wrap; gap: 8px; line-height: 1.5; }
+.home-page .deck-card--shotlab .project-tool-line--models .project-tool-logo { width: 15px; height: 15px; flex-basis: 15px; }
