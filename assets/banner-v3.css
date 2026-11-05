@@ -233,8 +233,7 @@
 }
 
 .comparison-stage.is-interacting .comparison-copy {
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(.97);
+  opacity: 1;
 }
 
 .project-deck.is-strip .comparison-stage {
@@ -349,4 +348,16 @@
   .comparison-handle > span {
     transition: none;
   }
+}
+
+/* The reading block is one native destination, while the reveal hint stays separate. */
+.comparison-copy > .comparison-project-link {
+  display: block;
+  position: relative;
+  padding: 16px;
+  margin: -16px;
+  color: inherit;
+  text-decoration: none;
+  pointer-events: auto;
+  cursor: pointer;
 }

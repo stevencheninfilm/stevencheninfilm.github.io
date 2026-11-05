@@ -299,3 +299,13 @@
 @media (min-width: 1200px) and (min-height: 651px) {
   .ai-page--zh .ai-workflows__credits .project-tool-line--models { justify-content: flex-start; }
 }
+
+/* On phones, favor the hero subject and start the workflow close to its label. */
+@media (max-width: 680px) {
+  .ai-page .ai-cinema-banner__image { object-position: 66% 60%; }
+  .ai-page .ai-workflows { padding-top: 24px; }
+  .ai-page .ai-workflows__layout { padding-top: 14px; }
+  .ai-page .ai-workflows__directory { align-self: start; }
+  .ai-page .ai-workflows.is-enhanced .ai-workflows__pin { padding-bottom: 16px; }
+  .ai-page .ai-workflows.is-enhanced .ai-workflows__item { justify-content: flex-start; }
+}

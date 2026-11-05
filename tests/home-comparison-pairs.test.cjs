@@ -188,24 +188,24 @@ const dragEvent = (extra = {}) => ({
   target: { closest: () => null }, preventDefault() {}, stopPropagation() {}, ...extra
 });
 
-test('both comparison copies hide only during pointer dragging and recover on release', async () => {
+test('comparison drags disable reading links temporarily and restore activation on release', async () => {
   const app = setup(); await flush();
   for (const [index, pair] of app.pairs.entries()) {
     app.select(index); await flush();
     pair.frame.fire('pointerdown', dragEvent());
     assert.ok(pair.stage.classList.contains('is-interacting'));
-    assert.equal(pair.copy.inert, true, 'a hidden title cannot receive keyboard or pointer activation');
+    assert.equal(pair.copy.inert, true, 'drag capture must temporarily disable project navigation');
     pair.frame.fire('pointerup', dragEvent({ pointerId: 99 }));
     assert.ok(pair.stage.classList.contains('is-interacting'), 'another pointer cannot finish the drag');
     pair.frame.fire('pointerup', dragEvent());
     assert.equal(pair.stage.classList.contains('is-interacting'), false);
-    assert.equal(pair.copy.inert, false, 'release begins restoring the whole copy without a second timer');
+    assert.equal(pair.copy.inert, false, 'release restores the reading link without a second timer');
     app.key(index, 'ArrowLeft');
     assert.equal(pair.stage.classList.contains('is-interacting'), false, 'keyboard comparison keeps the copy readable');
   }
 });
 
-test('canceled or interrupted comparison drags never leave their titles hidden', async () => {
+test('canceled or interrupted comparison drags never leave reading links disabled', async () => {
   for (const interrupt of ['pointercancel', 'lostpointercapture', 'blur', 'pagehide', 'hidden', 'strip', 'project', 'opening']) {
     const app = setup(); await flush();
     const pair = app.pairs[0];
@@ -450,4 +450,26 @@ test('a manually paused comparison remains paused when a failed preview is rescu
   assert.equal(app.upgrade.intent(pair.videos[1]).paused, true);
   app.upgrade.finish(); await flush();
   assert.ok(pair.videos.every(video => video.paused && video.currentTime === 7));
+});
+
+
+test('all three home reading blocks expose metadata, title and date in a single native project link', () => {
+  for (const language of ['en', 'zh']) {
+    const html = fs.readFileSync(require.resolve(`../locales/home.${language}.html`), 'utf8');
+    const comparisonLinks = [...html.matchAll(/<a class="project-image-link comparison-title-link comparison-project-link" href="([^"]+)">([\s\S]*?)<\/a>/g)];
+    assert.equal(comparisonLinks.length, 2);
+    for (const [index, match] of comparisonLinks.entries()) {
+      assert.equal(match[1], `/${language}/ai/index.html#${index === 0 ? 'dlss-detail' : 'camera-previs-to-ai'}`);
+      assert.match(match[2], /comparison-tool-line/);
+      assert.match(match[2], /<h1>/);
+      assert.match(match[2], /<time datetime=/);
+      assert.doesNotMatch(match[2], /<a|<em>/, 'no nested links or misleading reveal-hint navigation');
+    }
+    const cinema = html.match(/<a class="deck-project-link cinema-home__project-link" href="([^"]+)">([\s\S]*?)<\/a>/);
+    assert.ok(cinema);
+    assert.equal(cinema[1], `/${language}/ai/index.html#real-cinema-to-ai`);
+    assert.match(cinema[2], /cinema-home__kicker/);
+    assert.match(cinema[2], /cinema-home__title/);
+    assert.match(cinema[2], /<time datetime=/);
+  }
 });
