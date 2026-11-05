@@ -7,6 +7,21 @@ const ORIGIN = 'https://stevencheninfilm.com';
 const OUTPUTS = { 'avocado-ai/index.html': 'en', 'en/avocado-ai/index.html': 'en', 'zh/avocado-ai/index.html': 'zh' };
 const escape = value => String(value).replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
 const account = 'https://www.douyin.com/user/MS4wLjABAAAAY7HD_9adJB--CH4qwBrmMwY0dQYcDh5LYZ0F_vfe3yK04ZZnfcDT821j1Wasrni8';
+const douyinFilms = {
+  'roadster-01': 'https://www.douyin.com/video/7697548458885991689',
+  'roadster-02': 'https://www.douyin.com/video/7703382715244072202'
+};
+const stills = JSON.parse(fs.readFileSync(path.join(ROOT, 'assets/images/avocado-ai/stills/manifest.json'), 'utf8'));
+const stillDescriptions = {
+  zh: [
+    ['收费站前的拥堵车流', 'Roadster 喷射升空，飞越收费站', '驾驶舱视角俯瞰收费站', '收费站顶部升起发射装置'],
+    ['夜间驾驶舱中的角色特写', '驾驶者回望车窗外的金门大桥', '副驾驶座上系着安全带的画像', '直升机俯瞰桥面追逐', '两辆 Roadster 并行穿过桥面车流', '直升机驾驶舱中的角色特写', '驾驶舱视角中的桥面飞行轨迹', '两辆 Roadster 飞越断桥', '金门大桥上空的车辆与驾驶者', '车内角色仰望桥面上空', '两辆 Roadster 飞向运输机货舱', '运输机驾驶舱中的两名角色', 'Fast & Furious: Tesla Roadster 片名画面']
+  ],
+  en: [
+    ['Traffic waiting at the toll station', 'The Roadster lifts off above the toll station', 'A cockpit view above the toll station', 'Launch equipment rises from the toll station'],
+    ['Character close-up in a night-time cockpit', 'A driver looks back toward the Golden Gate Bridge', 'A framed portrait buckled into the passenger seat', 'A helicopter follows the bridge chase', 'Two Roadsters race side by side', 'Character close-up in a helicopter cockpit', 'A flight trail seen from the driving seat', 'Two Roadsters fly beyond the broken bridge', 'A driver above the Golden Gate Bridge', 'A character looks up from the cockpit', 'Two Roadsters approach a cargo aircraft', 'Two characters in the aircraft cockpit', 'Fast & Furious: Tesla Roadster title frame']
+  ]
+};
 const copy = {
   zh: {
     title: '鳄梨AI — Steven Chen', description: '鳄梨AI / YueVisuals。把离谱拍成电影：两支 Tesla Roadster AI 创意短片，及其背后的叙事与镜头设计。', role: '生成式AI艺术家 / 影像创作者 / 电影人', skip: '跳至作品', nav: ['作品', 'AI 影像', '抖音AI创作', '电影', '广告', '关于'],
@@ -42,17 +57,27 @@ function renderPage(file, language) {
     return `<img src="${asset(`images/avocado-ai/${name}.webp`)}" srcset="${asset(`images/avocado-ai/${name}-mobile.webp`)} ${mobileWidth}w, ${asset(`images/avocado-ai/${name}.webp`)} ${width}w" sizes="(max-width: 680px) 82vw, (max-width: 1000px) 43vw, 27vw" width="${width}" height="${height}" alt="${escape(film.alt)}" decoding="async" ${priority ? 'fetchpriority="high"' : 'loading="lazy"'}>`;
   };
   const filmLink = film => asset(`videos/avocado-ai/${film.id}-720p.mp4`);
+  const watchLink = film => douyinFilms[film.id];
+  const gallery = (film, index) => {
+    const group = stills.groups.find(group => group.id === film.id);
+    return `<section class="av-stills" aria-labelledby="stills-${film.id}"><header><h4 id="stills-${film.id}">${zh ? '精选剧照' : 'Selected stills'}</h4><span>${String(group.items.length).padStart(2, '0')} ${zh ? '幅画面 · 点击放大' : 'FRAMES · SELECT TO EXPLORE'}</span></header><div class="av-still-grid${index === 1 ? ' av-still-grid--wide' : ''}">${group.items.map((item, i) => {
+      const thumb = item.thumbnail, full = item.full;
+      const description = stillDescriptions[language][index][i];
+      const fullURL = asset(`images/avocado-ai/stills/${full.src}`);
+      return `<a class="av-still" href="${fullURL}" data-gallery-item data-gallery="${film.id}" data-still-number="${i + 1}" data-gallery-title="${escape(film.title)}" data-caption="${escape(description)}" aria-label="${escape((zh ? '放大剧照' : 'View still') + ' ' + (i + 1) + '：' + description)}"><img src="${asset(`images/avocado-ai/stills/${thumb.src}`)}" width="${thumb.width}" height="${thumb.height}" alt="${escape(description)}" loading="lazy" decoding="async"><span aria-hidden="true"><b>${String(i + 1).padStart(2, '0')}</b><i>↗</i></span></a>`;
+    }).join('')}</div></section>`;
+  };
   const card = (film, index) => `<article class="av-film" data-film="${film.id}" aria-labelledby="title-${film.id}">
-        <a class="av-film-open" href="${filmLink(film)}" data-open-film="${film.id}" aria-label="${escape(c.watch + '：' + film.title)}">
+        <a class="av-film-open" href="${watchLink(film)}" target="_blank" rel="noopener noreferrer" aria-label="${escape(c.watch + '：' + film.title)}">
           <div class="av-film-art">${image(film, index === 1, index === 0)}
             <video class="av-hover-video" data-hover-src="${asset(`videos/avocado-ai/${film.id}-hover.mp4`)}" preload="none" muted loop playsinline disablepictureinpicture aria-hidden="true" tabindex="-1"></video>
             <span class="av-film-no" aria-hidden="true">0${index + 1}</span><span class="av-preview-state" aria-hidden="true"><i></i>${c.preview}</span>
-            <span class="av-watch-prompt">${play}<span>${c.watch}<small>${c.watchFull}</small></span></span><span class="av-film-duration">${film.duration}</span>
+            <span class="av-watch-prompt">${play}<span>${c.watch}<small>${zh ? '在抖音观看完整短片 ↗' : 'Watch on Douyin ↗'}</small></span></span><span class="av-film-duration">${film.duration}</span>
             <span class="av-hover-hint" aria-hidden="true">${c.previewHint}</span>
           </div>
         </a>
         <div class="av-film-topline"><span>${film.category}</span><time datetime="${film.iso}">${film.date}</time></div>
-        <h2 id="title-${film.id}"><a href="${filmLink(film)}" data-open-film="${film.id}">${escape(film.title)}</a></h2>
+        <h2 id="title-${film.id}"><a href="${watchLink(film)}" target="_blank" rel="noopener noreferrer">${escape(film.title)}</a></h2>
         <p class="av-film-english" lang="en">${escape(film.english)}</p>
         <div class="av-film-metrics"><div class="av-stat-heading"><span><i aria-hidden="true">🔥</i>${zh ? '传播表现' : 'REACH & RESPONSE'}</span><a href="#${film.id}" data-note-link="${film.id}">${c.details}<span aria-hidden="true">↗</span></a></div>
           <div class="av-film-response"><p><strong>${film.views}</strong><span>${c.views}</span></p></div>
@@ -62,7 +87,8 @@ function renderPage(file, language) {
   const note = (film, index) => `<section class="av-note-panel" id="${film.id}" role="tabpanel" aria-labelledby="tab-${film.id}" data-note-panel="${film.id}">
             <p class="av-eyebrow">0${index + 1} / ${escape(film.official)}</p><h3>${film.note}</h3>
             <div class="av-note-columns"><div><h4>${c.premise}</h4><p>${film.premise}</p></div><div><h4>${c.craft}</h4><p>${film.craft}</p></div></div>
-            <div class="av-note-credit"><span>${c.contribution}</span><p>${c.contributionText}</p><a href="${filmLink(film)}" data-open-film="${film.id}">${c.watch} ${play}</a></div>
+            ${gallery(film, index)}
+            <div class="av-note-credit"><span>${c.contribution}</span><p>${c.contributionText}</p><a href="${watchLink(film)}" target="_blank" rel="noopener noreferrer">${c.watch} ${arrow}</a></div>
           </section>`;
   const viewer = (film, index) => `<section class="av-watch-panel" data-watch-panel="${film.id}" data-workflow-item aria-hidden="true" hidden>
           <div class="av-watch-player" data-workflow-player data-progressive-group>
@@ -87,7 +113,7 @@ function renderPage(file, language) {
   <title>${escape(c.title)}</title><meta name="description" content="${escape(c.description)}">
   <link rel="canonical" href="${ORIGIN}${page(language)}"><link rel="alternate" hreflang="en" href="${ORIGIN}${page('en')}"><link rel="alternate" hreflang="zh-Hans" href="${ORIGIN}${page('zh')}"><link rel="alternate" hreflang="x-default" href="${ORIGIN}/avocado-ai/index.html">
   <meta property="og:type" content="website"><meta property="og:title" content="${escape(c.title)}"><meta property="og:description" content="${escape(c.description)}"><meta property="og:image" content="${ORIGIN}/assets/images/avocado-ai/roadster-02-poster.webp"><meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="${asset('site.css')}?v=20261104-avocado-1"><link rel="stylesheet" href="${asset('site-language.css')}?v=20261104-avocado-1"><link rel="stylesheet" href="${asset('progressive-video-status.css')}?v=20261104-hd-status-1"><link rel="stylesheet" href="${asset('avocado-ai.css')}?v=20261104-cinema-1">
+  <link rel="stylesheet" href="${asset('site.css')}?v=20261104-avocado-1"><link rel="stylesheet" href="${asset('site-language.css')}?v=20261104-avocado-1"><link rel="stylesheet" href="${asset('progressive-video-status.css')}?v=20261104-hd-status-1"><link rel="stylesheet" href="${asset('avocado-ai.css')}?v=20261105-stills-1">
   <script defer src="${asset('site-language.js')}?v=20261104-avocado-1"></script>
 </head>
 <body class="avocado-page" data-language="${language}">
@@ -119,7 +145,13 @@ function renderPage(file, language) {
       <div class="av-announcement" data-copy-announcement role="status" aria-live="polite"></div>
     </div></dialog>
   <div class="av-toast" role="status" aria-live="polite" data-toast hidden></div>
-  <script defer src="${asset('progressive-video.js')}?v=20261104-hd-status-1"></script><script defer src="${asset('workflow-player.js')}?v=20261104-player-ended-1"></script><script defer src="${asset('progressive-video-status.js')}?v=20261104-hd-status-2"></script><script defer src="${asset('avocado-ai.js')}?v=20261104-cinema-1"></script>
+  <dialog class="av-lightbox" data-lightbox aria-labelledby="av-lightbox-title">
+    <header class="av-lightbox-top"><div><p>${zh ? '精选剧照' : 'SELECTED STILLS'}</p><h2 id="av-lightbox-title" data-lightbox-title></h2></div><button type="button" class="av-close" data-lightbox-close aria-label="${zh ? '关闭看图' : 'Close image viewer'}"><span aria-hidden="true">×</span></button></header>
+    <figure class="av-lightbox-stage" data-lightbox-stage><img data-lightbox-image alt="" draggable="false"><div class="av-lightbox-loading" data-lightbox-loading role="status" hidden>${zh ? '正在加载画面' : 'Loading image'}</div><div class="av-lightbox-error" data-lightbox-error hidden><p>${zh ? '图片暂未加载成功' : 'The image could not load'}</p><button type="button" data-lightbox-retry>${zh ? '重试' : 'Retry'}</button><a data-lightbox-direct target="_blank" rel="noopener">${zh ? '直接打开图片 ↗' : 'Open image directly ↗'}</a></div></figure>
+    <button type="button" class="av-lightbox-prev" data-lightbox-prev aria-label="${zh ? '上一张剧照' : 'Previous still'}">←</button><button type="button" class="av-lightbox-next" data-lightbox-next aria-label="${zh ? '下一张剧照' : 'Next still'}">→</button>
+    <footer class="av-lightbox-bottom"><p data-lightbox-caption></p><span data-lightbox-count aria-live="polite"></span><span class="av-lightbox-hint">${zh ? '左右切换 · Esc 关闭' : 'ARROWS TO EXPLORE · ESC TO CLOSE'}</span></footer>
+  </dialog>
+  <script defer src="${asset('progressive-video.js')}?v=20261104-hd-status-1"></script><script defer src="${asset('workflow-player.js')}?v=20261104-player-ended-1"></script><script defer src="${asset('progressive-video-status.js')}?v=20261104-hd-status-2"></script><script defer src="${asset('avocado-ai.js')}?v=20261105-stills-1"></script><script defer src="${asset('avocado-gallery.js')}?v=20261105-stills-1"></script>
 </body>
 </html>
 `;

@@ -1,0 +1,333 @@
+{
+  "schemaVersion": 1,
+  "format": "webp",
+  "resizeMode": "preserve-aspect-ratio-no-crop",
+  "profiles": {
+    "thumbnail": {
+      "maxWidth": 960,
+      "quality": 78
+    },
+    "full": {
+      "maxWidth": 2400,
+      "quality": 86
+    }
+  },
+  "groups": [
+    {
+      "id": "roadster-01",
+      "items": [
+        {
+          "id": "roadster-01-01",
+          "order": 1,
+          "thumbnail": {
+            "src": "roadster-01-01.webp",
+            "width": 960,
+            "height": 540,
+            "bytes": 58932,
+            "sha256": "2a8a96882a2a489b1c42eab509cd32e1c1a2adc20ed2d3d195a77ce054189131"
+          },
+          "full": {
+            "src": "roadster-01-01-full.webp",
+            "width": 2400,
+            "height": 1351,
+            "bytes": 244076,
+            "sha256": "d2c0147b835271f48ef75d361e183bf5576bb0ea54918f6ffcf0ce0df913dd8c"
+          }
+        },
+        {
+          "id": "roadster-01-02",
+          "order": 2,
+          "thumbnail": {
+            "src": "roadster-01-02.webp",
+            "width": 960,
+            "height": 540,
+            "bytes": 47378,
+            "sha256": "f552353e466fdc11b811c8c8eb5009beea47030a12e968e1e323fb05508822d8"
+          },
+          "full": {
+            "src": "roadster-01-02-full.webp",
+            "width": 2400,
+            "height": 1351,
+            "bytes": 188200,
+            "sha256": "5b41cb085652f5fc8a29ffdf3d57082120b8bb88089edf3815c6bf182e9ba0ea"
+          }
+        },
+        {
+          "id": "roadster-01-03",
+          "order": 3,
+          "thumbnail": {
+            "src": "roadster-01-03.webp",
+            "width": 960,
+            "height": 540,
+            "bytes": 43918,
+            "sha256": "4fb6d8295917edf149280298e6b32886d3bab1501de6c45f8f5f4c8fdf61549f"
+          },
+          "full": {
+            "src": "roadster-01-03-full.webp",
+            "width": 2400,
+            "height": 1351,
+            "bytes": 173326,
+            "sha256": "3b1432d3ff8e77f505e0c99a9895907aabfcbd69770d5d7e6bb31834f15caf8a"
+          }
+        },
+        {
+          "id": "roadster-01-04",
+          "order": 4,
+          "thumbnail": {
+            "src": "roadster-01-04.webp",
+            "width": 960,
+            "height": 540,
+            "bytes": 53380,
+            "sha256": "136e4590cdbf98dd51057e2d153f33cda6b79d603a186978580c87df941991e9"
+          },
+          "full": {
+            "src": "roadster-01-04-full.webp",
+            "width": 2400,
+            "height": 1351,
+            "bytes": 212366,
+            "sha256": "44ef8c0a09f81b0a0a31a6e47aada5bdcc372069b1808dd7c05537adcdc812dc"
+          }
+        }
+      ]
+    },
+    {
+      "id": "roadster-02",
+      "items": [
+        {
+          "id": "roadster-02-01",
+          "order": 1,
+          "thumbnail": {
+            "src": "roadster-02-01.webp",
+            "width": 960,
+            "height": 400,
+            "bytes": 22188,
+            "sha256": "5081e25fdc7cbe69bcfd6e5a1a071d6bb4f6790388d721089f8a33cf47a7edce"
+          },
+          "full": {
+            "src": "roadster-02-01-full.webp",
+            "width": 2400,
+            "height": 999,
+            "bytes": 101270,
+            "sha256": "40821bcc31fc55153adbc3b00ecb8128cb7cf87339999a0c0a14841f25e291c1"
+          }
+        },
+        {
+          "id": "roadster-02-02",
+          "order": 2,
+          "thumbnail": {
+            "src": "roadster-02-02.webp",
+            "width": 960,
+            "height": 411,
+            "bytes": 22678,
+            "sha256": "b8e85d5e0ade2f04673a9172608fce2ad907711df68c260bc842d65d979dca8a"
+          },
+          "full": {
+            "src": "roadster-02-02-full.webp",
+            "width": 2400,
+            "height": 1028,
+            "bytes": 98748,
+            "sha256": "ca60735590cdc3f16bb39d42e149e1e84e76597d54ad232366a046735176c3f4"
+          }
+        },
+        {
+          "id": "roadster-02-03",
+          "order": 3,
+          "thumbnail": {
+            "src": "roadster-02-03.webp",
+            "width": 960,
+            "height": 407,
+            "bytes": 39554,
+            "sha256": "78d8ebbe237b76ebfc0299a3a0cf6c19c77dee4f4c7f5f39ee0ae0ce09b8f809"
+          },
+          "full": {
+            "src": "roadster-02-03-full.webp",
+            "width": 2400,
+            "height": 1018,
+            "bytes": 169730,
+            "sha256": "917173d7802c8b5b32106ac3961ddef535c78bbac256185f5afffe9847a273c8"
+          }
+        },
+        {
+          "id": "roadster-02-04",
+          "order": 4,
+          "thumbnail": {
+            "src": "roadster-02-04.webp",
+            "width": 960,
+            "height": 411,
+            "bytes": 51344,
+            "sha256": "c71e4552c8c2f6ab46fd53b527df2c686809639e19f6517e2ddaec6ccc53e4bf"
+          },
+          "full": {
+            "src": "roadster-02-04-full.webp",
+            "width": 2400,
+            "height": 1028,
+            "bytes": 235400,
+            "sha256": "3b2944dc5d633f090c2ac8a328d68803fb5c1f9e5dd264fe1aa87b50069558b1"
+          }
+        },
+        {
+          "id": "roadster-02-05",
+          "order": 5,
+          "thumbnail": {
+            "src": "roadster-02-05.webp",
+            "width": 960,
+            "height": 400,
+            "bytes": 51514,
+            "sha256": "3106df3eca8a9f734eebd820e19dc6be3038b81bc07a3034f76d609dc8aebc67"
+          },
+          "full": {
+            "src": "roadster-02-05-full.webp",
+            "width": 2400,
+            "height": 999,
+            "bytes": 225842,
+            "sha256": "b4fb61378d7887b0329698e3278a7a8256651bbd55b57dccbd38dee794cf8664"
+          }
+        },
+        {
+          "id": "roadster-02-06",
+          "order": 6,
+          "thumbnail": {
+            "src": "roadster-02-06.webp",
+            "width": 960,
+            "height": 411,
+            "bytes": 18418,
+            "sha256": "d1523d301026f917a28fd6f55269b5f4aa6097a9d01b06ecb979f5ea67b9662f"
+          },
+          "full": {
+            "src": "roadster-02-06-full.webp",
+            "width": 2400,
+            "height": 1028,
+            "bytes": 85098,
+            "sha256": "78dde5f4ee85b2b44e4f49bb00d33106dccd3b028c04c7758e436798396178e5"
+          }
+        },
+        {
+          "id": "roadster-02-07",
+          "order": 7,
+          "thumbnail": {
+            "src": "roadster-02-07.webp",
+            "width": 960,
+            "height": 411,
+            "bytes": 28508,
+            "sha256": "2f1ab153888b1b10cc61b4b15d70331cb26692b72459eac4f6c760d6a3df31c0"
+          },
+          "full": {
+            "src": "roadster-02-07-full.webp",
+            "width": 2400,
+            "height": 1028,
+            "bytes": 119750,
+            "sha256": "b926e0ab61cc63f46419ddab3d7bf99d5f759c21c7ad3a5c1a8b65fbe716225c"
+          }
+        },
+        {
+          "id": "roadster-02-08",
+          "order": 8,
+          "thumbnail": {
+            "src": "roadster-02-08.webp",
+            "width": 960,
+            "height": 411,
+            "bytes": 48128,
+            "sha256": "a6f56d7be22c0d986b34d0a8ac18567442ea44df3aabd4a9695bc8f1966ce991"
+          },
+          "full": {
+            "src": "roadster-02-08-full.webp",
+            "width": 2400,
+            "height": 1028,
+            "bytes": 232588,
+            "sha256": "cbadf018f7528113c1cedb4e212e20cdebb0e4d7e2dfcecabce0edf8d9373ef0"
+          }
+        },
+        {
+          "id": "roadster-02-09",
+          "order": 9,
+          "thumbnail": {
+            "src": "roadster-02-09.webp",
+            "width": 960,
+            "height": 411,
+            "bytes": 24450,
+            "sha256": "e4f67b2b47362ec748803e89434567757670c7eef25c7de0aa964bc7b9222a91"
+          },
+          "full": {
+            "src": "roadster-02-09-full.webp",
+            "width": 2400,
+            "height": 1028,
+            "bytes": 104246,
+            "sha256": "36d1df057259a18c7896c83532e46d40fa22beda2acf25d9ac8fe4994ce96006"
+          }
+        },
+        {
+          "id": "roadster-02-10",
+          "order": 10,
+          "thumbnail": {
+            "src": "roadster-02-10.webp",
+            "width": 960,
+            "height": 411,
+            "bytes": 28748,
+            "sha256": "98c7d527f8e60f18dfb80dd9fc1e4b8ba41a97ef24e4d0d824f2fb65cf10e44b"
+          },
+          "full": {
+            "src": "roadster-02-10-full.webp",
+            "width": 2400,
+            "height": 1028,
+            "bytes": 115172,
+            "sha256": "c56644dce7ad446bc737d66406f06fbd7ac3c3e808786806eb9de7c520aae1dd"
+          }
+        },
+        {
+          "id": "roadster-02-11",
+          "order": 11,
+          "thumbnail": {
+            "src": "roadster-02-11.webp",
+            "width": 960,
+            "height": 411,
+            "bytes": 56612,
+            "sha256": "b38a8e0bda502d464ff1f19c6fdd6edad90caef06addca715ebb460d53190793"
+          },
+          "full": {
+            "src": "roadster-02-11-full.webp",
+            "width": 2400,
+            "height": 1028,
+            "bytes": 252894,
+            "sha256": "d83a05a25c45eadae3995e687dcbb0e09bd068cfb542a9de2dce7dc0a0210d42"
+          }
+        },
+        {
+          "id": "roadster-02-12",
+          "order": 12,
+          "thumbnail": {
+            "src": "roadster-02-12.webp",
+            "width": 960,
+            "height": 410,
+            "bytes": 30644,
+            "sha256": "1c74da921abdfe1936459fd0ea2771c44d6e0ac711c6acb866fd61cf9fdd0514"
+          },
+          "full": {
+            "src": "roadster-02-12-full.webp",
+            "width": 2400,
+            "height": 1026,
+            "bytes": 126612,
+            "sha256": "d9c5ab7a4e8811888ab92fb833e0884a3de2d5ff14f2d2c14f1220a6de1d6810"
+          }
+        },
+        {
+          "id": "roadster-02-13",
+          "order": 13,
+          "thumbnail": {
+            "src": "roadster-02-13.webp",
+            "width": 960,
+            "height": 411,
+            "bytes": 33244,
+            "sha256": "3ddeadca8622870c4a58fe4823c3445ef1b08baadaed30c5d9664ec3c8bb3b8e"
+          },
+          "full": {
+            "src": "roadster-02-13-full.webp",
+            "width": 2400,
+            "height": 1028,
+            "bytes": 158928,
+            "sha256": "95435a1050b21a9e33ff51c51e1a8809f497c16e0559e9b782f0d0accb14a3ef"
+          }
+        }
+      ]
+    }
+  ]
+}

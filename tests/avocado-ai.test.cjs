@@ -56,3 +56,20 @@ test('all assets use web formats and remain below the runtime HD limit', () => {
   }
   assert.equal(fs.readdirSync(dir).length, 6);
 });
+
+test('watch actions lead to each supplied Douyin work and stills remain in their own project', () => {
+  for (const [file, language] of Object.entries(OUTPUTS)) {
+    const html = renderPage(file, language);
+    for (const id of ['7697548458885991689', '7703382715244072202']) {
+      assert.equal((html.match(new RegExp(`href="https://www\\.douyin\\.com/video/${id}"`, 'g')) || []).length, 3);
+    }
+    assert.doesNotMatch(html, /data-open-film=/, 'watch links must not be intercepted by the local cinema');
+    const galleryLinks = [...html.matchAll(/<a class="av-still"[^>]*>/g)].map(match => match[0]);
+    assert.equal(galleryLinks.filter(link => link.includes('data-gallery="roadster-01"')).length, 4);
+    assert.equal(galleryLinks.filter(link => link.includes('data-gallery="roadster-02"')).length, 13);
+    assert.ok(galleryLinks.every(link => /href="[^"]+-full\.webp"/.test(link)));
+    assert.equal((html.match(/data-lightbox-image/g) || []).length, 1);
+    assert.match(html, /<img data-lightbox-image alt="" draggable="false">/);
+    assert.doesNotMatch(html, /<img[^>]*src="[^"]+-full\.webp"/, 'full stills only load after selection');
+  }
+});
