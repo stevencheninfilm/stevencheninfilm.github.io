@@ -32,7 +32,7 @@ test('both home languages keep the same ten projects and responsive media', () =
     assert.match(nav, /href="\.\.\/projects\/cat-nest.html"[^>]*>Vibe Coding<\/a>/);
     const locale = html.includes('<html lang="zh-Hans">') ? 'zh' : 'en';
     assert.ok(nav.includes(`href="/${locale}/ai/index.html"`));
-    const avocadoEntry = `href="/${locale}/avocado-ai/index.html">${locale === 'zh' ? '鳄梨AI' : 'YueVisuals'}</a>`;
+    const avocadoEntry = `href="/${locale}/avocado-ai/index.html">${locale === 'zh' ? '抖音AI创作' : 'YueVisuals'}</a>`;
     assert.ok(nav.includes(avocadoEntry), 'localized Avocado AI entry is present');
     assert.ok(nav.indexOf(`href="/${locale}/ai/index.html"`) < nav.indexOf(avocadoEntry));
     assert.ok(nav.indexOf(avocadoEntry) < nav.indexOf('href="../film/Film.html"'));
