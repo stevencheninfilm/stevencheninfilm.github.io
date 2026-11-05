@@ -23,7 +23,7 @@ test('AI language routes retain the same three workflows, lazy media and HD pair
     assert.match(html, /data-site-language="zh"/);
     const locale = html.includes('<html lang="zh-Hans"') ? 'zh' : 'en';
     const nav = html.match(/<nav class="primary-nav"[^>]*>([^]*?)<\/nav>/)[1];
-    const entry = `href="/${locale}/avocado-ai/index.html">${locale === 'zh' ? '鳄梨AI' : 'YueVisuals'}</a>`;
+    const entry = `href="/${locale}/avocado-ai/index.html">${locale === 'zh' ? '抖音AI创作' : 'YueVisuals'}</a>`;
     assert.ok(nav.includes(entry), 'localized Avocado AI entry is present');
     assert.ok(nav.indexOf(`href="/${locale}/ai/index.html"`) < nav.indexOf(entry));
     assert.ok(nav.indexOf(entry) < nav.indexOf('film/Film.html'));
