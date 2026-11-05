@@ -5,7 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const source = fs.readFileSync(path.join(__dirname, '../assets/viewing-links.js'), 'utf8');
 
-function setup({ coarse = false, userAgent = 'Safari', clipboard = async () => {}, links } = {}) {
+function setup({ coarse = false, userAgent = 'Safari', clipboard = async () => {}, links, storage = new Map() } = {}) {
   const inserted = [];
   let observer;
   class Element {
@@ -45,6 +45,9 @@ function setup({ coarse = false, userAgent = 'Safari', clipboard = async () => {
   vm.runInNewContext(source, {
     window: { matchMedia: () => media },
     navigator: { userAgent, clipboard: clipboard === null ? undefined : { writeText: clipboard } },
+    sessionStorage: storage === null ? {
+      getItem() { throw new Error('denied'); }, setItem() { throw new Error('denied'); }
+    } : { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) },
     document,
     location: { href: 'https://stevencheninfilm.com/ai/index.html', origin: 'https://stevencheninfilm.com' },
     URL,
@@ -59,7 +62,9 @@ test('marked mobile viewing links use native same-tab HTTPS navigation without c
   assert.equal(initial[1].getAttribute('target'), '_self');
   assert.equal(initial[2].getAttribute('target'), '_blank');
   assert.equal(initial[0].href, 'https://www.xinpianchang.com/a13770851?from=webShare&channel=copyLink');
-  assert.equal(initial[0].listeners.click, undefined, 'normal browser navigation is not intercepted');
+  let prevented = false;
+  initial[0].listeners.click({ preventDefault() { prevented = true; } });
+  assert.equal(prevented, false, 'normal browser navigation is not intercepted');
   assert.equal(inserted.length, 2);
   media.matches = false;
   media.listener();
@@ -71,12 +76,51 @@ test('desktop keeps existing navigation and in-app browsers use same-tab even wi
   assert.equal(setup({ userAgent: 'Mozilla iPhone MicroMessenger/8.0' }).initial[0].getAttribute('target'), '_self');
 });
 
+test('copy tools appear only for the activated viewing link and do not copy automatically', () => {
+  const copied = [];
+  const { initial, inserted } = setup({ clipboard: url => copied.push(url) });
+  const firstTools = inserted[0].node.children[1];
+  const secondTools = inserted[1].node.children[1];
+  assert.equal(firstTools.hidden, true);
+  assert.equal(secondTools.hidden, true);
+  initial[0].listeners.click();
+  assert.equal(firstTools.hidden, false);
+  assert.equal(secondTools.hidden, true);
+  assert.deepEqual(copied, []);
+  const css = fs.readFileSync(path.join(__dirname, '../assets/media-access.css'), 'utf8');
+  assert.match(css, /\.viewing-link-tools\[hidden\][^{]*\{\s*display:\s*none;/);
+});
+
+test('same-tab return and later film dialogs remember the activated URL for this session', () => {
+  const storage = new Map();
+  const firstPage = setup({ coarse: true, storage });
+  firstPage.initial[0].listeners.click();
+  const returnPage = setup({ coarse: true, storage });
+  assert.equal(returnPage.inserted[0].node.children[1].hidden, false);
+  assert.equal(returnPage.inserted[1].node.children[1].hidden, true);
+  const duplicate = new returnPage.Element('a', firstPage.initial[0].href);
+  returnPage.add(duplicate);
+  assert.equal(returnPage.inserted[2].node.children[1].hidden, false);
+  assert.equal(setup().inserted[0].node.children[1].hidden, true, 'a new session starts hidden');
+});
+
+test('middle-click reveals tools and unavailable storage never blocks activation', () => {
+  const { initial, inserted } = setup({ storage: null });
+  const tools = inserted[0].node.children[1];
+  initial[0].listeners.auxclick({ button: 2 });
+  assert.equal(tools.hidden, true);
+  initial[0].listeners.auxclick({ button: 1 });
+  assert.equal(tools.hidden, false);
+  assert.doesNotThrow(() => initial[0].listeners.click());
+});
+
 test('copying writes the exact URL only after a click and reports success', async () => {
   const copied = [];
   const { initial, inserted } = setup({ clipboard: async url => copied.push(url) });
   assert.deepEqual(copied, []);
   const [button, status, input] = inserted[0].node.children[1].children;
   assert.equal(input.hidden, true);
+  initial[0].listeners.click();
   await button.listeners.click();
   assert.deepEqual(copied, [initial[0].href]);
   assert.equal(status.hidden, false);
@@ -89,6 +133,7 @@ test('clipboard denial leaves a selectable full HTTPS URL instead of pretending 
   for (const clipboard of [null, async () => { throw new Error('denied'); }]) {
     const { initial, inserted } = setup({ clipboard });
     const [button, status, input] = inserted[0].node.children[1].children;
+    initial[0].listeners.click();
     await button.listeners.click();
     assert.equal(input.value, initial[0].href);
     assert.equal(input.hidden, false);
@@ -118,6 +163,9 @@ test('new film dialog links receive one set of controls; internal and non-HTTPS 
   assert.equal(group.children.length, 2);
   assert.equal(group.children[0], link, 'platform link and copy controls share one layout item');
   assert.equal(group.children[1].className, 'viewing-link-tools');
+  assert.equal(group.children[1].hidden, true);
+  link.listeners.click();
+  assert.equal(group.children[1].hidden, false);
   assert.equal(link.parentNode, group);
   runtime.repeat(group);
   assert.equal(runtime.inserted.length, 1, 'moving the link into its wrapper must not duplicate controls');

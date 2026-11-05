@@ -15,9 +15,9 @@ test('AI language routes retain the same three workflows, lazy media and HD pair
   assert.deepEqual(stories(zh), stories(en));
   assert.deepEqual(media(zh), media(en));
   for (const html of [en, zh]) {
-    assert.equal((html.match(/data-progressive-group/g) || []).length, 6);
-    assert.equal((html.match(/data-progressive-status/g) || []).length, 6);
-    assert.equal((html.match(/data-src-hd=/g) || []).length, 8);
+    assert.equal((html.match(/data-progressive-group/g) || []).length, 5);
+    assert.equal((html.match(/data-progressive-status/g) || []).length, 5);
+    assert.equal((html.match(/data-src-hd=/g) || []).length, 7);
     assert.match(html, /href="https:\/\/stevencheninfilm.com\/zh\/ai\/index.html"/);
     assert.match(html, /data-site-language="en"/);
     assert.match(html, /data-site-language="zh"/);
@@ -31,7 +31,7 @@ test('AI language routes retain the same three workflows, lazy media and HD pair
   assert.match(zh, /重塑每一处细节/);
   assert.match(zh, /掌控镜头，<br><em>重构世界/);
   assert.match(zh, /实拍入镜，<br><em>AI 造境/);
-  assert.match(zh, /data-video-loading data-video-lang="zh"/);
+  assert.match(zh, /data-player-toggle aria-label="播放视频"/);
   assert.match(zh, /data-news-edition="Future Reality AI 电影节 — 电影节初审评委/);
 });
 

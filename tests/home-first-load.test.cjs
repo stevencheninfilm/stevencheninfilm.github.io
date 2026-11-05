@@ -14,7 +14,7 @@ test('homepage renders its first poster and navigation without startup scripts o
   assert.equal([...wall.matchAll(/<img data-src=/g)].length, 25);
   assert.doesNotMatch(wall, /(?<!data-)\bsrc="/);
   const cards = [...html.matchAll(/<article class="deck-card\b[\s\S]*?<\/article>/g)].map(m => m[0]);
-  assert.equal(cards.length, 10);
+  assert.equal(cards.length, 11);
   for (const card of cards.slice(1)) {
     assert.doesNotMatch(card, /(?<!data-)\b(?:src|srcset|poster)="/);
     assert.match(card, /data-src="/);
@@ -30,7 +30,7 @@ test('homepage renders its first poster and navigation without startup scripts o
   for (const script of html.matchAll(/<script[^>]*\bsrc="[^"]+"[^>]*>/g)) assert.match(script[0], /\bdefer\b/);
   const dock = html.slice(html.indexOf('<div class="thumbnail-dock"'));
   const thumbnails = [...dock.matchAll(/<img (?:data-)?src="([^"]+)"/g)].map(match => match[1]);
-  assert.equal(thumbnails.length, 10);
+  assert.equal(thumbnails.length, 11);
   assert.ok(thumbnails.reduce((bytes, file) => bytes + fs.statSync(path.join(__dirname, '..', file)).size, 0) < 70000);
   assert.equal([...dock.matchAll(/<img src=/g)].length, 1, 'offscreen thumbnails wait for viewport observation');
 });
@@ -120,8 +120,8 @@ test('mobile dock loads only intersecting thumbnails and still supports browsers
 test('language links restore exact project IDs while missing or invalid IDs keep the first project', () => {
   const source = read('assets/site.js');
   const initialization = source.slice(0, source.indexOf("  let mode = 'expanded';")) + '\nreturn active;\n})();';
-  const cards = Array.from({ length: 10 }, (_, index) => ({ dataset: { page: String(index - 1) } }));
-  for (const [search, expected] of [['', 0], ['?project=-1', 0], ['?project=0', 1], ['?project=1', 2], ['?campaign=home&project=8', 9], ['?project=9', 0], ['?project=-2', 0], ['?project=1.5', 0], ['?project=', 0], ['?project=unknown', 0]]) {
+  const cards = Array.from({ length: 11 }, (_, index) => ({ dataset: { page: String(index - 1) } }));
+  for (const [search, expected] of [['', 0], ['?project=-1', 0], ['?project=0', 1], ['?project=1', 2], ['?campaign=home&project=8', 9], ['?project=9', 10], ['?project=10', 0], ['?project=-2', 0], ['?project=1.5', 0], ['?project=', 0], ['?project=unknown', 0]]) {
     const active = vm.runInNewContext(initialization, {
       URLSearchParams,
       window: { location: { search }, matchMedia: () => ({ matches: false }) },

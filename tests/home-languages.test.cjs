@@ -6,12 +6,12 @@ const { OUTPUTS, renderPage } = require('../tools/build-home-pages.cjs');
 const root = path.resolve(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 
-test('both home languages keep the same ten projects and responsive media', () => {
+test('both home languages keep the same eleven projects and responsive media', () => {
   const english = read('en/index.html');
   const chinese = read('zh/index.html');
   const media = html => [...html.matchAll(/(?:data-src|data-src-mobile|data-src-hd|poster|data-poster)="([^"]+)"/g)].map(match => match[1]);
   const pages = html => [...html.matchAll(/data-page="(-?\d+)"/g)].map(match => match[1]);
-  assert.deepEqual(pages(english), ['-1','0','1','2','3','4','5','6','7','8']);
+  assert.deepEqual(pages(english), ['-1','0','1','2','3','4','5','6','7','8','9']);
   assert.deepEqual(pages(chinese), pages(english));
   assert.deepEqual(media(chinese), media(english));
   assert.match(chinese, /<html lang="zh-Hans">/);
