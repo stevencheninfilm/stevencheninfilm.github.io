@@ -38,10 +38,6 @@ html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process 
   }
   html:lang(zh) .home-page .deck-project-title > small[lang="en"] { font-size: 12px; }
 }
-@media (max-width: 360px) {
-  html:lang(en) .home-page .home-header .primary-nav { gap: 8px; font-size: 11px; }
-  html:lang(en) .home-page .home-header .primary-nav a { padding-inline: 0; white-space: nowrap; }
-}
 
 /* A quiet title field keeps the lamp and sunrise visible in the new film cover. */
 .home-page .deck-card--shotlab::before {

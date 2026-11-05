@@ -23,11 +23,17 @@
     const controlsDelay = Math.max(0, Number(player.dataset.controlsDelay) || 0);
     let controlsTimer = 0, controlsReady = !controlsDelay;
     let visible = false, wasActive = false, loaded = false, paused = false;
-    let manual = false, scrubbing = false, resume = false, failed = false;
+    let manual = false, scrubbing = false, resume = false, failed = false, completed = false;
     let upgrading = false, playGeneration = 0, knownDuration = 0;
     const switching = () => upgrading || Boolean(window.ProgressiveVideo?.isSwitching(video));
     const intent = () => window.ProgressiveVideo?.getIntent(video) || { paused: video.paused, time: video.currentTime, muted: video.muted };
     const setIntent = patch => window.ProgressiveVideo?.setIntent(video, patch);
+    const replayCompleted = () => {
+      if (!completed) return;
+      completed = false;
+      if (switching()) setIntent({ time: 0 });
+      else video.currentTime = 0;
+    };
     const active = () => visible && !document.hidden &&
       (!card || (card.classList.contains('is-active') && !deck.classList.contains('is-strip'))) &&
       (!panel || panel.getAttribute('aria-hidden') !== 'true');
@@ -82,6 +88,7 @@
       const isActive = active();
       if (isActive && !wasActive) {
         paused = false;
+        replayCompleted();
         // Every new visit starts quietly; sound remains an explicit choice within it.
         video.muted = true;
         if (switching()) setIntent({ muted: true });
@@ -111,6 +118,7 @@
     toggle.addEventListener('click', () => {
       if (failed) { failed = false; loaded = false; paused = false; }
       else paused = switching() ? !intent().paused : !video.paused;
+      if (!paused) replayCompleted();
       manual = true;
       status.textContent = '';
       update();
@@ -142,6 +150,7 @@
       const duration = switching() ? knownDuration : video.duration;
       if (Number.isFinite(duration) && duration > 0) {
         const target = Math.min(duration - .04, Math.max(0, Number(seek.value) / 100 * duration));
+        completed = false;
         if (switching()) setIntent({ time: target });
         else video.currentTime = target;
       }
@@ -150,6 +159,14 @@
     for (const event of ['pointerup', 'pointercancel', 'lostpointercapture', 'change', 'blur']) seek.addEventListener(event, endSeek);
     for (const event of ['timeupdate', 'durationchange', 'loadedmetadata', 'play', 'pause', 'volumechange']) video.addEventListener(event, draw);
     video.addEventListener('canplay', () => { if (switching()) return; status.textContent = ''; play(); });
+    video.addEventListener('ended', () => {
+      if (video.loop || switching()) return;
+      // Finished short films keep their end card through a delayed HD upgrade.
+      // Explicit replay or a new active visit starts them from the beginning.
+      completed = true;
+      paused = true;
+      draw();
+    });
     video.addEventListener('error', () => {
       if (switching()) return;
       failed = true; video.pause(); status.textContent = words.unavailable; draw();

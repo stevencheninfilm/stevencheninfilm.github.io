@@ -201,6 +201,14 @@
   .ai-page--zh .primary-nav { font-size: 14px; letter-spacing: 0; }
 }
 
+
+/* Six destinations remain visible in one row on phones; link height stays
+   44px and the existing locale font sizes are preserved. */
+@media (max-width: 420px) {
+  .ai-page .primary-nav { gap: 4px; letter-spacing: 0; }
+  .ai-page .primary-nav a { min-width: 0; padding-inline: 0; white-space: nowrap; }
+}
+
 @media (max-width: 680px) {
   .ai-page--zh .ai-cinema-banner h1 { font-size: clamp(50px, 12vw, 76px); line-height: 1.15; }
   .ai-page--zh .ai-cinema-banner__copy > .ai-localized-english { margin-top: 18px; font-size: 16px; }

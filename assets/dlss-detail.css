@@ -72,7 +72,7 @@
   .deck-card--comparison .comparison-divider { top: 0; bottom: 0; height: auto; }
   .deck-card--comparison .comparison-handle { top: 50%; }
   .home-page .deck-card--comparison .comparison-copy {
-    position: relative;
+    position: static;
     flex: 0 0 auto;
     top: auto;
     left: auto;
@@ -80,6 +80,7 @@
     margin-top: 24px;
     transform: none;
     filter: none;
+    transition: opacity .3s ease;
   }
   .home-page :is(.deck-card--detail, .deck-card--previs) .comparison-copy h1 { font-size: clamp(25px, 6.8vw, 43px); line-height: 1.3; letter-spacing: .015em; }
   .home-page .detail-copy .comparison-tool-line { margin-bottom: 12px; font-size: clamp(8px, 2.15vw, 11px); letter-spacing: .04em; }
@@ -97,7 +98,7 @@
   .home-page .comparison-player-controls { position: relative; flex: 0 0 auto; left: auto; right: auto; bottom: auto; width: calc(100% - var(--mobile-transport-side) - var(--mobile-transport-side)); margin-top: 4px; min-height: 40px; text-shadow: none; gap: 9px; }
   .comparison-player-controls button { font-size: 11px; }
   .comparison-player-controls output { font-size: 9px; }
-  .comparison-player-controls + .hd-status + .comparison-copy { margin-top: 12px; }
+  .home-page .comparison-player-controls + .comparison-copy { margin-top: 12px; }
   .home-page .cinema-home { inset: max(110px, calc(env(safe-area-inset-top) + 82px)) max(8px, env(safe-area-inset-right)) 146px max(8px, env(safe-area-inset-left)); display: flex; flex-direction: column; justify-content: center; align-items: center; padding-top: clamp(20px, 4svh, 38px); }
   .cinema-home > .workflow-player { position: relative; order: 0; inset: auto; width: 100%; flex: 0 0 auto; }
   .cinema-home .workflow-player__picture { position: relative; inset: auto; flex: 0 0 auto; width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; }
@@ -131,5 +132,6 @@
   .home-page .deck-card--comparison .detail-copy em { margin-top: 12px; padding: 9px 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
+  .home-page .project-deck:not(.is-strip) .deck-card--comparison .comparison-copy,
   .comparison-player-controls, .home-page .comparison-copy em { transition: none; }
 }
