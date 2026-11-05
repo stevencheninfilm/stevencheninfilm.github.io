@@ -36,6 +36,8 @@
   let stripGestureDirection = 0;
   let stripGestureActive = false;
   let resizeFrame = null;
+  let thumbnailScrollFrame = null;
+  let hasCenteredThumbnail = false;
 
   const wait = (duration) => new Promise((resolve) => window.setTimeout(resolve, duration));
   const clamp = (value, minimum, maximum) => Math.min(Math.max(value, minimum), maximum);
@@ -43,6 +45,28 @@
     const rect = card.getBoundingClientRect();
     return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
   }) || null;
+
+  const centerActiveThumbnail = (behavior = reducedMotion ? 'auto' : 'smooth') => {
+    if (window.innerWidth > 1024) {
+      thumbnailDock.style.setProperty('--home-dock-center-gutter', '0px');
+      return;
+    }
+    const thumbnail = thumbnails[active];
+    if (mode !== 'expanded' || !thumbnail) return;
+    const width = thumbnailDock.clientWidth;
+    const thumbnailWidth = thumbnail.getBoundingClientRect().width;
+    if (!width || !thumbnailWidth) return;
+    // Padding lets the first and last entries reach the same center as the rest.
+    thumbnailDock.style.setProperty('--home-dock-center-gutter', `${Math.max(0, (width - thumbnailWidth) / 2)}px`);
+    const dockRect = thumbnailDock.getBoundingClientRect();
+    const rect = thumbnail.getBoundingClientRect();
+    const target = clamp(thumbnailDock.scrollLeft + rect.left - dockRect.left - thumbnailDock.clientLeft + (rect.width - width) / 2,
+      0, Math.max(0, thumbnailDock.scrollWidth - width));
+    if (Math.abs(target - thumbnailDock.scrollLeft) < .5) return;
+    // Scroll only this carousel; scrollIntoView can move the page vertically.
+    if (typeof thumbnailDock.scrollTo === 'function') thumbnailDock.scrollTo({ left: target, behavior });
+    else thumbnailDock.scrollLeft = target;
+  };
 
   const syncThumbnailGeometry = () => {
     const dockLeft = thumbnailDock.offsetLeft;
@@ -175,8 +199,8 @@
       } else video.pause();
     });
 
-    const selectedThumb = thumbnails[active];
-    if (selectedThumb && mode === 'expanded') selectedThumb.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'nearest', inline: 'nearest' });
+    centerActiveThumbnail(hasCenteredThumbnail ? undefined : 'auto');
+    hasCenteredThumbnail = true;
   };
 
   const selectNearestStripCard = () => {
@@ -494,7 +518,8 @@
 
   thumbnails.forEach((thumbnail) => thumbnail.addEventListener('click', () => {
     const requested = Number(thumbnail.dataset.slide);
-    slideFullScreen(requested);
+    if (requested === active && mode === 'expanded') centerActiveThumbnail();
+    else slideFullScreen(requested);
   }));
   document.querySelector('.stage-step--prev').addEventListener('click', () => slideFullScreen(active - 1));
   document.querySelector('.stage-step--next').addEventListener('click', () => slideFullScreen(active + 1));
@@ -502,11 +527,19 @@
     if (mode === 'strip') expandFromStrip(active);
     else collapseToStrip();
   });
+  thumbnailDock.addEventListener('scroll', () => {
+    if (thumbnailScrollFrame !== null) return;
+    thumbnailScrollFrame = requestAnimationFrame(() => {
+      thumbnailScrollFrame = null;
+      syncThumbnailGeometry();
+    });
+  }, { passive: true });
   window.addEventListener('resize', () => {
     if (resizeFrame !== null) return;
     resizeFrame = requestAnimationFrame(() => {
       resizeFrame = null;
       renderStrip(stripProgress);
+      centerActiveThumbnail('auto');
       syncThumbnailGeometry();
     });
   });

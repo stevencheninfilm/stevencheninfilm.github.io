@@ -22,8 +22,8 @@ test('both home languages keep the same ten projects and responsive media', () =
   assert.match(english, /Real Cinema<br>to AI Video/);
   assert.doesNotMatch(chinese, /class="detail-copy__english"[^>]*>3D Camera Previs to AI Video/);
   assert.match(english, /class="detail-copy__english"[^>]*>3D Camera Previs to AI Video/);
-  assert.match(chinese, /comparison-title-link" href="\/zh\/ai\/index.html#dlss-detail">重塑每一处细节<\/a>/);
-  assert.match(english, /comparison-title-link" href="\/en\/ai\/index.html#dlss-detail">Redefine every detail\.<\/a>/);
+  assert.match(chinese, /comparison-project-link" href="\/zh\/ai\/index.html#dlss-detail">[^]*?<h1>重塑每一处细节<\/h1>/);
+  assert.match(english, /comparison-project-link" href="\/en\/ai\/index.html#dlss-detail">[^]*?<h1>Redefine every detail\.<\/h1>/);
   assert.doesNotMatch(english, /data-(?:video|player)-lang="zh"/);
   for (const html of [english, chinese]) {
     assert.match(html, /data-site-language="zh"/);
