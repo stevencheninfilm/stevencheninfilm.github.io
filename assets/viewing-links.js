@@ -2,6 +2,12 @@
   const selector = 'a[data-viewing-link]';
   const prepared = new WeakSet();
   const originalTargets = new WeakMap();
+  const openedKey = 'steven-viewing-links-opened';
+  let opened = new Set();
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(openedKey) || '[]');
+    if (Array.isArray(saved)) opened = new Set(saved.filter(url => typeof url === 'string'));
+  } catch { /* Copy tools still work when browser storage is unavailable. */ }
   const coarsePointer = window.matchMedia?.('(pointer: coarse)');
   const inApp = /MicroMessenger|Weibo|AlipayClient|XiaoHongShu|XHSWebView|XHS\/|aweme|BytedanceWebview/i.test(navigator.userAgent || '');
 
@@ -30,6 +36,7 @@
     const tools = document.createElement('span');
     tools.className = 'viewing-link-tools';
     tools.lang = 'zh-Hans';
+    tools.hidden = !opened.has(destination.href);
     const copy = document.createElement('button');
     copy.className = 'viewing-link-copy';
     copy.type = 'button';
@@ -53,6 +60,18 @@
     // Keep a platform link and its copy action together as one grid/flex item.
     link.insertAdjacentElement('beforebegin', group);
     group.append(link, tools);
+
+    const reveal = () => {
+      tools.hidden = false;
+      opened.add(destination.href);
+      // A touch-screen link leaves this page; keep its tools available on return.
+      try { sessionStorage.setItem(openedKey, JSON.stringify([...opened])); } catch {}
+    };
+    // Observe activation without preventing or replacing native navigation.
+    link.addEventListener('click', reveal);
+    link.addEventListener('auxclick', event => {
+      if (event.button === 1) reveal();
+    });
 
     copy.addEventListener('click', async () => {
       const url = link.href;

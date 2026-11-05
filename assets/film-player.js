@@ -53,14 +53,14 @@
       status.textContent = '正在加载，稍候即可播放…';
       timer = setTimeout(() => {
         if (request !== attempt || !pending || document.hidden) return;
-        showPlay('连接较慢，可继续等待、重试播放，或使用下方的备用链接。', '重试播放');
+        showPlay('连接较慢，可继续等待、重试播放，或使用下方的观看链接。', '重试播放');
       }, 15000);
       const rejected = error => {
         if (request !== attempt || !pending) return;
         pending = false;
         if (error?.name === 'AbortError') { showPlay('', '继续播放'); return; }
         failed = error?.name !== 'NotAllowedError';
-        showPlay(error?.name === 'NotAllowedError' ? '请点按播放。' : '暂时无法播放，请重试或使用备用链接。');
+        showPlay(error?.name === 'NotAllowedError' ? '请点按播放。' : '暂时无法播放，请重试或使用观看链接。');
       };
       // Some older WebKit implementations return undefined from play().
       try { Promise.resolve(video.play()).catch(rejected); }
@@ -103,7 +103,7 @@
       failed = true;
       pending = false;
       video.pause();
-      showPlay('视频加载失败，请重试或使用备用链接。');
+      showPlay('视频加载失败，请重试或使用观看链接。');
     });
     video.addEventListener('ended', () => { if (!switching()) showPlay('', '重新播放'); });
     video.addEventListener('seeking', () => {
@@ -130,7 +130,7 @@
       upgrading = false;
       ++attempt;
       failed = Boolean(video.error);
-      if (failed) { showPlay('视频加载失败，请重试或使用备用链接。'); return; }
+      if (failed) { showPlay('视频加载失败，请重试或使用观看链接。'); return; }
       if (document.hidden || intent().paused) { showPlay('', '继续播放'); return; }
       requestPlay();
     };

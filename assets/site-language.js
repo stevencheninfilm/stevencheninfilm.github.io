@@ -40,7 +40,8 @@
         }
       } else {
         const page = document.querySelector('.project-deck .deck-card.is-active')?.dataset.page;
-        if (/^(?:-1|[0-8])$/.test(page ?? '')) url.searchParams.set('project', page);
+        // The active card owns its ID; new projects must not need a routing edit.
+        if (/^(?:-1|0|[1-9]\d*)$/.test(page ?? '')) url.searchParams.set('project', page);
       }
     }
     return url;

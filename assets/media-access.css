@@ -43,7 +43,7 @@
 .viewing-link-copy:hover, .viewing-link-copy:focus-visible { border-color: currentColor; }
 .viewing-link-status { flex-basis: 100%; font-size: 12px; line-height: 1.5; color: var(--muted, #aaa); }
 .viewing-link-url { box-sizing: border-box; width: min(100%, 380px); min-width: 0; padding: 10px; border: 1px solid #666; background: #111; color: #fff; font-size: 12px; }
-.viewing-link-status[hidden], .viewing-link-url[hidden] { display: none; }
+.viewing-link-tools[hidden], .viewing-link-status[hidden], .viewing-link-url[hidden] { display: none; }
 .xj-viewing__lounge .xj-viewing__platforms .xj-viewing__options { align-items: start; }
 .xj-viewing__options > .viewing-link-group { flex-direction: column; align-items: stretch; gap: 6px; }
 .xj-viewing__options > .viewing-link-group > .xj-viewing__choice { width: 100%; }

@@ -42,3 +42,25 @@ html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process 
   html:lang(en) .home-page .home-header .primary-nav { gap: 8px; font-size: 11px; }
   html:lang(en) .home-page .home-header .primary-nav a { padding-inline: 0; white-space: nowrap; }
 }
+
+/* A quiet title field keeps the lamp and sunrise visible in the new film cover. */
+.home-page .deck-card--shotlab::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(8, 9, 13, .56), rgba(8, 9, 13, .12) 65%);
+  pointer-events: none;
+}
+.home-page .deck-card--shotlab .deck-media { object-position: 64% center; }
+.home-page .deck-card--shotlab .deck-project-link--meta { left: 40%; gap: 20px; }
+.home-page .deck-card--shotlab .project-tool-line { font-size: clamp(12px, 1.1vw, 17px); letter-spacing: .06em; }
+.home-page .deck-card--shotlab .deck-project-title { font-size: clamp(38px, 5.2vw, 82px); line-height: 1.2; letter-spacing: 0; }
+.home-page .deck-card--shotlab .deck-project-title > small { display: block; margin-top: 14px; font-size: clamp(14px, 1.3vw, 21px); font-weight: 400; letter-spacing: .04em; }
+.home-page .deck-card--shotlab .deck-project-date { font-size: 14px; }
+@media (max-width: 680px) {
+  .home-page .deck-card--shotlab .deck-project-link--meta { left: 50%; max-width: 88vw; width: 88vw; gap: 16px; }
+  .home-page .deck-card--shotlab .deck-project-title { font-size: clamp(32px, 8.5vw, 50px); }
+  .home-page .deck-card--shotlab .deck-project-title > small { font-size: 14px; }
+  .home-page .deck-card--shotlab .project-tool-line { font-size: 12px; }
+}

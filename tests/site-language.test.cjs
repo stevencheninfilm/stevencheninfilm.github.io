@@ -106,15 +106,18 @@ test('explicit language pages remain stable even with a previous opposite prefer
 
 test('manual switch preserves current project and hash using native anchor navigation', () => {
   const h = setup({ url: 'https://stevencheninfilm.com/en/index.html?utm_source=portfolio#featured-work' });
-  h.card.dataset.page = '8';
+  h.card.dataset.page = '9';
   const event = h.fire('click', { target: h.links[1] });
   assert.equal(event.defaultPrevented, false);
-  assert.equal(h.links[1].href, 'https://stevencheninfilm.com/zh/index.html?utm_source=portfolio&project=8#featured-work');
+  assert.equal(h.links[1].href, 'https://stevencheninfilm.com/zh/index.html?utm_source=portfolio&project=9#featured-work');
   assert.equal(h.storage.get('steven-site-language'), 'zh');
   assert.deepEqual(h.replacements, []);
   h.card.dataset.page = '-1';
   h.fire('pointerdown', { target: h.links[0] });
   assert.equal(new URL(h.links[0].href).searchParams.get('project'), '-1');
+  h.card.dataset.page = '12';
+  h.fire('pointerdown', { target: h.links[0] });
+  assert.equal(new URL(h.links[0].href).searchParams.get('project'), '12', 'future project IDs need no fixed maximum');
 });
 
 test('manual choice wins over a late country response, including blocked localStorage', async () => {
