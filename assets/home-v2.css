@@ -1,4 +1,13 @@
 /* V2 candidate: isolated home-page refinements. */
+.home-v2 {
+  --home-dock-bottom: max(clamp(14px, 3.2vh, 54px), calc(env(safe-area-inset-bottom) + 10px));
+  --home-thumbnail-height: clamp(44px, 3.2vw, 58px);
+}
+
+.home-v2 .thumbnail-dock,
+.home-v2 .home-pagination { bottom: var(--home-dock-bottom); }
+.home-v2 .thumbnail-dock button { height: var(--home-thumbnail-height); }
+
 .home-v2 .stage-step {
   width: clamp(48px, 6.5vw, 86px);
   min-width: 48px;
@@ -31,7 +40,9 @@
 @media (min-width: 1025px) {
   .home-v2 .home-pagination {
     left: auto;
-    right: calc(max(clamp(18px, 3.3vw, 64px), env(safe-area-inset-right)) + clamp(579px, 44vw, 835px) + 18px);
+    /* Read the actual dock edge, so adding projects cannot cover the counter.
+       Before initialization, keep the counter in the clear at the left edge. */
+    right: calc(100% - var(--home-dock-left, 100px) + 18px);
     transform: none;
   }
 }
@@ -44,7 +55,7 @@
 
 @media (max-width: 1024px) {
   .home-v2 .home-pagination {
-    bottom: max(82px, calc(env(safe-area-inset-bottom) + 76px));
+    bottom: calc(var(--home-dock-bottom) + var(--home-thumbnail-height) + 12px);
   }
 }
 
