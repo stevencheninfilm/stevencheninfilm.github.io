@@ -393,6 +393,15 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 
 /* Source: assets/home-v2.css */
 /* V2 candidate: isolated home-page refinements. */
+.home-v2 {
+  --home-dock-bottom: max(clamp(14px, 3.2vh, 54px), calc(env(safe-area-inset-bottom) + 10px));
+  --home-thumbnail-height: clamp(44px, 3.2vw, 58px);
+}
+
+.home-v2 .thumbnail-dock,
+.home-v2 .home-pagination { bottom: var(--home-dock-bottom); }
+.home-v2 .thumbnail-dock button { height: var(--home-thumbnail-height); }
+
 .home-v2 .stage-step {
   width: clamp(48px, 6.5vw, 86px);
   min-width: 48px;
@@ -425,7 +434,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 @media (min-width: 1025px) {
   .home-v2 .home-pagination {
     left: auto;
-    right: calc(max(clamp(18px, 3.3vw, 64px), env(safe-area-inset-right)) + clamp(579px, 44vw, 835px) + 18px);
+    /* Read the actual dock edge, so adding projects cannot cover the counter.
+       Before initialization, keep the counter in the clear at the left edge. */
+    right: calc(100% - var(--home-dock-left, 100px) + 18px);
     transform: none;
   }
 }
@@ -438,7 +449,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 
 @media (max-width: 1024px) {
   .home-v2 .home-pagination {
-    bottom: max(82px, calc(env(safe-area-inset-bottom) + 76px));
+    bottom: calc(var(--home-dock-bottom) + var(--home-thumbnail-height) + 12px);
   }
 }
 
@@ -1300,9 +1311,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
   .ai-workflows.is-enhanced .ai-workflows__item > .ab-compare,
   .ai-workflows.is-enhanced .ai-workflows__item > .workflow-player { align-items: center; }
 }
-@media (min-width: 1025px) {
-  .home-v2 .home-pagination { right: calc(max(clamp(18px, 3.3vw, 64px), env(safe-area-inset-right)) + 9 * clamp(68px, 5.2vw, 100px) + 58px); }
-}
 @media (orientation: portrait) and (max-width: 900px) {
   .home-page .deck-card--comparison .comparison-copy h1 { font-size: clamp(24px, 7vw, 38px); line-height: .98; }
   .home-page .deck-card--comparison .comparison-copy p,
@@ -1349,11 +1357,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 .detail-copy em small { margin-left: 9px; font-size: 10px; opacity: .75; letter-spacing: .02em; }
 .deck-card--detail .comparison-label { gap: 7px; font-size: 11px; letter-spacing: .03em; }
 .deck-card--detail .comparison-label small { font-size: 9px; letter-spacing: .06em; opacity: .65; }
-
-/* Ten thumbnails; the project labels still run from -1 through 8. */
-@media (min-width: 1025px) {
-  .home-v2 .home-pagination { right: calc(max(clamp(18px, 3.3vw, 64px), env(safe-area-inset-right)) + 10 * clamp(68px, 5.2vw, 100px) + 63px); }
-}
 
 /* Keep media geometry separate from the reading area on portrait phones. */
 .comparison-visual { display: contents; }

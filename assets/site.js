@@ -45,7 +45,9 @@
   }) || null;
 
   const syncThumbnailGeometry = () => {
+    const dockLeft = thumbnailDock.offsetLeft;
     const geometry = thumbnails.map((thumbnail) => thumbnail.getBoundingClientRect());
+    pagination.style.setProperty('--home-dock-left', `${dockLeft}px`);
     geometry.forEach((rect, index) => {
       cards[index].style.setProperty('--thumb-left', `${rect.left}px`);
       cards[index].style.setProperty('--thumb-top', `${rect.top}px`);

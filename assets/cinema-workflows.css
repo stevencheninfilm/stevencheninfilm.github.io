@@ -186,9 +186,6 @@
   .ai-workflows.is-enhanced .ai-workflows__item > .ab-compare,
   .ai-workflows.is-enhanced .ai-workflows__item > .workflow-player { align-items: center; }
 }
-@media (min-width: 1025px) {
-  .home-v2 .home-pagination { right: calc(max(clamp(18px, 3.3vw, 64px), env(safe-area-inset-right)) + 9 * clamp(68px, 5.2vw, 100px) + 58px); }
-}
 @media (orientation: portrait) and (max-width: 900px) {
   .home-page .deck-card--comparison .comparison-copy h1 { font-size: clamp(24px, 7vw, 38px); line-height: .98; }
   .home-page .deck-card--comparison .comparison-copy p,
