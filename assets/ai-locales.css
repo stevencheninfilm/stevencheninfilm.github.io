@@ -282,3 +282,12 @@
   .shotlab-project__gallery .shotlab-project__still { grid-column: auto; }
   .shotlab-project__still--selection { width: min(100%, 400px); justify-self: center; }
 }
+
+/* Model credits follow the same icon, separator and name rhythm as the film tools. */
+.project-tool-line--models { flex-wrap: wrap; gap: 8px; white-space: normal; }
+.shotlab-project__heading .project-tool-line--models { margin-top: 14px; font-size: 14px; line-height: 1.6; }
+.shotlab-project__heading .project-tool-line--models .project-tool-logo { width: 16px; height: 16px; flex-basis: 16px; }
+.ai-workflows__credits .project-tool-line--models { justify-content: flex-end; font-size: 12px; line-height: 1.6; }
+@media (min-width: 1200px) and (min-height: 651px) {
+  .ai-page--zh .ai-workflows__credits .project-tool-line--models { justify-content: flex-start; }
+}
