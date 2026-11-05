@@ -228,13 +228,12 @@ test('film transition waits for the actual modal, while a missing film script ca
   assert.equal(h.classes.size, 0);
 });
 
-test('both film images are native links, and the modal keeps its existing content and close behavior', () => {
+test('the remaining homepage film image is a native link, and the modal keeps its content and close behavior', () => {
   for (const page of ['index.html', 'index-v3.html']) {
     const html = read(page);
-    for (const id of ['alone', 'healing']) {
-      assert.match(html, new RegExp(`class="deck-picture project-image-link" href="film/Film.html#${id}"`));
-      assert.ok(html.includes(`data-shared-project="${id}"`));
-    }
+    assert.match(html, /class="deck-picture project-image-link" href="film\/Film.html#alone"/);
+    assert.ok(html.includes('data-shared-project="alone"'));
+    assert.doesNotMatch(html, /data-shared-project="healing"/);
   }
   const film = read('film/film.js');
   assert.match(film, /dialog.dataset.project = project.id/);
