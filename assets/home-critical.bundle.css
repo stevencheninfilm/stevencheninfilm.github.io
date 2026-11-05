@@ -100,6 +100,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 .project-tool-logo--gemini { background: conic-gradient(from 35deg, #65a5ff, #9d7cff 31%, #f17bd4 58%, #6ed5ff 82%, #65a5ff); clip-path: polygon(50% 0, 61% 37%, 100% 50%, 61% 63%, 50% 100%, 39% 63%, 0 50%, 39% 37%); }
 .project-tool-logo--veo { border-radius: 50%; background: conic-gradient(from 225deg, #4285f4 0 25%, #34a853 25% 50%, #fbbc05 50% 75%, #ea4335 75%); }
 .project-tool-logo--veo::after { content: ""; position: absolute; left: 4px; top: 3px; width: 0; height: 0; border-top: 3px solid transparent; border-bottom: 3px solid transparent; border-left: 5px solid #0b0b0b; }
+.project-tool-logo--gpt { background: url("images/logos/openai-mark.svg") center / contain no-repeat; }
 .project-tool-logo--dreamina { background: url("images/logos/dreamina-mark.svg") center / contain no-repeat; }
 .project-tool-logo--xinpianchang { background: url("images/logos/xinpianchang-mark.svg") center / contain no-repeat; }
 .project-deck.is-strip .deck-card { z-index: 2; left: 50%; top: 50%; width: clamp(188px, calc(18vw + 88px), 440px); height: min(68svh, clamp(280px, calc(24vw + 210px), 650px)); opacity: var(--strip-opacity, 1); transform: translate3d(calc(-50% + var(--strip-x)), -50%, 0); border-radius: 0; pointer-events: auto; cursor: grab; }
@@ -1885,6 +1886,9 @@ html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process 
   .home-page .deck-card--shotlab .deck-project-title > small { font-size: 14px; }
   .home-page .deck-card--shotlab .project-tool-line { font-size: 12px; }
 }
+
+.home-page .deck-card--shotlab .project-tool-line--models { flex-wrap: wrap; gap: 8px; line-height: 1.5; }
+.home-page .deck-card--shotlab .project-tool-line--models .project-tool-logo { width: 15px; height: 15px; flex-basis: 15px; }
 
 /* Source: assets/site-language.css */
 .site-language {
