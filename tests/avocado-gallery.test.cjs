@@ -6,7 +6,8 @@ const source = fs.readFileSync(require.resolve('../assets/avocado-gallery.js'), 
 
 function setup() {
   let activeElement = null, now = 0, timerId = 0;
-  const timers = new Map(), requests = [], tasks = [], notifications = [];
+  const timers = new Map(), requests = [], decoders = [], tasks = [], notifications = [];
+  const objectURLs = new Map(), revoked = new Set();
   function element(extra = {}) {
     const listeners = new Map();
     return Object.assign({
@@ -18,7 +19,11 @@ function setup() {
       fire(type, detail = {}) {
         const event = Object.assign({ type, target: this, button: 0, defaultPrevented: false,
           preventDefault() { this.defaultPrevented = true; } }, detail);
-        for (const callback of listeners.get(type) || []) callback(event);
+        return this.dispatch(event);
+      },
+      dispatch(event) {
+        for (const callback of listeners.get(event.type) || []) callback(event);
+        this.parent?.dispatch(event);
         return event;
       },
       focus() { activeElement = this; },
@@ -29,6 +34,9 @@ function setup() {
   }
   const parts = Object.fromEntries(['image', 'title', 'caption', 'count', 'loading', 'error', 'direct', 'prev', 'next', 'close', 'stage', 'retry']
     .map(name => [name, element({ hidden: ['loading', 'error'].includes(name) })]));
+  parts.progress = element(); parts.percent = element();
+  parts.image.naturalWidth = 1600; parts.image.naturalHeight = 900;
+  parts.image.getBoundingClientRect = () => ({ left: 20, top: 40, width: 1000, height: 800 });
   for (const name of ['retry', 'direct']) parts[name].closest = () => parts[name];
   const dialog = element({
     open: false,
@@ -36,6 +44,7 @@ function setup() {
     close() { this.open = false; tasks.push(() => this.fire('close')); },
     querySelector(selector) { return parts[selector.match(/^\[data-lightbox-(.+)\]$/)?.[1]]; },
   });
+  parts.stage.parent = dialog;
   const links = ['roadster-a', 'roadster-b', 'roadster-c', 'tesla-a', 'tesla-b'].map(name => element({
     href: `https://example.test/stills/${name}.webp`,
     dataset: { gallery: name.split('-')[0], galleryTitle: name.startsWith('roadster') ? 'Roadster' : 'Tesla', caption: `Still ${name}` },
@@ -48,18 +57,38 @@ function setup() {
     dispatchEvent: event => notifications.push(event.type),
   };
   const window = element();
+  class ImageURL extends URL {
+    static createObjectURL(blob) {
+      const url = `blob:still-${objectURLs.size + 1}`;
+      objectURLs.set(url, blob); return url;
+    }
+    static revokeObjectURL(url) { revoked.add(url); }
+  }
   class PendingImage {
-    set src(url) { this.url = url; requests.push(this); }
+    set src(url) { this.url = url; if (url) decoders.push(this); }
     succeed() { this.onload?.(); }
     fail() { this.onerror?.(); }
   }
+  class Request {
+    open(method, url) { this.method = method; this.url = url; }
+    send() { requests.push(this); }
+    abort() { this.aborted = true; this.onabort?.(); }
+    progress(loaded, total) { this.onprogress?.({ loaded, total: total ?? 0, lengthComputable: Number.isFinite(total) }); }
+    succeed({ status = 200, size = 100, decode = true } = {}) {
+      this.status = status; this.response = { size, networkURL: this.url };
+      const before = decoders.length;
+      this.onload?.();
+      if (decode && decoders.length > before) decoders.at(-1).succeed();
+    }
+    fail() { this.onerror?.(); }
+  }
   vm.runInNewContext(source, {
-    document, window, Image: PendingImage, URL, Event: class { constructor(type) { this.type = type; } },
+    document, window, Image: PendingImage, XMLHttpRequest: Request, URL: ImageURL, Event: class { constructor(type) { this.type = type; } },
     location: { href: 'https://example.test/zh/avocado-ai/index.html' },
     setTimeout(callback, delay) { const id = ++timerId; timers.set(id, { callback, at: now + delay }); return id; },
     clearTimeout(id) { timers.delete(id); },
   });
-  return { ...parts, dialog, links, requests, notifications, classes, window,
+  return { ...parts, dialog, links, requests, decoders, revoked, objectURLs, notifications, classes, window,
     get activeElement() { return activeElement; },
     open(index) { links[index].focus(); return links[index].fire('click'); },
     key(key) { return dialog.fire('keydown', { key }); },
@@ -69,6 +98,7 @@ function setup() {
     },
     flushClose() { while (tasks.length) tasks.shift()(); },
     lastRequest() { return requests.at(-1); },
+    shownURL() { return objectURLs.get(parts.image.src)?.networkURL; },
   };
 }
 
@@ -89,7 +119,7 @@ test('full-size stills load only after an ordinary click, and only the selected 
   assert.equal(s.loading.hidden, true);
   s.advance(250); assert.equal(s.loading.hidden, false);
   s.lastRequest().succeed();
-  assert.equal(s.image.src, s.links[1].href);
+  assert.equal(s.shownURL(), s.links[1].href);
   assert.equal(s.image.alt, 'Still roadster-b');
   assert.equal(s.image.hidden, false);
   assert.equal(s.loading.hidden, true);
@@ -102,7 +132,7 @@ test('a slow previous selection cannot overwrite a newer image or show a stale e
   s.next.fire('click');
   const current = s.lastRequest(); current.succeed();
   old.succeed(); old.fail(); s.advance(1000);
-  assert.equal(s.image.src, s.links[1].href);
+  assert.equal(s.shownURL(), s.links[1].href);
   assert.equal(s.caption.textContent, 'Still roadster-b');
   assert.equal(s.count.textContent, '02 / 03');
   assert.equal(s.image.hidden, false);
@@ -113,6 +143,7 @@ test('a slow previous selection cannot overwrite a newer image or show a stale e
 test('closing while loading restores the trigger focus and ignores delayed callbacks, including after another gallery opens', () => {
   const s = setup(); s.open(0); const old = s.lastRequest();
   s.close.fire('click');
+  assert.equal(old.aborted, true);
   assert.equal(s.dialog.open, false);
   assert.equal(s.activeElement, s.links[0]);
   assert.equal(s.classes.has('av-lightbox-open'), false);
@@ -130,7 +161,7 @@ test('closing while loading restores the trigger focus and ignores delayed callb
   assert.equal(s.image.hidden, true);
   assert.equal(s.error.hidden, true);
   current.succeed();
-  assert.equal(s.image.src, s.links[3].href);
+  assert.equal(s.shownURL(), s.links[3].href);
   assert.equal(s.count.textContent, '01 / 02');
   assert.equal(s.dialog.fire('cancel').defaultPrevented, true);
   s.flushClose();
@@ -143,15 +174,15 @@ test('keyboard navigation respects each gallery boundary and exposes disabled en
   assert.equal(s.prev.disabled, true);
   assert.equal(s.next.disabled, false);
   s.key('ArrowLeft'); s.lastRequest().succeed();
-  assert.equal(s.image.src, s.links[0].href);
+  assert.equal(s.shownURL(), s.links[0].href);
   s.key('End'); s.lastRequest().succeed();
-  assert.equal(s.image.src, s.links[2].href);
+  assert.equal(s.shownURL(), s.links[2].href);
   assert.equal(s.prev.disabled, false);
   assert.equal(s.next.disabled, true);
   s.key('ArrowRight'); s.lastRequest().succeed();
-  assert.equal(s.image.src, s.links[2].href, 'the last Roadster still must not advance into Tesla');
+  assert.equal(s.shownURL(), s.links[2].href, 'the last Roadster still must not advance into Tesla');
   s.key('ArrowLeft'); s.lastRequest().succeed();
-  assert.equal(s.image.src, s.links[1].href);
+  assert.equal(s.shownURL(), s.links[1].href);
   assert.equal(s.key('Tab').defaultPrevented, false, 'native dialog focus navigation must remain intact');
   s.close.fire('click'); s.flushClose();
   const loaded = s.requests.length;
@@ -174,7 +205,7 @@ test('a failed image offers a direct URL and retries only that still with a fres
   assert.equal(s.error.hidden, true);
   retry.succeed();
   assert.equal(s.image.hidden, false);
-  assert.equal(s.image.src, retry.url);
+  assert.equal(s.shownURL(), retry.url);
   assert.equal(s.count.textContent, '02 / 02');
 });
 
@@ -193,8 +224,130 @@ test('touch swipes change one still while vertical gestures, cancellation, and n
   assert.equal(s.stage.captures.length, captures, 'touching error controls must not capture their click onto the swipe stage');
   assert.equal(s.requests.length, originalRequests, 'error controls are not swipe targets');
   down(); up(); s.lastRequest().succeed();
-  assert.equal(s.image.src, s.links[2].href);
+  assert.equal(s.shownURL(), s.links[2].href);
   assert.equal(s.next.disabled, true);
   down(); up({ clientX: 230 }); s.lastRequest().succeed();
-  assert.equal(s.image.src, s.links[1].href);
+  assert.equal(s.shownURL(), s.links[1].href);
+});
+
+test('download progress uses measured bytes, remains indeterminate without a length, and waits for decode', () => {
+  const s = setup(); s.open(0); const request = s.lastRequest();
+  s.advance(250);
+  assert.equal(s.loading.hidden, false);
+  assert.equal(s.progress.value, undefined, 'no invented zero-percent estimate before the server supplies a length');
+  assert.equal(s.percent.textContent, '');
+  request.progress(250, 1000);
+  assert.equal(s.progress.value, 25);
+  assert.equal(s.percent.textContent, '25%');
+  request.progress(1000, 1000);
+  request.succeed({ decode: false });
+  assert.equal(s.progress.value, 100);
+  assert.equal(s.image.hidden, true);
+  assert.equal(s.loading.hidden, false, 'a downloaded image may still need decoding');
+  s.decoders.at(-1).succeed();
+  assert.equal(s.image.hidden, false);
+  assert.equal(s.loading.hidden, true);
+
+  s.next.fire('click'); s.advance(250);
+  s.lastRequest().progress(700, null);
+  assert.equal(s.progress.value, undefined);
+  assert.equal(s.percent.textContent, '');
+  assert.equal(s.loading.hidden, false);
+  request.progress(1000, 1000);
+  assert.equal(s.progress.value, undefined, 'an old transfer cannot overwrite the new image progress');
+});
+
+test('switching, closing and page exit abort pending transfers and release every decoded image URL', () => {
+  const s = setup(); s.open(0); const old = s.lastRequest();
+  s.next.fire('click');
+  assert.equal(old.aborted, true);
+  old.succeed();
+  assert.equal(s.objectURLs.size, 0, 'a stale download must not allocate a blob URL');
+
+  s.lastRequest().succeed({ decode: false });
+  const decoder = s.decoders.at(-1), staleDecode = decoder.onload, firstURL = decoder.url;
+  s.next.fire('click');
+  assert.equal(s.revoked.has(firstURL), true, 'an abandoned decode must release its blob');
+  staleDecode();
+  assert.equal(s.image.hidden, true);
+  s.lastRequest().succeed();
+  const displayedURL = s.image.src;
+  assert.equal(s.revoked.has(displayedURL), false, 'the displayed object URL stays valid until leaving the image');
+  s.close.fire('click'); s.flushClose();
+  assert.equal(s.revoked.has(displayedURL), true);
+  assert.equal(s.image.src, undefined);
+
+  s.open(3); const pending = s.lastRequest();
+  s.window.fire('pagehide');
+  assert.equal(pending.aborted, true);
+  assert.equal(s.dialog.open, false);
+});
+
+test('HTTP, empty-file, timeout and decode failures leave a working retry without leaking image URLs', () => {
+  for (const failure of ['http', 'empty', 'timeout', 'decode']) {
+    const s = setup(); s.open(0);
+    const request = s.lastRequest();
+    if (failure === 'http') request.succeed({ status: 404 });
+    if (failure === 'empty') request.succeed({ size: 0 });
+    if (failure === 'timeout') request.ontimeout();
+    if (failure === 'decode') { request.succeed({ decode: false }); s.decoders.at(-1).fail(); }
+    assert.equal(s.error.hidden, false, failure);
+    assert.equal(s.loading.hidden, true, failure);
+    assert.equal(s.image.hidden, true, failure);
+    for (const url of s.objectURLs.keys()) assert.ok(s.revoked.has(url), failure);
+    s.retry.fire('click'); s.lastRequest().succeed();
+    assert.equal(s.image.hidden, false, failure);
+    assert.equal(s.error.hidden, true, failure);
+  }
+});
+
+test('only actual contain margins and dialog padding dismiss the image, while picture and controls stay open', () => {
+  const s = setup();
+  const click = (target, clientX, clientY) => s.dialog.fire('click', { target, clientX, clientY });
+  s.open(0); s.lastRequest().succeed();
+  // Landscape image fits across the 1000px box, with letterboxing above and below.
+  click(s.image, 500, 400);
+  assert.equal(s.dialog.open, true);
+  click(s.retry, 100, 100); click(s.direct, 100, 100);
+  assert.equal(s.dialog.open, true, 'controls never count as the dark backdrop');
+  click(s.image, 500, 80);
+  assert.equal(s.dialog.open, false, 'the image element includes a top margin that is not picture content');
+  assert.equal(s.activeElement, s.links[0]); s.flushClose();
+
+  s.open(1); s.lastRequest().succeed();
+  s.image.naturalWidth = 800; s.image.naturalHeight = 1600;
+  click(s.image, 500, 400);
+  assert.equal(s.dialog.open, true);
+  click(s.image, 50, 400);
+  assert.equal(s.dialog.open, false, 'portrait images leave clickable side margins'); s.flushClose();
+  s.open(0); s.lastRequest().succeed();
+  click(s.dialog, 5, 5);
+  assert.equal(s.dialog.open, false, 'outer dialog padding is also a dismiss area');
+});
+
+test('swipes, cancelled gestures and dragging back to the start cannot accidentally dismiss via a synthetic click', () => {
+  const s = setup(); s.open(0); s.lastRequest().succeed();
+  const down = (x = 500, y = 400) => s.stage.fire('pointerdown', { pointerType: 'touch', isPrimary: true, pointerId: 7, clientX: x, clientY: y });
+  const move = (x, y) => s.stage.fire('pointermove', { pointerId: 7, clientX: x, clientY: y });
+  const up = (x, y) => s.stage.fire('pointerup', { pointerId: 7, clientX: x, clientY: y });
+  const click = (x, y) => s.dialog.fire('click', { target: s.stage, clientX: x, clientY: y });
+  s.stage.fire('pointerdown', { pointerType: 'mouse', isPrimary: true, pointerId: 3, clientX: 500, clientY: 400 });
+  s.dialog.fire('pointerup', { pointerId: 3, clientX: 5, clientY: 5 });
+  s.dialog.fire('click', { target: s.dialog, clientX: 5, clientY: 5 });
+  assert.equal(s.dialog.open, true, 'dragging the picture into outer dialog padding must not close it');
+  down(); up(400, 400);
+  assert.equal(s.count.textContent, '02 / 03');
+  click(400, 400); // The replacement is still loading, so every stage pixel is blank.
+  assert.equal(s.dialog.open, true);
+  s.lastRequest().succeed();
+  down(500, 80); move(520, 80); up(500, 80); click(500, 80);
+  assert.equal(s.dialog.open, true, 'returning to the same coordinate does not erase a drag');
+  down(500, 80); s.stage.fire('pointercancel'); click(500, 80);
+  assert.equal(s.dialog.open, true);
+  down(500, 80);
+  s.stage.fire('pointerdown', { pointerType: 'touch', isPrimary: false, pointerId: 8, clientX: 520, clientY: 80 });
+  up(500, 80); click(500, 80);
+  assert.equal(s.dialog.open, true, 'a multi-touch gesture is not a dismiss tap');
+  down(500, 80); up(500, 80); click(500, 80);
+  assert.equal(s.dialog.open, false, 'a later deliberate tap on the margin still closes');
 });
