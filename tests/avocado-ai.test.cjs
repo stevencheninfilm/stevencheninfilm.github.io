@@ -44,7 +44,7 @@ test('two complete films have separate HD sources and accessible viewer controls
   assert.match(html, /role="tablist"/);
   assert.match(html, /非官方 AI 概念预告/);
   assert.match(html, /485\.4万/);
-  assert.match(html, /43\.1万/);
+  assert.match(html, /46\.8万/);
   assert.doesNotMatch(html, /513\.7万|514\.09万/);
 });
 

@@ -249,7 +249,10 @@
   dialog.querySelectorAll('[data-copy-film]').forEach(button => button.addEventListener('click', () => {
     const url = new URL(location.href); url.hash = `watch-${activeFilm}`; copyLink(url.href);
   }));
-  document.querySelector('[data-copy-profile]').addEventListener('click', () => copyLink(document.querySelector('.av-profile-links a').href));
+  const profileLink = document.querySelector('[data-profile-link]');
+  const copyProfile = document.querySelector('[data-copy-profile]');
+  profileLink.addEventListener('click', () => { copyProfile.hidden = false; });
+  copyProfile.addEventListener('click', () => copyLink(profileLink.href));
 
   panels.forEach(panel => {
     const video = panel.querySelector('video'), loading = panel.querySelector('[data-loading]'), endcard = panel.querySelector('[data-endcard]');

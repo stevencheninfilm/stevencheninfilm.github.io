@@ -8,6 +8,8 @@
   const caption = dialog.querySelector('[data-lightbox-caption]');
   const count = dialog.querySelector('[data-lightbox-count]');
   const loading = dialog.querySelector('[data-lightbox-loading]');
+  const progress = dialog.querySelector('[data-lightbox-progress]');
+  const percent = dialog.querySelector('[data-lightbox-percent]');
   const error = dialog.querySelector('[data-lightbox-error]');
   const direct = dialog.querySelector('[data-lightbox-direct]');
   const previous = dialog.querySelector('[data-lightbox-prev]');
@@ -15,6 +17,30 @@
   const close = dialog.querySelector('[data-lightbox-close]');
   const stage = dialog.querySelector('[data-lightbox-stage]');
   let items = [], index = 0, generation = 0, loadingTimer, returnFocus = null, swipe = null;
+  let activeLoad = null, suppressClick = false;
+
+  function releaseImage() {
+    const old = activeLoad;
+    activeLoad = null;
+    if (old?.xhr) old.xhr.abort();
+    if (old?.decoder) {
+      old.decoder.onload = old.decoder.onerror = null;
+      old.decoder.src = '';
+    }
+    image.removeAttribute('src');
+    if (old?.objectURL) URL.revokeObjectURL(old.objectURL);
+  }
+  function setProgress(loaded, total) {
+    const known = Number.isFinite(total) && total > 0 && Number.isFinite(loaded) && loaded >= 0;
+    if (known) {
+      const value = Math.min(100, loaded / total * 100);
+      if (progress) progress.value = value;
+      if (percent) percent.textContent = `${Math.floor(value)}%`;
+    } else {
+      progress?.removeAttribute('value');
+      if (percent) percent.textContent = '';
+    }
+  }
 
   function show(indexToShow, retry = false) {
     index = Math.max(0, Math.min(items.length - 1, indexToShow));
@@ -22,6 +48,8 @@
     if (!item) return;
     const current = ++generation;
     clearTimeout(loadingTimer);
+    releaseImage();
+    setProgress(null, null);
     image.hidden = true;
     loading.hidden = true;
     error.hidden = true;
@@ -34,30 +62,58 @@
     if (retry) url.searchParams.set('retry', String(Date.now()));
     direct.href = url.href;
     loadingTimer = setTimeout(() => { if (current === generation && dialog.open) loading.hidden = false; }, 250);
-    // Only the selected full-size still is requested. A generation token stops
-    // a slow earlier image from replacing a newer selection.
-    const pending = new Image();
-    pending.onload = () => {
-      if (current !== generation || !dialog.open) return;
+    // The selected still alone uses the normal HTTP cache. Its transfer reports
+    // real byte progress; a completed download stays visible until image decode.
+    const load = { xhr: null, decoder: null, objectURL: null };
+    activeLoad = load;
+    const isCurrent = () => current === generation && dialog.open && activeLoad === load;
+    const fail = () => {
+      if (!isCurrent()) return;
       clearTimeout(loadingTimer);
-      image.alt = item.dataset.caption;
-      image.src = url.href;
-      image.hidden = false;
-      loading.hidden = true;
-    };
-    pending.onerror = () => {
-      if (current !== generation || !dialog.open) return;
-      clearTimeout(loadingTimer);
+      releaseImage();
       loading.hidden = true;
       error.hidden = false;
     };
-    pending.src = url.href;
+    try {
+      const xhr = new XMLHttpRequest();
+      load.xhr = xhr;
+      xhr.open('GET', url.href, true);
+      xhr.responseType = 'blob';
+      xhr.timeout = 45000;
+      xhr.onprogress = event => {
+        if (isCurrent()) setProgress(event.loaded, event.lengthComputable ? event.total : null);
+      };
+      xhr.onerror = xhr.ontimeout = fail;
+      xhr.onload = () => {
+        if (!isCurrent()) return;
+        load.xhr = null;
+        if (xhr.status < 200 || xhr.status >= 300 || !xhr.response?.size) { fail(); return; }
+        try {
+          load.objectURL = URL.createObjectURL(xhr.response);
+          const pending = new Image();
+          load.decoder = pending;
+          pending.onload = () => {
+            if (!isCurrent()) return;
+            clearTimeout(loadingTimer);
+            load.decoder = null;
+            image.alt = item.dataset.caption;
+            image.src = load.objectURL;
+            image.hidden = false;
+            loading.hidden = true;
+          };
+          pending.onerror = fail;
+          pending.src = load.objectURL;
+        } catch (_) { fail(); }
+      };
+      xhr.send();
+    } catch (_) { fail(); }
   }
 
   function open(item) {
     items = links.filter(link => link.dataset.gallery === item.dataset.gallery);
     returnFocus = item;
     try { dialog.showModal(); } catch (_) { return false; }
+    suppressClick = false;
     document.body.classList.add('av-lightbox-open');
     document.dispatchEvent(new Event('avocado:galleryopen'));
     show(items.indexOf(item));
@@ -68,7 +124,9 @@
     generation++;
     clearTimeout(loadingTimer);
     swipe = null;
-    image.removeAttribute('src');
+    suppressClick = false;
+    releaseImage();
+    setProgress(null, null);
     image.alt = '';
     image.hidden = true;
     loading.hidden = true;
@@ -98,18 +156,43 @@
     event.preventDefault();
     show(steps[event.key]);
   });
-  stage.addEventListener('pointerdown', event => {
-    if (event.pointerType !== 'touch' || !event.isPrimary) return;
-    if (event.target?.closest?.('button,a,input,select,textarea')) return;
-    swipe = { x: event.clientX, y: event.clientY, id: event.pointerId };
-    stage.setPointerCapture?.(event.pointerId);
+  function onImage(clientX, clientY) {
+    if (image.hidden || !image.naturalWidth || !image.naturalHeight) return false;
+    const box = image.getBoundingClientRect();
+    const scale = Math.min(box.width / image.naturalWidth, box.height / image.naturalHeight);
+    const width = image.naturalWidth * scale, height = image.naturalHeight * scale;
+    const left = box.left + (box.width - width) / 2, top = box.top + (box.height - height) / 2;
+    return clientX >= left && clientX <= left + width && clientY >= top && clientY <= top + height;
+  }
+  const interactive = target => target?.closest?.('button,a,input,select,textarea');
+  dialog.addEventListener('pointerdown', event => {
+    if (event.target === dialog) suppressClick = false;
   });
-  stage.addEventListener('pointerup', event => {
+  stage.addEventListener('pointerdown', event => {
+    if (!event.isPrimary) { swipe = null; suppressClick = true; return; }
+    if ((event.button !== undefined && event.button !== 0) || interactive(event.target)) return;
+    suppressClick = false;
+    swipe = { x: event.clientX, y: event.clientY, id: event.pointerId, touch: event.pointerType === 'touch', moved: false, onImage: onImage(event.clientX, event.clientY) };
+    if (swipe.touch) stage.setPointerCapture?.(event.pointerId);
+  });
+  dialog.addEventListener('pointermove', event => {
+    if (swipe?.id === event.pointerId && Math.hypot(event.clientX - swipe.x, event.clientY - swipe.y) > 8) swipe.moved = true;
+  });
+  dialog.addEventListener('pointerup', event => {
     if (!swipe || swipe.id !== event.pointerId) return;
     const dx = event.clientX - swipe.x, dy = event.clientY - swipe.y;
+    const touch = swipe.touch;
+    suppressClick = swipe.moved || Math.hypot(dx, dy) > 8 || swipe.onImage;
     swipe = null;
-    if (Math.abs(dx) >= 50 && Math.abs(dy) < Math.abs(dx) * .65) show(index + (dx < 0 ? 1 : -1));
+    if (touch && Math.abs(dx) >= 50 && Math.abs(dy) < Math.abs(dx) * .65) show(index + (dx < 0 ? 1 : -1));
   });
-  stage.addEventListener('pointercancel', () => { swipe = null; });
+  dialog.addEventListener('pointercancel', () => { swipe = null; suppressClick = true; });
+  dialog.addEventListener('click', event => {
+    if (!dialog.open || interactive(event.target)) return;
+    if (![stage, image, dialog].includes(event.target)) return;
+    if (suppressClick) { suppressClick = false; return; }
+    if (!Number.isFinite(event.clientX) || !Number.isFinite(event.clientY)) return;
+    if (!onImage(event.clientX, event.clientY)) dismiss();
+  });
   window.addEventListener('pagehide', () => { returnFocus = null; dismiss(); });
 })();
