@@ -52,7 +52,7 @@
   const hoverStops = [];
   const canPreview = () => {
     const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    return finePointer.matches && !motion.matches && !dialog.open && !document.hidden
+    return finePointer.matches && !motion.matches && !dialog.open && !document.querySelector('[data-lightbox][open]') && !document.hidden
       && !connection?.saveData && !/(^|-)2g$|3g/.test(connection?.effectiveType || '');
   };
   cards.forEach(card => {
@@ -98,6 +98,7 @@
   finePointer.addEventListener('change', stopPreviews);
   document.addEventListener('visibilitychange', () => { if (document.hidden) stopPreviews(); });
   window.addEventListener('pagehide', stopPreviews);
+  document.addEventListener('avocado:galleryopen', stopPreviews);
 
   // The narrow layout is a native scroll-snap rail. Buttons are an alternative
   // to swiping, not a replacement for touch or trackpad scrolling.
