@@ -712,7 +712,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 }
 
 .comparison-stage.is-interacting .comparison-copy {
-  opacity: 1;
+  opacity: 0;
 }
 
 .project-deck.is-strip .comparison-stage {
@@ -1391,7 +1391,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
 .comparison-player-controls { position: absolute; z-index: 12; left: 7vw; right: 7vw; bottom: 112px; color: #fff; text-shadow: 0 1px 8px #000; transition: opacity 1.2s ease-in-out; }
 .comparison-player-controls[data-visible="false"] { opacity: 0; visibility: hidden; pointer-events: none; }
 .project-deck.is-strip .comparison-player-controls { display: none; }
-.home-page .comparison-stage.is-interacting .comparison-copy { opacity: 1; }
+/* Desktop copy clears the picture while comparing; phones keep their separate reading area. */
+.home-page .comparison-stage.is-interacting .comparison-copy { opacity: 0; }
 .home-page .comparison-copy em { transition: opacity .35s ease, visibility .35s; }
 .home-page .comparison-stage.is-interacting .comparison-copy em { opacity: 0; visibility: hidden; }
 .home-page .cinema-home .cinema-home__title { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; font-weight: 500; letter-spacing: .01em; line-height: 1.2; }
@@ -1437,7 +1438,7 @@ a:focus-visible, button:focus-visible { outline: 2px solid currentColor; outline
   .detail-copy time { margin-top: 10px; font-size: 10px; }
   .home-page .deck-card--comparison .detail-copy em { margin-top: 19px; padding: 12px 18px; font-size: clamp(16px, 4vw, 20px); line-height: 1.1; letter-spacing: .025em; }
   .detail-copy em small { margin-left: 10px; font-size: 10px; }
-  .home-page .deck-card--comparison .comparison-stage.is-interacting .comparison-copy { transform: none; }
+  .home-page .deck-card--comparison .comparison-stage.is-interacting .comparison-copy { opacity: 1; transform: none; }
   .deck-card--comparison .comparison-label { gap: 6px; min-height: 25px; font-size: 10px; letter-spacing: .02em; }
   .deck-card--comparison .comparison-label small { font-size: 8px; letter-spacing: .04em; opacity: .65; }
   /* The project arrows keep their existing full-height hit zones. Transport

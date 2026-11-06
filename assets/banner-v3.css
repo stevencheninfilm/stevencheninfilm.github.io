@@ -233,7 +233,7 @@
 }
 
 .comparison-stage.is-interacting .comparison-copy {
-  opacity: 1;
+  opacity: 0;
 }
 
 .project-deck.is-strip .comparison-stage {
