@@ -16,6 +16,14 @@
   const panels = [...dialog.querySelectorAll('[data-watch-panel]')];
   const panelFor = id => panels.find(panel => panel.dataset.watchPanel === id);
   const animation = () => motion.matches ? 'instant' : 'smooth';
+  // Later defer scripts attach transport listeners before DOMContentLoaded.
+  let playersReady = document.readyState === 'complete', pendingInitialPlay = null;
+  document.addEventListener('DOMContentLoaded', () => {
+    playersReady = true;
+    const requested = pendingInitialPlay;
+    pendingInitialPlay = null;
+    if (requested && motion.matches && dialog.open && activeFilm === requested) panelFor(requested)?.querySelector('[data-player-toggle]').click();
+  }, { once: true });
 
   function announce(message) {
     clearTimeout(toastTimer);
@@ -56,6 +64,7 @@
       && !connection?.saveData && !/(^|-)2g$|3g/.test(connection?.effectiveType || '');
   };
   cards.forEach(card => {
+    const poster = card.querySelector('.av-film-open');
     const video = card.querySelector('[data-hover-src]');
     let timer = 0, generation = 0, inside = false;
     function stop() {
@@ -69,7 +78,7 @@
         video.removeAttribute('src'); video.load();
       }
     }
-    card.addEventListener('pointerenter', event => {
+    poster.addEventListener('pointerenter', event => {
       inside = true;
       if (event.pointerType === 'touch' || !canPreview()) return;
       timer = setTimeout(() => {
@@ -86,7 +95,7 @@
         }).catch(() => { if (current === generation) stop(); });
       }, 240);
     });
-    card.addEventListener('pointerleave', () => { inside = false; stop(); });
+    poster.addEventListener('pointerleave', () => { inside = false; stop(); });
     video.addEventListener('error', stop);
     hoverStops.push(stop);
     if ('IntersectionObserver' in window) new IntersectionObserver(entries => {
@@ -144,12 +153,15 @@
       if (link.dataset.noteLink === id) link.setAttribute('aria-current', 'true');
       else link.removeAttribute('aria-current');
     });
-    if (scroll) document.querySelector('#creative-notes').scrollIntoView({ behavior: animation(), block: 'start' });
+    if (scroll) {
+      document.querySelector('#creative-notes').scrollIntoView({ behavior: animation(), block: 'start' });
+      notePanels.find(panel => panel.dataset.notePanel === id)?.focus({ preventScroll: true });
+    }
   }
   function noteNavigation(id, scroll = false) {
     const url = new URL(location.href);
     url.hash = id;
-    history.replaceState(null, '', url);
+    history.replaceState(history.state, '', url);
     selectNote(id, scroll);
   }
   tabs.forEach((tab, index) => {
@@ -176,6 +188,7 @@
       video.pause(); video.muted = true;
     }
     activeFilm = null;
+    pendingInitialPlay = null;
     document.body.classList.remove('av-viewing');
     announcement.textContent = '';
     if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true });
@@ -201,6 +214,7 @@
       }
     });
     const panel = panelFor(id), video = panel.querySelector('video');
+    if (!video.poster && video.dataset.poster) video.poster = video.dataset.poster;
     video.muted = true;
     dialog.querySelector('[data-cinema-title]').textContent = panel.querySelector('.av-watch-caption h3').textContent;
     dialog.querySelectorAll('[data-viewer-film]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.viewerFilm === id)));
@@ -208,7 +222,8 @@
     if (!wasOpen) { dialog.showModal(); dialog.querySelector('[data-cinema-close]').focus({ preventScroll: true }); }
     // A deliberate Watch action is a playback request, even with reduced motion.
     // The preference still disables all decorative motion and hover previews.
-    if (motion.matches) panel.querySelector('[data-player-toggle]').click();
+    pendingInitialPlay = motion.matches && !playersReady ? id : null;
+    if (motion.matches && playersReady) panel.querySelector('[data-player-toggle]').click();
     window.ProgressiveVideo?.refresh();
     return true;
   }
@@ -256,6 +271,8 @@
 
   panels.forEach(panel => {
     const video = panel.querySelector('video'), loading = panel.querySelector('[data-loading]'), endcard = panel.querySelector('[data-endcard]');
+    // A manual transport action takes precedence over the initial deep link.
+    panel.querySelector('[data-player-toggle]').addEventListener('click', () => { pendingInitialPlay = null; });
     let loadingTimer;
     const clearLoading = () => { clearTimeout(loadingTimer); loading.hidden = true; };
     const showLoading = () => {
