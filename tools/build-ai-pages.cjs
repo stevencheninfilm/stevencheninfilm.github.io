@@ -14,12 +14,20 @@ const OUTPUTS = {
 
 function renderPage(file, language, root = ROOT) {
   let html = fs.readFileSync(path.join(root, `locales/ai.${language}.html`), 'utf8');
+  const relativeUrl = value => {
+    if (/^(?:[a-z][a-z\d+.-]*:|\/|#)/i.test(value)) return value;
+    const target = new URL(value, `${ORIGIN}/ai/index.html`);
+    const relative = path.posix.relative(path.posix.dirname(file), target.pathname.slice(1));
+    return `${relative}${target.search}${target.hash}`;
+  };
+  html = html.replace(/\bsrcset="([^"]+)"/g, (_, value) =>
+    `srcset="${value.split(',').map(candidate => {
+      const [url, ...descriptor] = candidate.trim().split(/\s+/);
+      return [relativeUrl(url), ...descriptor].join(' ');
+    }).join(', ')}"`);
   html = html.replace(/\b(href|src|poster|data-src|data-src-mobile|data-src-hd|data-poster|data-preview|data-poster-preview|data-link)="([^"]+)"/g,
     (match, attribute, value) => {
-      if (/^(?:[a-z][a-z\d+.-]*:|\/|#)/i.test(value)) return match;
-      const target = new URL(value, `${ORIGIN}/ai/index.html`);
-      const relative = path.posix.relative(path.posix.dirname(file), target.pathname.slice(1));
-      return `${attribute}="${relative}${target.search}${target.hash}"`;
+      return `${attribute}="${relativeUrl(value)}"`;
     });
   const seo = [
     `<link rel="canonical" href="${ORIGIN}/${language}/ai/index.html">`,
