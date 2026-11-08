@@ -16,8 +16,24 @@
   const next = dialog.querySelector('[data-lightbox-next]');
   const close = dialog.querySelector('[data-lightbox-close]');
   const stage = dialog.querySelector('[data-lightbox-stage]');
-  let items = [], index = 0, generation = 0, loadingTimer, returnFocus = null, swipe = null;
+  let items = [], index = -1, generation = 0, loadingTimer, returnFocus = null, swipe = null;
   let activeLoad = null, suppressClick = false;
+  let activeEntry = null, closingEntry = null, queuedOpen = null, entrySequence = 0;
+  const historyKey = 'avocadoGallery';
+
+  function historySelection() {
+    const marker = history.state?.[historyKey];
+    if (marker?.version !== 1 || typeof marker.entry !== 'string' || !marker.entry || !Number.isInteger(marker.index)) return null;
+    const group = links.filter(link => link.dataset.gallery === marker.group);
+    return group[marker.index] ? { marker, item: group[marker.index] } : null;
+  }
+  function rememberSelection() {
+    const selected = historySelection();
+    if (!activeEntry || selected?.marker.entry !== activeEntry) return;
+    const group = items[index].dataset.gallery;
+    if (selected.marker.group === group && selected.marker.index === index) return;
+    history.replaceState({ ...history.state, [historyKey]: { ...selected.marker, group, index } }, '', location.href);
+  }
 
   function releaseImage() {
     const old = activeLoad;
@@ -43,9 +59,13 @@
   }
 
   function show(indexToShow, retry = false) {
-    index = Math.max(0, Math.min(items.length - 1, indexToShow));
+    if (!dialog.open || closingEntry) return;
+    const target = Math.max(0, Math.min(items.length - 1, indexToShow));
+    if (target === index && !retry) return;
+    index = target;
     const item = items[index];
     if (!item) return;
+    rememberSelection();
     const current = ++generation;
     clearTimeout(loadingTimer);
     releaseImage();
@@ -109,10 +129,25 @@
     } catch (_) { fail(); }
   }
 
-  function open(item) {
+  function open(item, restored = null) {
+    if (closingEntry) { queuedOpen = item; return true; }
+    if (dialog.open && items.includes(item) && (!restored || restored.entry === activeEntry)) {
+      show(items.indexOf(item));
+      return true;
+    }
+    const selected = historySelection();
+    if (!restored && dialog.open && selected?.marker.entry === activeEntry) restored = selected.marker;
+    if (dialog.open) { returnFocus = null; hide(); }
     items = links.filter(link => link.dataset.gallery === item.dataset.gallery);
+    index = -1;
     returnFocus = item;
     try { dialog.showModal(); } catch (_) { return false; }
+    activeEntry = restored?.entry || `${Date.now()}-${++entrySequence}`;
+    if (!restored) {
+      history.pushState({ ...history.state, [historyKey]: {
+        version: 1, entry: activeEntry, group: item.dataset.gallery, index: items.indexOf(item)
+      } }, '', location.href);
+    }
     suppressClick = false;
     document.body.classList.add('av-lightbox-open');
     document.dispatchEvent(new Event('avocado:galleryopen'));
@@ -134,11 +169,43 @@
     document.body.classList.remove('av-lightbox-open');
     const target = returnFocus;
     returnFocus = null;
+    activeEntry = null;
+    items = [];
+    index = -1;
     if (target?.isConnected) target.focus({ preventScroll: true });
   }
-  function dismiss() {
+  function hide() {
     if (dialog.open) dialog.close();
     cleanup();
+  }
+  function dismiss() {
+    if (closingEntry) return;
+    const selected = historySelection();
+    if (activeEntry && selected?.marker.entry === activeEntry) {
+      // Some restored browser sessions keep only their current entry. There is
+      // no predecessor to traverse in that case, so remove only our own marker.
+      if (history.length <= 1) {
+        const state = { ...history.state };
+        delete state[historyKey];
+        history.replaceState(state, '', location.href);
+        hide();
+        return;
+      }
+      // Keep the background inert until traversal finishes, so a notes click
+      // cannot overwrite the history entry while Back is still in flight.
+      closingEntry = activeEntry;
+      history.back();
+    } else hide();
+  }
+  function syncHistory() {
+    const selected = historySelection();
+    if (closingEntry && selected?.marker.entry === closingEntry) return;
+    closingEntry = null;
+    const queued = queuedOpen;
+    queuedOpen = null;
+    if (selected) open(selected.item, selected.marker);
+    else hide();
+    if (queued) open(queued);
   }
   links.forEach(link => link.addEventListener('click', event => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -194,5 +261,13 @@
     if (!Number.isFinite(event.clientX) || !Number.isFinite(event.clientY)) return;
     if (!onImage(event.clientX, event.clientY)) dismiss();
   });
-  window.addEventListener('pagehide', () => { returnFocus = null; dismiss(); });
+  window.addEventListener('popstate', syncHistory);
+  window.addEventListener('pagehide', () => {
+    closingEntry = null;
+    queuedOpen = null;
+    returnFocus = null;
+    hide();
+  });
+  window.addEventListener('pageshow', event => { if (event.persisted) syncHistory(); });
+  syncHistory();
 })();

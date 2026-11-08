@@ -9,7 +9,7 @@ test('every YueVisuals route is current and all local links resolve', () => {
   for (const [file, language] of Object.entries(OUTPUTS)) {
     const html = fs.readFileSync(path.join(root, file), 'utf8');
     assert.equal(html, renderPage(file, language));
-    for (const match of html.matchAll(/\b(?:href|src|poster|data-src|data-src-hd|data-hover-src)="([^"]+)"/g)) {
+    for (const match of html.matchAll(/\b(?:href|src|poster|data-poster|data-src|data-src-hd|data-hover-src)="([^"]+)"/g)) {
       const value = match[1].replace(/&amp;/g, '&');
       if (/^(?:https?:|mailto:|#)/.test(value)) continue;
       const target = new URL(value, `https://example.test/${file}`);
@@ -24,7 +24,7 @@ test('initial page load attaches no movie or hover sources', () => {
     const videos = [...html.matchAll(/<video\b[^>]*>/g)].map(match => match[0]);
     assert.equal(videos.length, 4);
     for (const video of videos) {
-      assert.doesNotMatch(video, /\ssrc=/, `${file} must keep video requests behind interaction`);
+      assert.doesNotMatch(video, /\s(?:src|poster)=/, `${file} must keep video requests behind interaction`);
       assert.match(video, /preload="none"/);
       assert.match(video, /\bmuted\b/);
       assert.match(video, /\bplaysinline\b/);
