@@ -30,19 +30,28 @@
     prepared.add(link);
     originalTargets.set(link, link.getAttribute('target'));
     updateTarget(link);
+    const language = link.closest?.('[lang]')?.getAttribute('lang') || document.documentElement?.lang || 'zh-Hans';
+    const chinese = /^zh(?:-|$)/i.test(language);
+    const words = chinese ? {
+      copy: '复制链接', manual: '可手动复制的视频链接',
+      copied: '链接已复制，可粘贴到浏览器打开。', fallback: '请长按或选中下方链接复制。'
+    } : {
+      copy: 'Copy link', manual: 'Video link for manual copying',
+      copied: 'Link copied. Paste it into your browser to open.', fallback: 'Select and copy the link below.'
+    };
 
     const group = document.createElement('span');
     group.className = 'viewing-link-group';
     const tools = document.createElement('span');
     tools.className = 'viewing-link-tools';
-    tools.lang = 'zh-Hans';
+    tools.lang = chinese ? 'zh-Hans' : 'en';
     tools.hidden = !opened.has(destination.href);
     const copy = document.createElement('button');
     copy.className = 'viewing-link-copy';
     copy.type = 'button';
-    copy.textContent = '复制链接';
+    copy.textContent = words.copy;
     const name = link.dataset.viewingLabel || link.textContent.replace(/\s*↗\s*$/, '').trim();
-    copy.setAttribute('aria-label', `${name}：复制链接`);
+    copy.setAttribute('aria-label', `${name}${chinese ? '：' : ': '}${words.copy}`);
     const status = document.createElement('span');
     status.className = 'viewing-link-status';
     status.setAttribute('role', 'status');
@@ -54,7 +63,7 @@
     manual.type = 'url';
     manual.readOnly = true;
     manual.hidden = true;
-    manual.setAttribute('aria-label', '可手动复制的视频链接');
+    manual.setAttribute('aria-label', words.manual);
     manual.addEventListener('focus', () => manual.select());
     tools.append(copy, status, manual);
     // Keep a platform link and its copy action together as one grid/flex item.
@@ -80,9 +89,9 @@
       try {
         if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
         await navigator.clipboard.writeText(url);
-        status.textContent = '链接已复制，可粘贴到浏览器打开。';
+        status.textContent = words.copied;
       } catch {
-        status.textContent = '请长按或选中下方链接复制。';
+        status.textContent = words.fallback;
         manual.value = url;
         manual.hidden = false;
         manual.focus();

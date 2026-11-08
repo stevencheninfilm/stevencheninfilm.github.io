@@ -5,7 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 const source = fs.readFileSync(path.join(__dirname, '../assets/viewing-links.js'), 'utf8');
 
-function setup({ coarse = false, userAgent = 'Safari', clipboard = async () => {}, links, storage = new Map() } = {}) {
+function setup({ coarse = false, userAgent = 'Safari', clipboard = async () => {}, links, storage = new Map(), language = 'zh-Hans', linkLanguage } = {}) {
   const inserted = [];
   let observer;
   class Element {
@@ -21,6 +21,7 @@ function setup({ coarse = false, userAgent = 'Safari', clipboard = async () => {
       this.children = [];
     }
     getAttribute(name) { return this.attrs.get(name) ?? null; }
+    closest() { return this.contextLanguage ? { getAttribute: () => this.contextLanguage } : null; }
     setAttribute(name, value) { this.attrs.set(name, value); }
     removeAttribute(name) { this.attrs.delete(name); }
     matches() { return this.tagName === 'a' && this.marked; }
@@ -35,10 +36,11 @@ function setup({ coarse = false, userAgent = 'Safari', clipboard = async () => {
     ['https://www.xinpianchang.com/a13770851?from=webShare&channel=copyLink', true],
     ['https://www.bilibili.com/video/BV1muH96HER3/', true],
     ['https://www.instagram.com/pearl_steve/', false]
-  ]).map(([url, marked]) => new Element('a', url, marked));
+  ]).map(([url, marked]) => Object.assign(new Element('a', url, marked), { contextLanguage: linkLanguage }));
   const media = { matches: coarse, addEventListener(name, listener) { this.listener = listener; } };
   const document = {
     body: {},
+    documentElement: { lang: language },
     querySelectorAll() { return initial.filter(link => link.marked); },
     createElement(tag) { return new Element(tag); }
   };
@@ -169,4 +171,39 @@ test('new film dialog links receive one set of controls; internal and non-HTTPS 
   assert.equal(link.parentNode, group);
   runtime.repeat(group);
   assert.equal(runtime.inserted.length, 1, 'moving the link into its wrapper must not duplicate controls');
+});
+
+test('English copy actions stay hidden until activation and report success in English', async () => {
+  const s = setup({ language: 'en-US' });
+  const tools = s.inserted[0].node.children[1];
+  const [button, status, input] = tools.children;
+  assert.equal(tools.lang, 'en');
+  assert.equal(tools.hidden, true);
+  assert.equal(button.textContent, 'Copy link');
+  assert.match(button.getAttribute('aria-label'), /: Copy link$/);
+  assert.equal(input.getAttribute('aria-label'), 'Video link for manual copying');
+  s.initial[0].listeners.click();
+  await button.listeners.click();
+  assert.equal(tools.hidden, false);
+  assert.equal(status.textContent, 'Link copied. Paste it into your browser to open.');
+  assert.equal(input.hidden, true);
+});
+
+test('English clipboard failure exposes a selectable URL with English recovery guidance', async () => {
+  const s = setup({ language: 'en', clipboard: null });
+  const [button, status, input] = s.inserted[0].node.children[1].children;
+  s.initial[0].listeners.click();
+  await button.listeners.click();
+  assert.equal(status.textContent, 'Select and copy the link below.');
+  assert.equal(input.value, s.initial[0].href);
+  assert.equal(input.hidden, false);
+  assert.equal(input.focused, true);
+  assert.equal(input.selected, true);
+});
+
+test('a viewing link uses its nearest explicit language before the document language', () => {
+  const s = setup({ language: 'en', linkLanguage: 'zh-Hans' });
+  const tools = s.inserted[0].node.children[1];
+  assert.equal(tools.lang, 'zh-Hans');
+  assert.equal(tools.children[0].textContent, '复制链接');
 });

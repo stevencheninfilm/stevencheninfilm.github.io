@@ -6,6 +6,21 @@
     const button = player.querySelector('[data-film-play]');
     const status = player.querySelector('[data-film-status]');
     if (!video || !button || !status) return;
+    const language = player.closest?.('[lang]')?.getAttribute('lang') || player.getAttribute('lang') || document.documentElement?.lang || 'zh-Hans';
+    const chinese = /^zh(?:-|$)/i.test(language);
+    const words = chinese ? {
+      play: '播放正片', reload: '重新加载', resume: '继续播放', replay: '重新播放', retry: '重试播放',
+      loading: '正在加载，稍候即可播放…',
+      slow: '连接较慢，可继续等待、重试播放，或使用下方的观看链接。',
+      start: '请点按播放。', unavailable: '暂时无法播放，请重试或使用观看链接。',
+      failed: '视频加载失败，请重试或使用观看链接。'
+    } : {
+      play: 'Play film', reload: 'Reload film', resume: 'Resume film', replay: 'Replay film', retry: 'Retry playback',
+      loading: 'Loading the film…',
+      slow: 'Loading is taking longer than usual. Keep waiting, retry playback, or use the viewing links below.',
+      start: 'Select Play to start.', unavailable: 'Unable to play this film. Retry or use the viewing links.',
+      failed: 'Video failed to load. Retry or use the viewing links.'
+    };
 
     let failed = false;
     let pending = false;
@@ -16,7 +31,7 @@
     const intent = () => window.ProgressiveVideo?.getIntent(video) || { paused: video.paused };
     const setIntent = patch => window.ProgressiveVideo?.setIntent(video, patch);
     const clearWait = () => { clearTimeout(timer); timer = undefined; };
-    const showPlay = (message = '', label = failed ? '重新加载' : '播放正片') => {
+    const showPlay = (message = '', label = failed ? words.reload : words.play) => {
       clearWait();
       button.hidden = false;
       button.textContent = label;
@@ -28,7 +43,7 @@
       clearWait();
       if (switching()) setIntent({ paused: true });
       video.pause();
-      if (video.getAttribute('src')) showPlay('', failed ? '重新加载' : '继续播放');
+      if (video.getAttribute('src')) showPlay('', failed ? words.reload : words.resume);
     };
     const useLightSource = () => {
       const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
@@ -37,6 +52,7 @@
     players.push({ video, suspend });
     video.controls = false;
     button.hidden = false;
+    button.textContent = words.play;
     const requestPlay = () => {
       const request = ++attempt;
       clearWait();
@@ -50,17 +66,17 @@
       pending = true;
       video.controls = true;
       button.hidden = true;
-      status.textContent = '正在加载，稍候即可播放…';
+      status.textContent = words.loading;
       timer = setTimeout(() => {
         if (request !== attempt || !pending || document.hidden) return;
-        showPlay('连接较慢，可继续等待、重试播放，或使用下方的观看链接。', '重试播放');
+        showPlay(words.slow, words.retry);
       }, 15000);
       const rejected = error => {
         if (request !== attempt || !pending) return;
         pending = false;
-        if (error?.name === 'AbortError') { showPlay('', '继续播放'); return; }
+        if (error?.name === 'AbortError') { showPlay('', words.resume); return; }
         failed = error?.name !== 'NotAllowedError';
-        showPlay(error?.name === 'NotAllowedError' ? '请点按播放。' : '暂时无法播放，请重试或使用观看链接。');
+        showPlay(error?.name === 'NotAllowedError' ? words.start : words.unavailable);
       };
       // Some older WebKit implementations return undefined from play().
       try { Promise.resolve(video.play()).catch(rejected); }
@@ -95,7 +111,7 @@
       if (!pending) return;
       ++attempt;
       pending = false;
-      showPlay('', '继续播放');
+      showPlay('', words.resume);
     });
     video.addEventListener('error', () => {
       if (switching()) return;
@@ -103,9 +119,9 @@
       failed = true;
       pending = false;
       video.pause();
-      showPlay('视频加载失败，请重试或使用观看链接。');
+      showPlay(words.failed);
     });
-    video.addEventListener('ended', () => { if (!switching()) showPlay('', '重新播放'); });
+    video.addEventListener('ended', () => { if (!switching()) showPlay('', words.replay); });
     video.addEventListener('seeking', () => {
       if (switching() && video.readyState >= 1 && Number.isFinite(video.currentTime)) setIntent({ time: video.currentTime });
     });
@@ -130,8 +146,8 @@
       upgrading = false;
       ++attempt;
       failed = Boolean(video.error);
-      if (failed) { showPlay('视频加载失败，请重试或使用观看链接。'); return; }
-      if (document.hidden || intent().paused) { showPlay('', '继续播放'); return; }
+      if (failed) { showPlay(words.failed); return; }
+      if (document.hidden || intent().paused) { showPlay('', words.resume); return; }
       requestPlay();
     };
     player.addEventListener('progressive-video:switch-end', finishUpgrade);

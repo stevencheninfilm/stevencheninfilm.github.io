@@ -11,7 +11,7 @@ const element = () => ({
   fire(name, event = {}) { for (const fn of this.events[name] || []) fn(event); },
   getAttribute(name) { return this.attrs[name] ?? null; },
 });
-function setup({ count = 1, mobile = false, connection, legacy = false } = {}) {
+function setup({ count = 1, mobile = false, connection, legacy = false, language = 'zh-Hans', playerLanguage } = {}) {
   const timers = new Map();
   let timerId = 0, now = 0;
   const entries = Array.from({ length: count }, (_, index) => {
@@ -31,9 +31,11 @@ function setup({ count = 1, mobile = false, connection, legacy = false } = {}) {
     });
     Object.defineProperty(video, 'src', { get() { return this.attrs.src; }, set(value) { this.attrs.src = value; } });
     const button = Object.assign(element(), { hidden: true }), status = element();
-    return Object.assign(element(), { video, button, status, querySelector: selector => ({ video, '[data-film-play]': button, '[data-film-status]': status })[selector] });
+    const player = Object.assign(element(), { video, button, status, querySelector: selector => ({ video, '[data-film-play]': button, '[data-film-status]': status })[selector] });
+    if (playerLanguage) player.attrs.lang = playerLanguage;
+    return player;
   });
-  const document = Object.assign(element(), { hidden: false, querySelectorAll: () => entries });
+  const document = Object.assign(element(), { hidden: false, documentElement: { lang: language }, querySelectorAll: () => entries });
   const window = element();
   const upgrade = progressiveFixture(window, entries[0], [entries[0].video]);
   vm.runInNewContext(source, {
@@ -189,4 +191,41 @@ test('native film seeking and audio choices during HD decode update the restored
   assert.equal(video.currentTime, 42); assert.equal(video.muted, false);
   assert.equal(video.volume, .4); assert.equal(video.playbackRate, 1.5);
   assert.equal(video.loads, 1);
+});
+
+test('English film actions and recoverable loading feedback follow the page language', async () => {
+  const s = setup({ language: 'en' }), { video, button, status } = s.entries[0];
+  assert.equal(button.textContent, 'Play film');
+  assert.equal(video.loads, 0, 'localizing the controls must not start a transfer');
+  button.fire('click');
+  assert.equal(status.textContent, 'Loading the film…');
+  video.currentTime = 13;
+  s.advance(15000);
+  assert.equal(button.textContent, 'Retry playback');
+  assert.match(status.textContent, /taking longer/);
+  button.fire('click');
+  assert.equal(video.loads, 1, 'English retry retains the existing transfer');
+  assert.equal(video.currentTime, 13);
+  video.fire('error');
+  assert.equal(button.textContent, 'Reload film');
+  assert.match(status.textContent, /failed to load/);
+  button.fire('click'); video.start();
+  video.fire('ended');
+  assert.equal(button.textContent, 'Replay film');
+  s.document.hidden = true; s.document.fire('visibilitychange');
+  assert.equal(button.textContent, 'Resume film');
+  s.document.hidden = false;
+  video.throwOnPlay = { name: 'NotAllowedError' };
+  button.fire('click'); await flush();
+  assert.equal(button.textContent, 'Play film');
+  assert.equal(status.textContent, 'Select Play to start.');
+});
+
+test('a localized film can explicitly retain Chinese controls within an English document', () => {
+  const s = setup({ language: 'en', playerLanguage: 'zh-Hans' });
+  const { video, button, status } = s.entries[0];
+  assert.equal(button.textContent, '播放正片');
+  button.fire('click'); video.fire('error');
+  assert.equal(button.textContent, '重新加载');
+  assert.match(status.textContent, /加载失败/);
 });
