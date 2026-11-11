@@ -11,7 +11,7 @@ test('homepage bundle preserves the original cascade and relative asset URLs', (
   assert.deepEqual(SOURCES.map(source => path.basename(source)), [
     'site.css', 'home-v2.css', 'home-opening.css', 'banner-v3.css',
     'portfolio.css', 'cinema-workflows.css', 'dlss-detail.css', 'cat-nest-home.css',
-    'tvc-transition.css', 'xuantian-brand.css', 'icp-footer.css', 'media-access.css', 'progressive-video-status.css', 'home-locales.css', 'site-language.css',
+    'tvc-transition.css', 'xuantian-brand.css', 'icp-footer.css', 'media-access.css', 'progressive-video-status.css', 'home-locales.css', 'site-language.css', 'home-refinements.css',
   ]);
   const bundle = renderBundle();
   let previous = -1;
@@ -31,9 +31,9 @@ test('homepage bundle preserves the original cascade and relative asset URLs', (
 
 test('committed homepage bundle is fresh', () => {
   assert.equal(isCurrent(), true);
-  assert.match(execFileSync(process.execPath, ['tools/build-home-css.cjs', '--check'], {
+  assert.ok(execFileSync(process.execPath, ['tools/build-home-css.cjs', '--check'], {
     cwd: root, encoding: 'utf8',
-  }), /is current \(15 source stylesheets\)/);
+  }).includes(`is current (${SOURCES.length} source stylesheets)`));
 });
 
 test('source edits invalidate the bundle and unsafe import concatenation fails', (t) => {

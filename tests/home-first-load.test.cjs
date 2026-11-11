@@ -42,7 +42,60 @@ const mediaLoader = cards => {
 const image = (src, preview) => ({
   dataset: { src, preview },
   getAttribute(name) { return this[name]; },
-  removeAttribute(name) { if (name === 'data-src') delete this.dataset.src; }
+  removeAttribute(name) { delete this.dataset[name.replace(/^data-/, '')]; }
+});
+
+test('responsive artwork stays dormant in the overview and exposes sizes before candidates on expansion', async () => {
+  const artwork = image('/hero-1280.webp', '/dock.webp');
+  artwork.dataset.srcset = '/hero-768.webp 768w, /hero-1280.webp 1280w, /original.jpg 3840w';
+  artwork.dataset.sizes = '(max-aspect-ratio: 16/9) 177.78vh, 100vw';
+  const exposed = [];
+  for (const property of ['sizes', 'srcset', 'src']) {
+    let value;
+    Object.defineProperty(artwork, property, { get: () => value, set: next => { value = next; exposed.push(property); } });
+  }
+  const card = { dataset: {}, querySelector: () => null,
+    querySelectorAll: selector => ({ 'img[data-src]': [artwork], 'img[data-preview]': [artwork] })[selector] || [] };
+  const load = mediaLoader([card]);
+  await load(0, true);
+  assert.equal(artwork.src, '/dock.webp');
+  assert.equal(artwork.srcset, undefined, 'overview must not fetch full-resolution candidates');
+  assert.equal(artwork.sizes, undefined);
+  exposed.length = 0;
+  await load(0);
+  assert.deepEqual(exposed, ['sizes', 'srcset', 'src']);
+  assert.match(artwork.srcset, /original\.jpg 3840w/);
+  assert.equal(artwork.sizes, '(max-aspect-ratio: 16/9) 177.78vh, 100vw');
+  assert.equal(artwork.dataset.srcset, undefined);
+  assert.equal(artwork.dataset.sizes, undefined);
+  await load(0, true);
+  assert.equal(artwork.src, '/hero-1280.webp', 'returning to overview must not downgrade or rehydrate ready artwork');
+});
+
+test('every home route resolves all lazy responsive artwork candidates and preserves large-screen detail', () => {
+  const { OUTPUTS, renderPage } = require('../tools/build-home-pages.cjs');
+  for (const [file, language] of Object.entries(OUTPUTS)) {
+    const html = read(file);
+    assert.equal(html, renderPage(file, language), `${file} stays generated from its language template`);
+    const images = [...html.matchAll(/<img\b[^>]*\bdata-sizes="[^"]+"[^>]*>/g)].map(m => m[0]);
+    assert.equal(images.length, 4);
+    for (const tag of images) {
+      assert.doesNotMatch(tag, /(?<!data-)\b(?:src|srcset|sizes)="/, 'hidden full artwork remains lazy');
+      const candidates = tag.match(/data-srcset="([^"]+)"/)[1].split(',').map(candidate => candidate.trim().split(/\s+/));
+      const widths = [];
+      for (const [url, descriptor] of candidates) {
+        const target = new URL(url, `https://example.test/${file}`).pathname.slice(1);
+        assert.ok(fs.statSync(path.join(__dirname, '..', target)).size > 0, `${file}: ${url}`);
+        assert.match(descriptor, /^\d+w$/);
+        widths.push(Number(descriptor.slice(0, -1)));
+      }
+      assert.deepEqual(widths, [...new Set(widths)].sort((a, b) => a - b));
+      if (!tag.includes('deck-media--tvc-banner')) {
+        assert.ok(widths.at(-1) >= 2912, 'high-density screens retain the original large candidate');
+        assert.match(tag, /data-sizes="[^"]*vh/, 'cover artwork accounts for portrait height, not only viewport width');
+      }
+    }
+  }
 });
 
 test('a visible strip preview defers full artwork and hidden logos until the project is expanded', async () => {

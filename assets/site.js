@@ -23,6 +23,8 @@
   let pointerStartY = null;
   let pointerStartCard = null;
   let pointerTravel = 0;
+  let activeDeckPointer = null;
+  let pendingSwipeClick = null;
   let suppressCardClickUntil = 0;
   let wheelIntent = 0;
   let wheelReady = true;
@@ -127,6 +129,16 @@
       source.removeAttribute('data-srcset');
     });
     images.forEach(image => {
+      // Set the intended display size before exposing any candidate URLs.
+      // Hidden projects keep both attributes in data-* until they expand.
+      if (image.dataset.sizes) {
+        image.sizes = image.dataset.sizes;
+        image.removeAttribute('data-sizes');
+      }
+      if (image.dataset.srcset) {
+        image.srcset = image.dataset.srcset;
+        image.removeAttribute('data-srcset');
+      }
       image.src = image.dataset.src;
       image.removeAttribute('data-src');
     });
@@ -176,7 +188,7 @@
       const selected = index === active;
       thumbnail.classList.toggle('is-active', selected);
       thumbnail.setAttribute('aria-pressed', String(selected));
-      thumbnail.tabIndex = mode === 'expanded' ? 0 : -1;
+      thumbnail.tabIndex = mode === 'expanded' && selected ? 0 : -1;
     });
     stageSteps.forEach((step) => {
       step.tabIndex = mode === 'expanded' ? 0 : -1;
@@ -438,6 +450,8 @@
   }, { passive: false });
 
   window.addEventListener('keydown', (event) => {
+    if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+    if (event.target.closest?.('input, textarea, select, [contenteditable="true"]')) return;
     if (event.key === 'Enter' && mode === 'strip') expandFromStrip();
     if (event.key === 'Escape' && mode === 'strip') expandFromStrip();
     if (event.key === 'ArrowRight' || event.key === 'ArrowDown' || event.key === 'PageDown') {
@@ -450,8 +464,52 @@
     }
   });
 
+  // The dock is one tab stop. Keyboard selection follows focus so Enter/Space
+  // still activates the displayed project through the button's native click.
+  thumbnailDock.addEventListener('keydown', async (event) => {
+    const origin = event.target.closest?.('[data-slide]');
+    if (!origin || mode !== 'expanded' || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+    const direction = { ArrowRight: 1, ArrowDown: 1, PageDown: 1, ArrowLeft: -1, ArrowUp: -1, PageUp: -1 }[event.key];
+    if (!direction && event.key !== 'Home' && event.key !== 'End') return;
+    event.preventDefault();
+    event.stopPropagation();
+    if (locked) return;
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? total - 1 : (active + direction + total) % total;
+    if (next !== active) await slideFullScreen(next);
+    else centerActiveThumbnail();
+    // A user who tabbed away while the transition ran keeps that new focus.
+    if (mode === 'expanded' && active === next && document.activeElement === origin) {
+      thumbnails[next].focus({ preventScroll: true });
+    }
+  });
+
+  const resetDeckPointer = () => {
+    const pointer = activeDeckPointer;
+    activeDeckPointer = null;
+    pointerStart = null;
+    pointerStartY = null;
+    pointerStartCard = null;
+    pointerTravel = 0;
+    // Release can synchronously fire lostpointercapture; clear state first.
+    if (pointer !== null && deck.hasPointerCapture(pointer)) deck.releasePointerCapture(pointer);
+    deck.classList.remove('is-dragging');
+  };
+  const cancelDeckPointer = (event) => {
+    if (activeDeckPointer === null || (event?.pointerId != null && event.pointerId !== activeDeckPointer)) return;
+    const dragged = pointerTravel > 8;
+    resetDeckPointer();
+    if (mode === 'strip') {
+      if (dragged) suppressCardClickUntil = performance.now() + 260;
+      stripTarget = clamp(Math.round(stripTarget), 0, total - 1);
+      startStripMotion();
+    }
+  };
   deck.addEventListener('pointerdown', (event) => {
-    if (!event.isPrimary) return;
+    // A new gesture must never inherit a preceding swipe's click suppression.
+    pendingSwipeClick = null;
+    if (!event.isPrimary || locked || activeDeckPointer !== null || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    activeDeckPointer = event.pointerId;
     pointerStart = event.clientX;
     pointerStartY = event.clientY;
     pointerStartCard = event.target.closest('.deck-card') || cardAtPoint(event.clientX, event.clientY);
@@ -463,7 +521,7 @@
     }
   });
   deck.addEventListener('pointermove', (event) => {
-    if (pointerStart === null || mode !== 'strip' || locked) return;
+    if (event.pointerId !== activeDeckPointer || pointerStart === null || mode !== 'strip' || locked) return;
     const delta = event.clientX - pointerStart;
     const verticalDelta = event.clientY - pointerStartY;
     pointerTravel = Math.max(pointerTravel, Math.hypot(delta, verticalDelta));
@@ -472,17 +530,14 @@
     startStripMotion();
   });
   deck.addEventListener('pointerup', (event) => {
-    if (pointerStart === null) return;
+    if (event.pointerId !== activeDeckPointer || pointerStart === null) return;
     const deltaX = event.clientX - pointerStart;
     const deltaY = event.clientY - pointerStartY;
     const clickedCard = pointerStartCard;
-    pointerStart = null;
-    pointerStartY = null;
-    pointerStartCard = null;
-    if (deck.hasPointerCapture(event.pointerId)) deck.releasePointerCapture(event.pointerId);
-    deck.classList.remove('is-dragging');
+    const travel = pointerTravel;
+    resetDeckPointer();
     if (mode === 'strip') {
-      if (pointerTravel > 8) {
+      if (travel > 8) {
         suppressCardClickUntil = performance.now() + 260;
         stripTarget = clamp(Math.round(stripTarget), 0, total - 1);
         startStripMotion();
@@ -491,16 +546,26 @@
         expandFromStrip(cards.indexOf(clickedCard));
       }
     } else if (Math.abs(deltaX) > 48 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      pendingSwipeClick = { pointerId: event.pointerId, card: clickedCard, until: performance.now() + 350 };
       slideFullScreen(active + (deltaX < 0 ? 1 : -1));
     }
   });
-  deck.addEventListener('pointercancel', (event) => {
-    pointerStart = null;
-    pointerStartY = null;
-    pointerStartCard = null;
-    if (deck.hasPointerCapture(event.pointerId)) deck.releasePointerCapture(event.pointerId);
-    deck.classList.remove('is-dragging');
-  });
+  deck.addEventListener('pointercancel', cancelDeckPointer);
+  deck.addEventListener('lostpointercapture', cancelDeckPointer);
+  window.addEventListener('pointerup', cancelDeckPointer);
+  window.addEventListener('pointercancel', cancelDeckPointer);
+  window.addEventListener('blur', cancelDeckPointer);
+  window.addEventListener('pagehide', cancelDeckPointer);
+  deck.addEventListener('click', (event) => {
+    const swipe = pendingSwipeClick;
+    if (!swipe || performance.now() > swipe.until || event.detail === 0) return;
+    // Older synthesized clicks may omit the originating pointer ID.
+    if (event.pointerId > 0 && event.pointerId !== swipe.pointerId) return;
+    if (swipe.card && event.target.closest('.deck-card') !== swipe.card) return;
+    pendingSwipeClick = null;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }, true);
 
   cards.forEach((card, index) => {
     card.addEventListener('click', (event) => {
