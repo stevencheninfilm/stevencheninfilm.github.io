@@ -4,6 +4,7 @@
 // AI templates are authored relative to /ai/; both locales share the same media.
 const fs = require('node:fs');
 const path = require('node:path');
+const { renderIndustryPartnerships } = require('./lib/industry-partnerships.cjs');
 const ROOT = path.resolve(__dirname, '..');
 const ORIGIN = 'https://stevencheninfilm.com';
 const OUTPUTS = {
@@ -14,6 +15,8 @@ const OUTPUTS = {
 
 function renderPage(file, language, root = ROOT) {
   let html = fs.readFileSync(path.join(root, `locales/ai.${language}.html`), 'utf8');
+  const partners = JSON.parse(fs.readFileSync(path.join(root, 'assets/data/industry-partnerships.json'), 'utf8'));
+  html = html.replace('<!-- industry-partnership-cards -->', renderIndustryPartnerships(partners, language));
   const relativeUrl = value => {
     if (/^(?:[a-z][a-z\d+.-]*:|\/|#)/i.test(value)) return value;
     const target = new URL(value, `${ORIGIN}/ai/index.html`);

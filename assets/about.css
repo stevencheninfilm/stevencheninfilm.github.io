@@ -1,6 +1,9 @@
 /* About / editorial edition. Scoped to this page; shared project layouts stay untouched. */
 .about-page { --ab-ink: #f0eee8; --ab-muted: #aeada7; --ab-line: #373733; --ab-accent: #c9b68f; color: var(--ab-ink); background: #0b0b0b; font-family: Arial, Helvetica, "PingFang SC", "Microsoft YaHei", sans-serif; }
-.about-page .site-header { background: #0b0b0b; }
+.about-page .site-header { background: #0b0b0bf7; display: grid; grid-template-columns: minmax(180px,1fr) auto auto; align-items: center; gap: 24px; mix-blend-mode: normal; pointer-events: auto; }
+.about-page .site-header .primary-nav { font-size: 12px; gap: clamp(12px,1.6vw,26px); text-transform: none; letter-spacing: .02em; }
+.about-page .site-header .wordmark-role { display: block; font-size: 9px; line-height: 1.5; text-transform: none; }
+.about-page .site-language { justify-self: end; }
 .about-page .ab-shell { width: min(100%, 1600px); margin-inline: auto; padding-inline: clamp(22px, 5.5vw, 96px); }
 .about-page section[id] { scroll-margin-top: 110px; }
 .about-page .ab-section { display: grid; grid-template-columns: .9fr 1.1fr; gap: 9%; padding-block: clamp(88px, 11vw, 170px); }
@@ -85,6 +88,7 @@
 .about-page .ab-partner-list dt span { font-size: 15px; margin-left: 8px; }
 .about-page .ab-partner-list dd { margin: 0; color: var(--ab-muted); font-size: 14px; line-height: 1.7; }
 .about-page .ab-partner-list dd span { display: block; font-size: 12px; }
+.about-page .ab-partner-list dd .ab-partner-detail { max-width: 52ch; margin-top: 8px; line-height: 1.75; }
 .about-page .ab-commercial-credits { display: grid; grid-template-columns: .9fr 1.1fr; gap: 24px 9%; align-items: start; border-top: 1px solid var(--ab-line); margin-top: 60px; padding-top: 30px; }
 .about-page .ab-commercial-credits p + p { margin-top: 6px; color: var(--ab-muted); font-size: 12px; }
 .about-page .ab-commercial-credits ul { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 24px; margin: 0; list-style: none; padding: 0; font-size: 18px; line-height: 1.5; }
@@ -117,6 +121,10 @@
 
 @media (min-width: 1700px) { .about-page .ab-hero { gap: 60px 10%; } }
 @media (max-width: 960px) {
+  .about-page .site-header { grid-template-columns: minmax(0,1fr) auto; gap: 8px 20px; padding-block: 12px 8px; }
+  .about-page .site-header .primary-nav { grid-column: 1 / -1; grid-row: 2; justify-content: space-between; gap: 12px; }
+  .about-page .site-language { grid-column: 2; grid-row: 1; }
+  .about-page section[id] { scroll-margin-top: 144px; }
   .about-page .ab-section, .about-page .ab-services, .about-page .ab-partnership-layout { gap: 7%; grid-template-columns: .85fr 1.15fr; }
   .about-page .ab-hero { gap: 42px 6%; grid-template-columns: 1.1fr .9fr; }
   .about-page .ab-hero h1 { font-size: clamp(74px, 11vw, 108px); }
@@ -124,7 +132,13 @@
   .about-page .ab-recognition-meta { flex-direction: row; flex-wrap: wrap; gap: 8px 20px; }
 }
 @media (max-width: 680px) {
-  .about-page section[id] { scroll-margin-top: 130px; }
+  .about-page .site-header { padding-inline: max(12px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-right)); }
+  .about-page .site-header .primary-nav { gap: 0; font-size: 11px; }
+  .about-page .site-header .primary-nav a { padding-inline: 0; white-space: nowrap; }
+  .about-page .site-header .wordmark-role { font-size: 8px; letter-spacing: 0; }
+  .about-page .site-language { gap: 5px; font-size: 11px; }
+  .about-page .site-language a { min-width: 40px; }
+  .about-page section[id] { scroll-margin-top: 144px; }
   .about-page .ab-hero { grid-template-columns: 1fr; padding-top: 148px; gap: 38px; }
   .about-page .ab-hero h1 { font-size: clamp(76px, 19vw, 124px); margin-block: 22px 28px; }
   .about-page .ab-hero h1 > span { font-size: 23px; margin-left: 18px; }
@@ -166,5 +180,17 @@
   .about-page .ab-contact__email { font-size: clamp(22px, 5.9vw, 37px); margin-top: 30px; }
   .about-page .ab-contact__details { gap: 28px; }
   .about-page .ab-contact__top .ab-label { font-size: 10px; letter-spacing: .07em; }
+}
+.about-page[data-language="zh"] .ab-hero h1 { font-size: clamp(88px,8vw,132px); line-height: 1.1; letter-spacing: .02em; }
+.about-page[data-language="zh"] .ab-hero h1 > span { display: block; margin: 14px 0 0; font-size: clamp(22px,2.3vw,35px); line-height: 1.2; letter-spacing: -.025em; }
+.about-page[data-language="zh"] .ab-hero__role { line-height: 1.4; letter-spacing: .015em; }
+.about-page[data-language="zh"] .ab-heading { font-size: clamp(34px,3.8vw,62px); line-height: 1.3; letter-spacing: .015em; }
+.about-page[data-language="zh"] .ab-background__body > p[lang="zh-Hans"] { font-size: 16px; line-height: 1.9; }
+.about-page[data-language="zh"] .ab-contact h2 { font-size: clamp(44px,5.6vw,88px); line-height: 1.25; letter-spacing: .015em; }
+@media (max-width: 680px) {
+  .about-page[data-language="zh"] .ab-hero h1 { font-size: clamp(78px,22vw,112px); }
+  .about-page[data-language="zh"] .ab-heading { font-size: clamp(33px,8vw,48px); }
+  .about-page[data-language="zh"] .ab-background__body > p[lang="zh-Hans"] { font-size: 15px; }
+  .about-page[data-language="zh"] .ab-contact h2 { font-size: clamp(38px,9vw,58px); }
 }
 @media (prefers-reduced-motion: reduce) { .about-page a { transition: none; } }

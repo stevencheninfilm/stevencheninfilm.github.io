@@ -25,7 +25,7 @@ test('homepage renders its first poster and navigation without startup scripts o
     assert.ok(fs.statSync(path.join(__dirname, '..', poster)).size < 25000, 'first-frame artwork stays small');
     assert.ok(html.includes(`<link rel="preload" as="image" href="${poster}"`));
   }
-  assert.match(html, /<a[^>]*href="about.html"/);
+  assert.match(html, /<a[^>]*href="\/en\/about.html"/);
   assert.equal([...html.matchAll(/<link rel="stylesheet"/g)].length, 1, 'one blocking CSS request');
   for (const script of html.matchAll(/<script[^>]*\bsrc="[^"]+"[^>]*>/g)) assert.match(script[0], /\bdefer\b/);
   const dock = html.slice(html.indexOf('<div class="thumbnail-dock"'));

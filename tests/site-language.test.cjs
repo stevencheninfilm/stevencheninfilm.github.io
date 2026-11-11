@@ -236,3 +236,77 @@ test('Avocado AI manual selection cancels a late region redirect and keeps its f
   assert.deepEqual(h.replacements, []);
   assert.equal(h.links[0].href, 'https://stevencheninfilm.com/en/avocado-ai/index.html#tesla');
 });
+
+test('About root aliases respect saved language and discard only homepage project state', () => {
+  for (const pathname of ['/about.html', '/about-v3.html']) {
+    for (const preference of ['en', 'zh']) {
+      const h = setup({ url: `https://stevencheninfilm.com${pathname}?source=portfolio&project=-1&campaign=profile#collaborations`, preference });
+      assert.equal(h.requests.length, 0);
+      assert.deepEqual(h.replacements, [`https://stevencheninfilm.com/${preference}/about.html?source=portfolio&campaign=profile#collaborations`]);
+    }
+  }
+});
+
+test('About root uses the shared country hint and stays English for unknown or overseas visitors', async () => {
+  for (const pathname of ['/about.html', '/about-v3.html']) {
+    const h = setup({ url: `https://stevencheninfilm.com${pathname}?source=work&project=2#recognition` });
+    assert.equal(h.requests[0].url, 'https://stevencheninfilm.com/site-region.txt');
+    assert.equal(h.requests[0].options.cache, 'no-store');
+    await h.respond({ header: 'CN' });
+    assert.deepEqual(h.replacements, ['https://stevencheninfilm.com/zh/about.html?source=work#recognition']);
+  }
+  for (const header of [null, 'US']) {
+    const h = setup({ url: 'https://stevencheninfilm.com/about.html', browserLanguage: 'zh-CN' });
+    await h.respond({ header });
+    assert.deepEqual(h.replacements, []);
+  }
+  const offline = setup({ url: 'https://stevencheninfilm.com/about.html' });
+  await offline.fail();
+  assert.deepEqual(offline.replacements, []);
+});
+
+test('About language switching stays on the profile and preserves chapter links without card or workflow state', () => {
+  for (const locale of ['en', 'zh']) {
+    const h = setup({ url: `https://stevencheninfilm.com/${locale}/about.html?source=work&project=9#collaborations`,
+      preference: locale === 'en' ? 'zh' : 'en', lang: locale === 'zh' ? 'zh-Hans' : 'en', page: '12',
+      workflow: { id: 'real-cinema-to-ai', getBoundingClientRect: () => ({ top: 100, bottom: 800 }) } });
+    assert.equal(h.requests.length, 0, 'explicit about language pages never geolocate');
+    assert.deepEqual(h.replacements, []);
+    assert.equal(h.links.find(link => link.dataset.siteLanguage === locale).attributes.get('aria-current'), 'page');
+    for (const link of h.links) {
+      h.fire('pointerdown', { target: link });
+      assert.equal(link.href, `https://stevencheninfilm.com/${link.dataset.siteLanguage}/about.html?source=work#collaborations`);
+      assert.equal(link.attributes.get('hreflang'), link.dataset.siteLanguage === 'zh' ? 'zh-Hans' : 'en');
+    }
+    const ev = h.fire('click', { target: h.links[1] });
+    assert.equal(ev.defaultPrevented, false);
+    assert.equal(h.storage.get('steven-site-language'), 'zh');
+    assert.deepEqual(h.replacements, [], 'manual switching remains native anchor navigation');
+  }
+});
+
+test('About modified links keep browser behavior and do not change saved preference', () => {
+  for (const options of [{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { altKey: true }, { button: 1 }, { defaultPrevented: true }]) {
+    const h = setup({ url: 'https://stevencheninfilm.com/en/about.html#contact' });
+    const ev = h.fire('click', { target: h.links[1], ...options });
+    assert.equal(ev.defaultPrevented, Boolean(options.defaultPrevented));
+    assert.equal(h.storage.has('steven-site-language'), false);
+    assert.deepEqual(h.replacements, []);
+    assert.equal(h.links[1].href, 'https://stevencheninfilm.com/zh/about.html#contact');
+  }
+});
+
+test('About manual choice and interaction prevent late regional navigation, including blocked storage', async () => {
+  const manual = setup({ url: 'https://stevencheninfilm.com/about.html?project=0#practice', storageDenied: true });
+  manual.fire('click', { target: manual.links[0] });
+  assert.equal(manual.requests[0].options.signal.aborted, true);
+  await manual.respond({ header: 'CN' });
+  assert.deepEqual(manual.replacements, []);
+  assert.equal(manual.links[0].href, 'https://stevencheninfilm.com/en/about.html#practice');
+  for (const event of ['pointerdown', 'keydown', 'wheel']) {
+    const h = setup({ url: 'https://stevencheninfilm.com/about.html#background' });
+    h.fire(event);
+    await h.respond({ header: 'CN' });
+    assert.deepEqual(h.replacements, []);
+  }
+});

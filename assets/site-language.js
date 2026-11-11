@@ -4,15 +4,19 @@
   const preferenceKey = 'steven-site-language';
   const aiPage = /^\/(?:(?:en|zh)\/)?ai(?:\/|$)/.test(location.pathname);
   const avocadoPage = /^\/(?:(?:en|zh)\/)?avocado-ai(?:\/|$)/.test(location.pathname);
+  const aboutPage = /^\/(?:(?:en|zh)\/)?about(?:-v3)?\.html$/.test(location.pathname);
   const routes = aiPage
     ? { en: '/en/ai/index.html', zh: '/zh/ai/index.html' }
     : avocadoPage
       ? { en: '/en/avocado-ai/index.html', zh: '/zh/avocado-ai/index.html' }
-      : { en: '/en/index.html', zh: '/zh/index.html' };
+      : aboutPage
+        ? { en: '/en/about.html', zh: '/zh/about.html' }
+        : { en: '/en/index.html', zh: '/zh/index.html' };
   const supportedLanguage = value => value === 'en' || value === 'zh';
   const rootHome = /^\/(?:index(?:-v3)?\.html)?$/.test(location.pathname);
   const rootAI = /^\/ai\/(?:index\.html)?$/.test(location.pathname);
   const rootAvocado = /^\/avocado-ai(?:\/(?:index\.html)?)?$/.test(location.pathname);
+  const rootAbout = /^\/about(?:-v3)?\.html$/.test(location.pathname);
   const currentLanguage = /^\/zh(?:\/|$)/.test(location.pathname) ||
     /^zh(?:-|$)/i.test(document.documentElement.lang) ? 'zh' : 'en';
   const links = [...document.querySelectorAll('a[data-site-language]')];
@@ -35,8 +39,8 @@
     const url = new URL(routes[language], location.origin);
     url.search = location.search;
     url.hash = location.hash;
-    // Project selection belongs to the homepage, not the standalone film series.
-    if (avocadoPage) url.searchParams.delete('project');
+    // Homepage project state does not belong to standalone page families.
+    if (avocadoPage || aboutPage) url.searchParams.delete('project');
     if (preserveActiveProject) {
       if (aiPage) {
         const story = document.querySelector('[data-workflow-item][aria-hidden="false"]');
@@ -44,7 +48,7 @@
         if (story?.id && rect && rect.bottom > 0 && rect.top < (document.documentElement.clientHeight || Infinity)) {
           url.hash = `#${story.id}`;
         }
-      } else if (!avocadoPage) {
+      } else if (!avocadoPage && !aboutPage) {
         const page = document.querySelector('.project-deck .deck-card.is-active')?.dataset.page;
         // The active card owns its ID; new projects must not need a routing edit.
         if (/^(?:-1|0|[1-9]\d*)$/.test(page ?? '')) url.searchParams.set('project', page);
@@ -80,7 +84,7 @@
   });
 
   // An explicit /en/ or /zh/ URL is shareable and never redirected by geolocation.
-  if (!rootHome && !rootAI && !rootAvocado) return;
+  if (!rootHome && !rootAI && !rootAvocado && !rootAbout) return;
   const saved = storedPreference();
   if (saved) {
     location.replace(destination(saved).href);
