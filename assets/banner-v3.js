@@ -6,6 +6,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   const visual = stage.querySelector('.comparison-visual') || frame;
   const handle = stage.querySelector('.comparison-handle');
   const copy = stage.querySelector('.comparison-copy');
+  const revealHint = stage.querySelector('.comparison-reveal-hint');
   const before = stage.querySelector('.comparison-video--before');
   const after = stage.querySelector('.comparison-video--after');
   if (!card || !deck || !frame || !handle || !before || !after) return;
@@ -45,6 +46,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   let wasActive = false;
   let controlsTimer = null;
   let controlsReady = !controlsDelay;
+  let revealHintTimer = null;
   let upgrading = false, playGeneration = 0, knownDuration = 0;
   const switching = () => upgrading || Boolean(window.ProgressiveVideo?.isSwitching(master));
   const intent = video => window.ProgressiveVideo?.getIntent(video) || { paused: video.paused, time: video.currentTime, muted: video.muted };
@@ -119,6 +121,21 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
       && !document.hidden;
   };
   const isActive = () => isPresented() && !motionPreference.matches;
+  const canShowRevealHint = () => card.classList.contains('is-active') && isPresented() && activePointer === null;
+  const hideRevealHint = () => {
+    window.clearTimeout(revealHintTimer);
+    revealHintTimer = null;
+    stage.classList.remove('is-hint-visible');
+  };
+  const updateRevealHint = () => {
+    if (!revealHint) return;
+    if (!canShowRevealHint()) { hideRevealHint(); return; }
+    if (revealHintTimer !== null || stage.classList.contains('is-hint-visible')) return;
+    revealHintTimer = window.setTimeout(() => {
+      revealHintTimer = null;
+      if (canShowRevealHint()) stage.classList.add('is-hint-visible');
+    }, 2000);
+  };
   const shouldPlay = () => !switching() && isActive() && !userPaused && !scrubbing;
   const switchPaused = () => !isActive() || userPaused || autoplayBlocked || (scrubbing && !resumeAfterSeek);
 
@@ -221,6 +238,7 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
 
   const updatePlayback = () => {
     if (!isPresented()) resetPointer();
+    updateRevealHint();
     handle.tabIndex = card.classList.contains('is-active') && !deck.classList.contains('is-strip') ? 0 : -1;
     const active = isActive();
     if (active && !wasActive) {
@@ -383,11 +401,13 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
 
   const beginInteraction = () => {
     stage.classList.add('is-interacting', 'is-dragging');
+    hideRevealHint();
     if (copy) copy.inert = true;
   };
 
   const endInteraction = () => {
     stage.classList.remove('is-interacting', 'is-dragging');
+    updateRevealHint();
     if (copy) copy.inert = false;
   };
 
@@ -402,9 +422,11 @@ document.querySelectorAll('[data-comparison]').forEach((stage) => {
   frame.addEventListener('pointerdown', (event) => {
     if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return;
     if (!isPresented() || activePointer !== null) return;
-    if (event.target.closest('a, .video-loading-retry, [data-comparison-controls]')) return;
+    if (event.target.closest('a, .video-loading-retry, [data-comparison-controls], [data-hd-retry]')) return;
     const startedOnHandle = Boolean(event.target.closest('.comparison-handle'));
-    if (event.pointerType === 'touch' && !startedOnHandle) return;
+    // Touches on the picture reveal detail; the reading area and player retain
+    // their own links, scrolling, and controls. Do not pass picture swipes to the deck.
+    if (event.pointerType === 'touch' && !startedOnHandle && !event.target.closest('.comparison-visual')) return;
     event.preventDefault();
     event.stopPropagation();
     activePointer = event.pointerId;

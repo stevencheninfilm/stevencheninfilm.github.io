@@ -2143,6 +2143,8 @@ html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process 
 /* Small, shared interaction details without changing the film compositions. */
 .home-page { --home-ui-accent: #e5be88; }
 
+.comparison-reveal-hint { display: none; }
+
 .home-page .home-header a,
 .home-page .workflow-player__controls button {
   transition: color .2s ease, opacity .2s ease;
@@ -2171,6 +2173,43 @@ html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process 
 }
 
 @media (orientation: portrait) and (max-width: 900px) {
+  /* Keep the guidance next to the divider, inside the picture it describes. */
+  .home-page .deck-card--comparison .comparison-copy > em { display: none; }
+  .home-page .comparison-reveal-hint {
+    position: absolute;
+    z-index: 8;
+    top: calc(50% + 24px);
+    left: 50%;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    width: max-content;
+    max-width: calc(100% - 24px);
+    padding: 10px 15px;
+    border: 1px solid rgba(255, 255, 255, .55);
+    border-radius: 999px;
+    background: rgba(8, 12, 17, .32);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 16px;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, .55);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, 6px);
+    transition: opacity .45s ease, transform .45s ease, visibility .45s;
+  }
+  .home-page .comparison-reveal-hint small { font-size: 11px; opacity: .8; }
+  .home-page .comparison-stage.is-hint-visible:not(.is-interacting) .comparison-reveal-hint {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+  }
+  .home-page .project-deck.is-strip .comparison-reveal-hint { display: none; }
+
   /* Text becomes readable without making the thin seek track heavier. */
   .home-page .comparison-player-controls,
   .home-page .cinema-home .workflow-player__controls { min-height: 44px; gap: 8px; }
@@ -2199,6 +2238,7 @@ html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process 
 @media (prefers-reduced-motion: reduce) {
   .home-page .home-header a,
   .home-page .workflow-player__controls button,
+  .home-page .comparison-reveal-hint,
   .home-page .thumbnail-dock button,
   .home-page .thumbnail-dock img { transition: none; }
 }
