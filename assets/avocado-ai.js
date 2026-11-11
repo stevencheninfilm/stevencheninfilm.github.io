@@ -141,7 +141,8 @@
 
   const tabs = [...document.querySelectorAll('[data-note-tab]')];
   const notePanels = [...document.querySelectorAll('[data-note-panel]')];
-  function selectNote(id, scroll = false) {
+  let selectedNote = null;
+  function selectNote(id, scroll = false, behavior = animation()) {
     if (!ids.includes(id)) return;
     tabs.forEach(tab => {
       const selected = tab.dataset.noteTab === id;
@@ -149,24 +150,35 @@
       tab.tabIndex = selected ? 0 : -1;
     });
     notePanels.forEach(panel => { panel.hidden = panel.dataset.notePanel !== id; });
+    selectedNote = id;
     document.querySelectorAll('[data-note-link]').forEach(link => {
       if (link.dataset.noteLink === id) link.setAttribute('aria-current', 'true');
       else link.removeAttribute('aria-current');
     });
     if (scroll) {
-      document.querySelector('#creative-notes').scrollIntoView({ behavior: animation(), block: 'start' });
-      notePanels.find(panel => panel.dataset.notePanel === id)?.focus({ preventScroll: true });
+      const panel = notePanels.find(panel => panel.dataset.notePanel === id);
+      panel?.focus({ preventScroll: true });
+      panel?.scrollIntoView({ behavior, block: 'start' });
     }
   }
-  function noteNavigation(id, scroll = false) {
+  function noteNavigation(id, scroll = false, push = false) {
     const url = new URL(location.href);
     url.hash = id;
-    history.replaceState(history.state, '', url);
+    if (push && url.href !== location.href) {
+      // Record the note being left even when it was reached by scrolling.
+      if (!ids.includes(location.hash.slice(1))) {
+        const previousURL = new URL(location.href);
+        previousURL.hash = selectedNote;
+        history.replaceState(history.state, '', previousURL);
+      }
+      history.pushState(history.state, '', url);
+    } else history.replaceState(history.state, '', url);
     selectNote(id, scroll);
   }
   tabs.forEach((tab, index) => {
     tab.addEventListener('click', () => noteNavigation(tab.dataset.noteTab));
     tab.addEventListener('keydown', event => {
+      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
       const steps = { ArrowRight: (index + 1) % tabs.length, ArrowLeft: (index - 1 + tabs.length) % tabs.length, Home: 0, End: tabs.length - 1 };
       if (!(event.key in steps)) return;
       event.preventDefault();
@@ -176,7 +188,7 @@
   });
   document.querySelectorAll('[data-note-link]').forEach(link => link.addEventListener('click', event => {
     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    event.preventDefault(); noteNavigation(link.dataset.noteLink, true);
+    event.preventDefault(); noteNavigation(link.dataset.noteLink, true, link.dataset.noteHistory === 'push');
   }));
 
   function cleanupCinema() {
@@ -291,13 +303,20 @@
       else announce(messages.unavailable);
     });
   });
-  function syncLocation() {
+  function syncLocation(event) {
     const hash = location.hash.slice(1);
     const film = hash.startsWith('watch-') ? hash.slice(6) : null;
     if (ids.includes(film)) { if (!dialog.open || activeFilm !== film) showFilm(film); }
     else {
       hideCinema();
-      if (ids.includes(hash)) selectNote(hash);
+      // Gallery entries share this hash; only a different note moves reading focus.
+      if (ids.includes(hash)) {
+        const changed = hash !== selectedNote;
+        const restoring = event?.type === 'popstate';
+        selectNote(hash, changed && !restoring);
+        // Native Back/Forward restores the saved reading position after this event.
+        if (changed && restoring) notePanels.find(panel => panel.dataset.notePanel === hash)?.focus({ preventScroll: true });
+      }
     }
   }
   window.addEventListener('popstate', syncLocation);
@@ -305,7 +324,7 @@
   window.addEventListener('pagehide', hideCinema);
   window.addEventListener('pageshow', event => { if (event.persisted) syncLocation(); });
   const initialNote = ids.includes(location.hash.slice(1)) ? location.hash.slice(1) : ids[0];
-  selectNote(initialNote);
+  selectNote(initialNote, ids.includes(location.hash.slice(1)), 'instant');
   syncLocation();
   document.documentElement.classList.add('av-enhanced');
 })();

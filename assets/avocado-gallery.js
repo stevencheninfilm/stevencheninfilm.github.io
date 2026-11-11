@@ -218,8 +218,9 @@
   dialog.addEventListener('cancel', event => { event.preventDefault(); dismiss(); });
   dialog.addEventListener('close', () => { if (!dialog.open) cleanup(); });
   dialog.addEventListener('keydown', event => {
+    if (!dialog.open || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     const steps = { ArrowLeft: index - 1, ArrowRight: index + 1, Home: 0, End: items.length - 1 };
-    if (!dialog.open || !(event.key in steps)) return;
+    if (!(event.key in steps)) return;
     event.preventDefault();
     show(steps[event.key]);
   });
