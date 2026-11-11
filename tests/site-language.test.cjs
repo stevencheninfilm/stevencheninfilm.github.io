@@ -6,7 +6,8 @@ const vm = require('node:vm');
 const source = fs.readFileSync(path.join(__dirname, '../assets/site-language.js'), 'utf8');
 
 function setup({ url = 'https://stevencheninfilm.com/index.html', preference = null,
-  storageDenied = false, browserLanguage = 'en-US', page = '-1', lang = 'en', workflow = null } = {}) {
+  storageDenied = false, browserLanguage = 'en-US', page = '-1', lang = 'en', workflow = null,
+  workflowSection = null, header = null } = {}) {
   const location = new URL(url);
   const replacements = [];
   location.replace = target => replacements.push(target);
@@ -30,7 +31,13 @@ function setup({ url = 'https://stevencheninfilm.com/index.html', preference = n
     document: {
       documentElement: { lang, clientHeight: 900 },
       querySelectorAll: () => links,
-      querySelector: selector => selector.includes('data-workflow-item') ? workflow : card,
+      querySelector: selector => {
+        if (selector === '[data-workflow-item][aria-hidden="false"]') return workflow;
+        if (selector === '[data-workflows]') return workflowSection;
+        if (selector === '.site-header') return header;
+        if (selector === '.project-deck .deck-card.is-active') return card;
+        return null;
+      },
       addEventListener(name, listener) {
         if (!listeners.has(name)) listeners.set(name, []);
         listeners.get(name).push(listener);
@@ -186,7 +193,9 @@ test('AI root entry uses the same preference and regional defaults without retur
 
 test('AI language switch follows the visible workflow after scrolling and preserves query parameters', () => {
   const workflow = { id: 'real-cinema-to-ai', getBoundingClientRect: () => ({ top: 180, bottom: 760 }) };
-  const h = setup({ url: 'https://stevencheninfilm.com/zh/ai/index.html?source=work#dlss-detail', lang: 'zh-Hans', workflow });
+  const workflowSection = { getBoundingClientRect: () => ({ top: -300, bottom: 950 }) };
+  const header = { getBoundingClientRect: () => ({ top: 0, bottom: 90 }) };
+  const h = setup({ url: 'https://stevencheninfilm.com/zh/ai/index.html?source=work#dlss-detail', lang: 'zh-Hans', workflow, workflowSection, header });
   h.fire('click', { target: h.links[0] });
   assert.equal(h.links[0].href, 'https://stevencheninfilm.com/en/ai/index.html?source=work#real-cinema-to-ai');
   assert.equal(h.storage.get('steven-site-language'), 'en');
@@ -194,6 +203,40 @@ test('AI language switch follows the visible workflow after scrolling and preser
   h.location.hash = '#feel';
   h.fire('pointerdown', { target: h.links[1] });
   assert.equal(new URL(h.links[1].href).hash, '#feel', 'an offscreen workflow cannot replace another project anchor');
+});
+
+test('AI language switching preserves later section anchors when the active panel is clipped or behind the header', () => {
+  for (const hash of ['#industry-partnerships', '#news', '#feel']) {
+    for (const locale of ['en', 'zh']) {
+      for (const rect of [{ top: -467, bottom: 77 }, { top: 180, bottom: 760 }]) {
+        const h = setup({ url: `https://stevencheninfilm.com/${locale}/ai/index.html?source=work${hash}`,
+          lang: locale === 'zh' ? 'zh-Hans' : 'en',
+          workflow: { id: 'real-cinema-to-ai', getBoundingClientRect: () => rect },
+          workflowSection: { getBoundingClientRect: () => ({ top: -2250, bottom: 90 }) },
+          header: { getBoundingClientRect: () => ({ top: 0, bottom: 96 }) },
+        });
+        const link = h.links.find(link => link.dataset.siteLanguage !== locale);
+        for (const event of ['pointerdown', 'focusin', 'click']) {
+          h.fire(event, { target: link });
+          assert.equal(new URL(link.href).hash, hash);
+          assert.equal(new URL(link.href).search, '?source=work');
+        }
+      }
+    }
+  }
+});
+
+test('AI panels outside their section or the readable viewport cannot replace the current anchor', () => {
+  for (const workflowSection of [null,
+    { getBoundingClientRect: () => ({ top: 1000, bottom: 3000 }) },
+    { getBoundingClientRect: () => ({ top: -2300, bottom: 85 }) }]) {
+    const h = setup({ url: 'https://stevencheninfilm.com/en/ai/index.html#industry-partnerships',
+      workflow: { id: 'dlss-detail', getBoundingClientRect: () => ({ top: 50, bottom: 700 }) },
+      workflowSection, header: { getBoundingClientRect: () => ({ top: 0, bottom: 90 }) },
+    });
+    h.fire('click', { target: h.links[1] });
+    assert.equal(new URL(h.links[1].href).hash, '#industry-partnerships');
+  }
 });
 
 test('Avocado AI root uses regional and saved defaults within its own page family', async () => {

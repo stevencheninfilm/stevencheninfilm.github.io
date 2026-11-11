@@ -45,8 +45,14 @@
       if (aiPage) {
         const story = document.querySelector('[data-workflow-item][aria-hidden="false"]');
         const rect = story?.getBoundingClientRect?.();
-        if (story?.id && rect && rect.bottom > 0 && rect.top < (document.documentElement.clientHeight || Infinity)) {
-          url.hash = `#${story.id}`;
+        const section = document.querySelector('[data-workflows]')?.getBoundingClientRect?.();
+        const header = document.querySelector('.site-header')?.getBoundingClientRect?.();
+        if (story?.id && rect && section) {
+          // Sticky panels can retain their active state after the reader leaves
+          // the workflow. Count only content inside its section and below the header.
+          const top = Math.max(0, rect.top, section.top, header?.bottom || 0);
+          const bottom = Math.min(rect.bottom, section.bottom, document.documentElement.clientHeight || Infinity);
+          if (bottom > top) url.hash = `#${story.id}`;
         }
       } else if (!avocadoPage && !aboutPage) {
         const page = document.querySelector('.project-deck .deck-card.is-active')?.dataset.page;
