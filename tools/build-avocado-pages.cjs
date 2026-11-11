@@ -126,7 +126,7 @@ function renderPage(file, language) {
   <link rel="canonical" href="${ORIGIN}${page(language)}"><link rel="alternate" hreflang="en" href="${ORIGIN}${page('en')}"><link rel="alternate" hreflang="zh-Hans" href="${ORIGIN}${page('zh')}"><link rel="alternate" hreflang="x-default" href="${ORIGIN}/avocado-ai/index.html">
   <meta property="og:type" content="website"><meta property="og:title" content="${escape(c.title)}"><meta property="og:description" content="${escape(c.description)}"><meta property="og:image" content="${ORIGIN}/assets/images/avocado-ai/roadster-02-poster.webp"><meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="${asset('site.css')}?v=20261104-avocado-1"><link rel="stylesheet" href="${asset('site-language.css')}?v=20261104-avocado-1"><link rel="stylesheet" href="${asset('progressive-video-status.css')}?v=20261104-hd-status-1"><link rel="stylesheet" href="${asset('avocado-ai.css')}?v=20261111-related-1">
-  <script defer src="${asset('site-language.js')}?v=20261111-about-1"></script>
+  <script defer src="${asset('site-language.js')}?v=20261111-section-position-1"></script>
 </head>
 <body class="avocado-page" data-language="${language}">
   <a class="skip-link" href="#selected-films">${c.skip}</a>
