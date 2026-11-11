@@ -1,0 +1,97 @@
+[
+  {
+    "id": "dreamina",
+    "name": {
+      "en": "Dreamina AI",
+      "zh": "Dreamina AI"
+    },
+    "secondaryName": {
+      "en": "Seedance",
+      "zh": "Seedance"
+    },
+    "role": {
+      "en": "Creative Partner & Official Creator",
+      "zh": "创意合作伙伴与官方创作者"
+    },
+    "detail": {
+      "en": "AI short films, visual development and creator-led product practice across image and video generation.",
+      "zh": "围绕图像与视频生成，开展 AI 短片、视觉案例与创作者侧产品实践。"
+    }
+  },
+  {
+    "id": "kling",
+    "name": {
+      "en": "Kling AI",
+      "zh": "可灵 AI"
+    },
+    "secondaryName": {
+      "en": "可灵 AI",
+      "zh": "Kling AI"
+    },
+    "role": {
+      "en": "Elite Creators Program",
+      "zh": "官方精英创作者计划"
+    },
+    "detail": {
+      "en": "Selected for the official program, exploring cinematic storytelling, character and scene consistency, motion, and multi-shot continuity.",
+      "zh": "入选官方精英创作者计划，以影视叙事与镜头语言探索角色、场景一致性、动态表现与多镜头衔接。"
+    }
+  },
+  {
+    "id": "shotlab",
+    "name": {
+      "en": "Shotlab",
+      "zh": "Shotlab"
+    },
+    "secondaryName": {
+      "en": "新片场",
+      "zh": "新片场"
+    },
+    "role": {
+      "en": "Contracted Creator",
+      "zh": "签约创作人"
+    },
+    "detail": {
+      "en": "AI short films, platform content and creative workflow case studies.",
+      "zh": "围绕 AI 短片、平台内容与创作流程案例开展内容合作。"
+    }
+  },
+  {
+    "id": "moodio",
+    "name": {
+      "en": "Moodio AI Agent",
+      "zh": "Moodio AI Agent"
+    },
+    "secondaryName": {
+      "en": "CMU student-led team",
+      "zh": "CMU 学生主导团队"
+    },
+    "role": {
+      "en": "AI Video Generation Consultant",
+      "zh": "AI 视频生成顾问"
+    },
+    "detail": {
+      "en": "Prototype testing, product feedback and workflow advice informed by filmmaking and camera language.",
+      "zh": "从电影制作与镜头语言出发，参与原型测试、产品反馈与创作工作流设计。"
+    }
+  },
+  {
+    "id": "opencreator",
+    "name": {
+      "en": "OpenCreator.io",
+      "zh": "OpenCreator.io"
+    },
+    "secondaryName": {
+      "en": "",
+      "zh": ""
+    },
+    "role": {
+      "en": "Official Creative Ambassador",
+      "zh": "官方创意大使"
+    },
+    "detail": {
+      "en": "Multi-model AI filmmaking and creative workflow exploration across image and video.",
+      "zh": "开展多模型 AI 影像创作与流程测试，连接图像生成、视频生成与创意开发。"
+    }
+  }
+]

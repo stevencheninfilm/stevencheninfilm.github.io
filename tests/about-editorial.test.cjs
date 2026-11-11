@@ -20,7 +20,8 @@ test('About has one name heading, five navigable chapters and a direct collabora
 
 test('current partnerships are distinct from commercial production credits', () => {
   const partners = html.match(/<dl class="ab-partner-list">[^]*?<\/dl>/)[0];
-  for (const name of ['Dreamina AI', 'Shotlab', 'Moodio AI Agent', 'OpenCreator.io']) assert.ok(partners.includes(name));
+  for (const name of ['Dreamina AI', 'Kling AI', 'Shotlab', 'Moodio AI Agent', 'OpenCreator.io']) assert.ok(partners.includes(name));
+  assert.match(partners, /Elite Creators Program/);
   assert.match(partners, /CMU student-led team/);
   assert.doesNotMatch(partners, /Netflix|Tesla|GE HealthCare/);
   assert.match(html, /Selected commercial credits/);
@@ -30,8 +31,9 @@ test('current partnerships are distinct from commercial production credits', () 
   assert.doesNotMatch(html, /56\+|26\+|近\s*10\s*年|YOUR LOGO|4\.45ETH/);
 });
 
-test('recognition preserves award levels, project names and future-event status', () => {
-  assert.match(html, /2026-10-25[^]*?Upcoming \/ Jury[^]*?Preliminary Jury Member/);
+test('recognition preserves award levels, project names and dated jury status', () => {
+  assert.match(html, /2026-10-25[^]*?Jury \/ 2026[^]*?Preliminary Jury Member/);
+  assert.doesNotMatch(html, /Upcoming \/ Jury/);
   assert.match(html, /2026-05-28[^]*?Invited Presenter/);
   assert.match(html, /Golden Sparrow Awards[^]*?Best Editing, Second Prize[^]*?Feel Every Stories/);
   assert.match(html, /创作人最佳剪辑 · 二等奖/);
@@ -70,7 +72,8 @@ test('all local assets, links and fragment destinations resolve', () => {
     const url = m[1];
     if (/^(?:https?:|mailto:|tel:)/.test(url)) continue;
     if (url.startsWith('#')) { assert.ok(ids.includes(url.slice(1)), url); continue; }
-    assert.ok(fs.existsSync(path.resolve(root, url.split(/[?#]/)[0])), url);
+    const local = new URL(url, 'https://example.test/about.html');
+    assert.ok(fs.existsSync(path.join(root, local.pathname)), url);
   }
   // New layout stays page-local rather than changing shared portfolio CSS.
   assert.match(html, /assets\/about.css\?v=/);

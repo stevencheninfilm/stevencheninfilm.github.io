@@ -27,6 +27,7 @@ test('AI language routes retain the same three workflows, lazy media and HD pair
     assert.ok(nav.includes(entry), 'localized Avocado AI entry is present');
     assert.ok(nav.indexOf(`href="/${locale}/ai/index.html"`) < nav.indexOf(entry));
     assert.ok(nav.indexOf(entry) < nav.indexOf('film/Film.html'));
+    assert.ok(nav.includes(`href="/${locale}/about.html"`), 'About preserves the selected language');
     assert.doesNotMatch(nav.match(/<a[^>]*href="[^"]*avocado-ai[^"]*"[^>]*>/)[0], /is-active|aria-current/);
     const videoTags = [...html.matchAll(/<video\b[^>]*>/g)].map(m => m[0]);
     for (const video of videoTags) {
