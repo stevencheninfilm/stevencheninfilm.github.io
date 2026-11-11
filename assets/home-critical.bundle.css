@@ -2138,3 +2138,67 @@ html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process 
     top: calc(var(--home-header-top) + 96px - var(--comparison-inset, 0px));
   }
 }
+
+/* Source: assets/home-refinements.css */
+/* Small, shared interaction details without changing the film compositions. */
+.home-page { --home-ui-accent: #e5be88; }
+
+.home-page .home-header a,
+.home-page .workflow-player__controls button {
+  transition: color .2s ease, opacity .2s ease;
+}
+.home-page .home-header a:focus-visible,
+.home-page .workflow-player__controls button:focus-visible,
+.home-page .comparison-project-link:focus-visible,
+.home-page .cinema-home__project-link:focus-visible {
+  outline: 2px solid var(--home-ui-accent);
+  outline-offset: 4px;
+}
+@media (hover: hover) {
+  .home-page .home-header a:hover,
+  .home-page .workflow-player__controls button:hover { color: var(--home-ui-accent); }
+}
+
+/* Keep selection and keyboard focus inside the clipped, scrolling filmstrip. */
+.home-page .thumbnail-dock button:is(:hover, :focus-visible, .is-active) { transform: none; }
+.home-page .thumbnail-dock button::after { border-width: 2px; pointer-events: none; }
+.home-page .thumbnail-dock button.is-active::after { border-color: #f3f1ed; }
+.home-page .thumbnail-dock button:focus-visible { outline: none; opacity: 1; }
+.home-page .thumbnail-dock button:focus-visible::after { border-color: var(--home-ui-accent); }
+.home-page .thumbnail-dock img { transition: filter .2s ease; }
+@media (hover: hover) {
+  .home-page .thumbnail-dock button:hover img { filter: brightness(1.12); }
+}
+
+@media (orientation: portrait) and (max-width: 900px) {
+  /* Text becomes readable without making the thin seek track heavier. */
+  .home-page .comparison-player-controls,
+  .home-page .cinema-home .workflow-player__controls { min-height: 44px; gap: 8px; }
+  .home-page .comparison-player-controls button,
+  .home-page .cinema-home .workflow-player__controls button {
+    min-height: 44px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .home-page .comparison-player-controls output,
+  .home-page .cinema-home .workflow-player__controls output {
+    font-size: 11px;
+    line-height: 1.4;
+    font-variant-numeric: tabular-nums;
+  }
+  .home-page .detail-copy p.comparison-tool-line,
+  .home-page .cinema-home__kicker {
+    font-size: 11px;
+    line-height: 1.5;
+    letter-spacing: .025em;
+  }
+  .home-page .detail-copy time,
+  .home-page .cinema-home__meta { font-size: 11px; line-height: 1.4; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page .home-header a,
+  .home-page .workflow-player__controls button,
+  .home-page .thumbnail-dock button,
+  .home-page .thumbnail-dock img { transition: none; }
+}

@@ -16,10 +16,15 @@ function renderPage(file, language, root = ROOT) {
   let html = fs.readFileSync(path.join(root, `locales/home.${language}.html`), 'utf8');
   const nested = file.includes('/');
   if (nested) {
-    html = html.replace(/\b(href|src|poster|data-src|data-src-mobile|data-src-hd|data-poster|data-preview|data-poster-preview|data-link|srcset|data-srcset)="([^"]+)"/g,
+    const relativeUrl = value => /^(?:[a-z][a-z\d+.-]*:|\/|#)/i.test(value) ? value : `../${value}`;
+    html = html.replace(/\b(srcset|data-srcset)="([^"]+)"/g,
+      (_, attribute, value) => `${attribute}="${value.split(',').map(candidate => {
+        const [url, ...descriptor] = candidate.trim().split(/\s+/);
+        return [relativeUrl(url), ...descriptor].join(' ');
+      }).join(', ')}"`);
+    html = html.replace(/\b(href|src|poster|data-src|data-src-mobile|data-src-hd|data-poster|data-preview|data-poster-preview|data-link)="([^"]+)"/g,
       (match, attribute, value) => {
-        if (/^(?:[a-z][a-z\d+.-]*:|\/|#)/i.test(value)) return match;
-        return `${attribute}="../${value}"`;
+        return `${attribute}="${relativeUrl(value)}"`;
       });
     // Work replays this language's opening rather than returning to auto selection.
     html = html.replace('href="../index.html" data-home-replay', 'href="index.html" data-home-replay');

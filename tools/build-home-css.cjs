@@ -24,6 +24,7 @@ const SOURCES = Object.freeze([
   'assets/progressive-video-status.css',
   'assets/home-locales.css',
   'assets/site-language.css',
+  'assets/home-refinements.css',
 ]);
 
 function renderBundle(root = ROOT) {

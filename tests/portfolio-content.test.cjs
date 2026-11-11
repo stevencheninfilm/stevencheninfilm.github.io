@@ -77,7 +77,8 @@ test('TVC uses the selected banner without repeating its embedded title', () => 
   assert.doesNotMatch(card, /class="deck-project-title"/);
   assert.ok(card.indexOf('class="deck-picture tvc-image-link"') < card.indexOf('class="deck-project-link deck-project-link--meta"'));
   assert.match(card, /href="tvc\/index.html"/);
-  assert.match(card, /data-src="assets\/images\/tvc\/banner-editorial-20260925.webp"[^>]*width="2114" height="744"/);
+  assert.match(card, /data-src="assets\/images\/home\/responsive\/tvc-1280.webp"[^>]*width="2114" height="744"/);
+  assert.match(card, /data-srcset="[^"]*tvc-2114.webp 2114w"/);
   assert.match(card, /data-preview="assets\/images\/home\/dock\/tvc.webp"/);
   assert.match(card, /aria-label="TVC — Explore selected commercial work"/);
   assert.match(read('index.html'), /data-src="assets\/images\/home\/dock\/tvc.webp" width="320" height="112"/);
@@ -87,7 +88,7 @@ test('TVC uses the selected banner without repeating its embedded title', () => 
 test('TVC image links navigate when expanded and preserve overview selection', () => {
   for (const page of ['index.html', 'index-v3.html']) {
     const card = read(page).match(/<article class="deck-card deck-card--tvc"[\s\S]*?<\/article>/)[0];
-    assert.match(card, /<a class="deck-picture tvc-image-link" href="tvc\/index.html" aria-label="TVC — View commercial films" tabindex="-1">\s*<img[^>]+banner-editorial-20260925.webp[^>]+>\s*<\/a>/);
+    assert.match(card, /<a class="deck-picture tvc-image-link" href="tvc\/index.html" aria-label="TVC — View commercial films" tabindex="-1">\s*<img[^>]+tvc-1280.webp[^>]+>\s*<\/a>/);
     assert.equal((card.match(/href="tvc\/index.html"/g) || []).length, 2);
   }
   const controller = read('assets/site.js');
