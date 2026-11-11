@@ -5,14 +5,14 @@ const vm = require('node:vm');
 const { renderPage } = require('../tools/build-avocado-pages.cjs');
 const source = fs.readFileSync(require.resolve('../assets/avocado-ai.js'), 'utf8');
 
-function setup({ reducedMotion = false, finePointer = true, saveData = false, initialHash = '', readyState = 'complete' } = {}) {
+function setup({ reducedMotion = false, finePointer = true, saveData = false, initialHash = '', initialState = null, readyState = 'complete' } = {}) {
   const html = renderPage('zh/avocado-ai/index.html', 'zh');
   let activeElement = null, now = 0, timerId = 0;
   const timers = new Map(), requests = [], posterRequests = [], copies = [], historyWrites = [];
   function element({ tagName = 'DIV', attributes = {}, ...extra } = {}) {
     const listeners = new Map(), attrs = new Map(Object.entries(attributes)), classes = new Set();
     return Object.assign({
-      tagName, dataset: {}, hidden: attrs.has('hidden'), disabled: false, isConnected: true, textContent: '', clickCount: 0,
+      tagName, dataset: {}, hidden: attrs.has('hidden'), disabled: false, isConnected: true, textContent: '', clickCount: 0, scrollCount: 0,
       classList: { add: name => classes.add(name), remove: name => classes.delete(name), contains: name => classes.has(name) },
       addEventListener(type, callback) {
         const callbacks = listeners.get(type) || [];
@@ -36,7 +36,7 @@ function setup({ reducedMotion = false, finePointer = true, saveData = false, in
         if (this.hidden || (!['A', 'BUTTON', 'INPUT'].includes(tagName) && !attrs.has('tabindex'))) return;
         activeElement = this; this.focusOptions = options;
       },
-      scrollIntoView(options) { this.lastScroll = options; },
+      scrollIntoView(options) { this.scrollCount++; this.lastScroll = options; },
       getBoundingClientRect() { return { left: this.offsetLeft || 0, top: 0, width: 300, height: 450 }; },
       querySelector(selector) { return this.selectors?.[selector] || null; },
       querySelectorAll(selector) { return this.selectorLists?.[selector] || []; },
@@ -80,10 +80,18 @@ function setup({ reducedMotion = false, finePointer = true, saveData = false, in
   const notePanels = ids.map(id => {
     const tag = html.match(new RegExp(`<section\\b[^>]*data-note-panel="${id}"[^>]*>`))?.[0];
     assert.ok(tag, `the generated page must contain ${id}`);
-    return element({ tagName: 'SECTION', attributes: attributes(tag), dataset: { notePanel: id } });
+    return element({ tagName: 'SECTION', attributes: attributes(tag), dataset: { notePanel: id },
+      selectors: { '[data-gallery-item]': element({ tagName: 'A' }) } });
   });
   const tabs = ids.map(id => element({ tagName: 'BUTTON', dataset: { noteTab: id } }));
-  const noteLinks = ids.map(id => element({ tagName: 'A', dataset: { noteLink: id }, href: `#${id}` }));
+  const allNoteLinks = Array.from(html.matchAll(/<a\b[^>]*\bdata-note-link="[^"]+"[^>]*>/g), ([tag]) => {
+    const attrs = attributes(tag);
+    return element({ tagName: 'A', attributes: attrs, href: attrs.href,
+      dataset: { noteLink: attrs['data-note-link'], noteHistory: attrs['data-note-history'] } });
+  });
+  const isStoryLink = link => (link.getAttribute('class') || '').split(/\s+/).includes('av-note-next__story');
+  const noteLinks = allNoteLinks.filter(link => !isStoryLink(link));
+  const storyLinks = allNoteLinks.filter(isStoryLink);
   const notes = element();
   const profileTag = html.match(/<a\b[^>]*data-profile-link[^>]*>/)?.[0];
   const copyTag = html.match(/<button\b[^>]*data-copy-profile[^>]*>/)?.[0];
@@ -119,11 +127,19 @@ function setup({ reducedMotion = false, finePointer = true, saveData = false, in
       '[data-rail-next]': railNext, '[data-rail-count]': railCount,
       ...Object.fromEntries(ids.flatMap((id, index) => [[`#${id}`, notePanels[index]], [`[data-note-panel="${id}"]`, notePanels[index]]])),
     },
-    selectorLists: { '.av-film[data-film]': cards, '[data-note-tab]': tabs, '[data-note-panel]': notePanels, '[data-note-link]': noteLinks },
+    selectorLists: { '.av-film[data-film]': cards, '[data-note-tab]': tabs, '[data-note-panel]': notePanels, '[data-note-link]': allNoteLinks },
   });
   Object.defineProperty(document, 'activeElement', { get: () => activeElement });
   const location = new URL(`https://example.test/zh/avocado-ai/index.html${initialHash}`);
-  const history = { state: null, replaceState(state, _, url) { this.state = state; location.href = String(url); historyWrites.push(location.href); } };
+  function writeHistory(mode, state, url) {
+    location.href = new URL(url, location.href).href;
+    history.state = state;
+    historyWrites.push({ mode, state, href: location.href });
+  }
+  const history = { state: initialState,
+    replaceState(state, _, url) { writeHistory('replace', state, url); },
+    pushState(state, _, url) { writeHistory('push', state, url); },
+  };
   const window = element();
   const schedule = (callback, delay = 0) => { const id = ++timerId; timers.set(id, { callback, at: now + delay }); return id; };
   vm.runInNewContext(source, {
@@ -133,7 +149,7 @@ function setup({ reducedMotion = false, finePointer = true, saveData = false, in
     setTimeout: schedule, clearTimeout: id => timers.delete(id),
     requestAnimationFrame: callback => schedule(callback, 16), cancelAnimationFrame: id => timers.delete(id),
   });
-  return { document, window, dialog, cards, posters, metrics, hoverVideos, requests, posterRequests, copies, notePanels, noteLinks, tabs, notes,
+  return { document, window, dialog, cards, posters, metrics, hoverVideos, requests, posterRequests, copies, notePanels, noteLinks, storyLinks, tabs, notes,
     profile, copyProfile, toast, location, historyWrites, fullVideos, watchPanels, playerToggles,
     get activeElement() { return activeElement; },
     installPlayers() {
@@ -151,17 +167,146 @@ function setup({ reducedMotion = false, finePointer = true, saveData = false, in
   };
 }
 
-test('creative-note links reveal and focus the corresponding panel without leaving keyboard focus on the card', () => {
+test('creative-note links scroll to and focus the corresponding panel', () => {
   const s = setup();
   s.noteLinks[1].focus();
   assert.equal(s.noteLinks[1].fire('click').defaultPrevented, true);
+  s.advance(16);
   assert.equal(s.location.hash, '#roadster-02');
   assert.equal(s.notePanels[1].hidden, false);
   assert.equal(s.notePanels[0].hidden, true);
   assert.equal(s.notePanels[1].tabIndex, -1);
   assert.equal(s.activeElement, s.notePanels[1]);
   assert.equal(s.tabs[1].getAttribute('aria-selected'), 'true');
-  assert.ok(s.notes.lastScroll || s.notePanels[1].lastScroll, 'navigation must bring the notes into view');
+  assert.equal(s.notePanels[1].scrollCount, 1);
+  assert.equal(s.notes.scrollCount, 0, 'the section header is above the requested film note');
+  assert.deepEqual(s.historyWrites.map(write => write.mode), ['replace']);
+});
+
+test('end-of-note links create a history entry for the other film and preserve existing state', () => {
+  const savedState = { reader: { from: 'portfolio' } };
+  const s = setup({ initialHash: '#roadster-01', initialState: savedState });
+  assert.deepEqual(s.storyLinks.map(link => link.href), ['#roadster-02', '#roadster-01']);
+  const link = s.storyLinks[0];
+  assert.equal(link.dataset.noteHistory, 'push');
+  link.focus();
+  assert.equal(link.fire('click').defaultPrevented, true);
+  assert.equal(s.location.hash, '#roadster-02');
+  assert.deepEqual(s.historyWrites, [{ mode: 'push', state: { reader: { from: 'portfolio' } }, href: s.location.href }]);
+  assert.equal(s.activeElement, s.notePanels[1]);
+  assert.equal(s.notePanels[1].hidden, false);
+  assert.equal(s.notePanels[1].scrollCount, 1);
+});
+
+for (const initialHash of ['', '#selected-films']) {
+  test(`continue reading from ${initialHash || 'a fragmentless entry'} preserves the first note for Back`, () => {
+    const state = { reader: 'portfolio' };
+    const s = setup({ initialHash, initialState: state });
+    const [first, second] = s.notePanels;
+    const firstURL = new URL('#roadster-01', s.location.href).href;
+    const secondURL = new URL('#roadster-02', s.location.href).href;
+    s.storyLinks[0].fire('click');
+    const entries = [
+      { mode: 'replace', href: firstURL, state: { reader: 'portfolio' } },
+      { mode: 'push', href: secondURL, state: { reader: 'portfolio' } },
+    ];
+    assert.deepEqual(s.historyWrites, entries);
+    assert.equal(s.location.href, secondURL);
+    assert.equal(s.activeElement, second);
+    assert.equal(first.scrollCount, 0, 'normalizing the original entry must not reposition it');
+    const scrolls = [s.notes, first, second].map(node => node.scrollCount);
+
+    const restored = s.historyWrites[0];
+    s.location.href = restored.href;
+    s.window.fire('popstate', { state: restored.state });
+    s.window.fire('hashchange', { oldURL: secondURL, newURL: restored.href });
+    s.advance(16);
+
+    assert.equal(s.location.href, firstURL);
+    assert.equal(first.hidden, false);
+    assert.equal(second.hidden, true);
+    assert.equal(s.tabs[0].getAttribute('aria-selected'), 'true');
+    assert.equal(s.activeElement, first);
+    assert.equal(first.focusOptions.preventScroll, true);
+    assert.deepEqual([s.notes, first, second].map(node => node.scrollCount), scrolls);
+    assert.deepEqual(s.historyWrites, entries, 'Back must not write another entry');
+  });
+}
+
+test('an end-of-note action for the current URL never pushes a duplicate entry', () => {
+  const s = setup({ initialHash: '#roadster-01' });
+  // Fragment updates change location immediately, before the hashchange listener runs.
+  s.location.hash = 'roadster-02';
+  s.storyLinks[0].fire('click');
+  assert.equal(s.historyWrites.some(write => write.mode === 'push'), false);
+  assert.equal(s.activeElement, s.notePanels[1]);
+});
+
+test('a direct second-note URL immediately scrolls to and focuses the selected panel once', () => {
+  const s = setup({ initialHash: '#roadster-02' });
+  const [first, second] = s.notePanels;
+  assert.equal(first.hidden, true);
+  assert.equal(second.hidden, false);
+  assert.equal(s.activeElement, second);
+  assert.equal(second.scrollCount, 1, 'initial location synchronization must not scroll twice');
+  assert.equal(second.lastScroll.behavior, 'instant');
+  assert.equal(second.lastScroll.block, 'start');
+  assert.equal(first.scrollCount, 0);
+  assert.equal(s.notes.scrollCount, 0);
+  assert.equal(s.historyWrites.length, 0);
+});
+
+test('changing the fragment by hand reveals, scrolls to and focuses the new film note', () => {
+  const s = setup({ initialHash: '#roadster-01' });
+  s.noteLinks[0].focus();
+  const previousScrolls = s.notePanels[1].scrollCount;
+  const oldURL = s.location.href;
+  s.location.hash = 'roadster-02';
+  s.window.fire('hashchange', { oldURL, newURL: s.location.href });
+  s.advance(16);
+  assert.equal(s.notePanels[0].hidden, true);
+  assert.equal(s.notePanels[1].hidden, false);
+  assert.equal(s.tabs[1].getAttribute('aria-selected'), 'true');
+  assert.equal(s.notePanels[1].scrollCount, previousScrolls + 1);
+  assert.equal(s.activeElement, s.notePanels[1]);
+  assert.equal(s.historyWrites.length, 0);
+});
+
+test('returning from a gallery state with the same note fragment preserves scroll and focus', () => {
+  const s = setup();
+  s.noteLinks[1].fire('click');
+  s.advance(16);
+  assert.equal(s.location.hash, '#roadster-02');
+  const scrolls = [s.notes, ...s.notePanels].map(node => node.scrollCount);
+  // Gallery history entries share the note URL. Back restores the still trigger.
+  const trigger = s.notePanels[1].querySelector('[data-gallery-item]');
+  trigger.focus();
+  s.window.fire('popstate', { state: null });
+  s.advance(16);
+  assert.equal(s.activeElement, trigger);
+  assert.deepEqual([s.notes, ...s.notePanels].map(node => node.scrollCount), scrolls);
+  assert.equal(s.notePanels[1].hidden, false);
+});
+
+test('film-note tabs leave modified and already-handled keyboard events alone', () => {
+  const s = setup();
+  s.tabs[0].focus();
+  for (const guard of ['altKey', 'ctrlKey', 'metaKey', 'shiftKey', 'defaultPrevented']) {
+    let prevented = 0;
+    s.tabs[0].fire('keydown', {
+      key: 'ArrowRight', [guard]: true,
+      preventDefault() { this.defaultPrevented = true; prevented++; },
+    });
+    assert.equal(prevented, 0, guard);
+    assert.equal(s.activeElement, s.tabs[0], guard);
+    assert.equal(s.tabs[0].getAttribute('aria-selected'), 'true', guard);
+    assert.equal(s.notePanels[1].hidden, true, guard);
+  }
+  assert.equal(s.historyWrites.length, 0);
+  assert.equal(s.tabs[0].fire('keydown', { key: 'ArrowRight' }).defaultPrevented, true);
+  assert.equal(s.activeElement, s.tabs[1]);
+  assert.equal(s.notePanels[1].hidden, false);
+  assert.deepEqual(s.historyWrites.map(write => write.mode), ['replace']);
 });
 
 test('modified and non-primary creative-note clicks preserve native navigation and current selection', () => {

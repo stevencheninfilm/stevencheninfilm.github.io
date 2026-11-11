@@ -224,6 +224,29 @@ test('keyboard navigation respects each gallery boundary and exposes disabled en
   assert.equal(s.requests.length, loaded, 'closed dialogs cannot navigate');
 });
 
+test('browser shortcuts and previously handled keys leave the selected still and its download alone', () => {
+  const s = setup();
+  s.open(1);
+  const download = s.lastRequest();
+  for (const shortcut of [
+    { key: 'ArrowLeft', altKey: true },
+    { key: 'Home', ctrlKey: true },
+    { key: 'ArrowRight', metaKey: true },
+    { key: 'End', shiftKey: true },
+  ]) {
+    assert.equal(s.dialog.fire('keydown', shortcut).defaultPrevented, false);
+  }
+  s.dialog.fire('keydown', { key: 'Home', defaultPrevented: true });
+  assert.equal(s.count.textContent, '02 / 03');
+  assert.equal(s.requests.length, 1);
+  download.succeed();
+  assert.equal(s.shownURL(), s.links[1].href);
+
+  assert.equal(s.key('ArrowLeft').defaultPrevented, true);
+  s.lastRequest().succeed();
+  assert.equal(s.shownURL(), s.links[0].href);
+});
+
 test('a failed image offers a direct URL and retries only that still with a fresh request', () => {
   const s = setup(); s.open(4); s.lastRequest().fail();
   assert.equal(s.error.hidden, false);
