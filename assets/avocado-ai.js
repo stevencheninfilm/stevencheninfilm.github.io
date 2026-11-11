@@ -141,6 +141,7 @@
 
   const tabs = [...document.querySelectorAll('[data-note-tab]')];
   const notePanels = [...document.querySelectorAll('[data-note-panel]')];
+  const relatedNotes = document.querySelectorAll('[data-related-note]');
   let selectedNote = null;
   function selectNote(id, scroll = false, behavior = animation()) {
     if (!ids.includes(id)) return;
@@ -150,6 +151,7 @@
       tab.tabIndex = selected ? 0 : -1;
     });
     notePanels.forEach(panel => { panel.hidden = panel.dataset.notePanel !== id; });
+    relatedNotes.forEach(link => { link.hidden = link.dataset.relatedNote !== id; });
     selectedNote = id;
     document.querySelectorAll('[data-note-link]').forEach(link => {
       if (link.dataset.noteLink === id) link.setAttribute('aria-current', 'true');

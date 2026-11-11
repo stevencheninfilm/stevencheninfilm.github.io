@@ -87,9 +87,9 @@ function setup({ reducedMotion = false, finePointer = true, saveData = false, in
   const allNoteLinks = Array.from(html.matchAll(/<a\b[^>]*\bdata-note-link="[^"]+"[^>]*>/g), ([tag]) => {
     const attrs = attributes(tag);
     return element({ tagName: 'A', attributes: attrs, href: attrs.href,
-      dataset: { noteLink: attrs['data-note-link'], noteHistory: attrs['data-note-history'] } });
+      dataset: { noteLink: attrs['data-note-link'], noteHistory: attrs['data-note-history'], relatedNote: attrs['data-related-note'] } });
   });
-  const isStoryLink = link => (link.getAttribute('class') || '').split(/\s+/).includes('av-note-next__story');
+  const isStoryLink = link => link.dataset.noteHistory === 'push';
   const noteLinks = allNoteLinks.filter(link => !isStoryLink(link));
   const storyLinks = allNoteLinks.filter(isStoryLink);
   const notes = element();
@@ -127,7 +127,8 @@ function setup({ reducedMotion = false, finePointer = true, saveData = false, in
       '[data-rail-next]': railNext, '[data-rail-count]': railCount,
       ...Object.fromEntries(ids.flatMap((id, index) => [[`#${id}`, notePanels[index]], [`[data-note-panel="${id}"]`, notePanels[index]]])),
     },
-    selectorLists: { '.av-film[data-film]': cards, '[data-note-tab]': tabs, '[data-note-panel]': notePanels, '[data-note-link]': allNoteLinks },
+    selectorLists: { '.av-film[data-film]': cards, '[data-note-tab]': tabs, '[data-note-panel]': notePanels,
+      '[data-note-link]': allNoteLinks, '[data-related-note]': allNoteLinks.filter(link => link.hasAttribute('data-related-note')) },
   });
   Object.defineProperty(document, 'activeElement', { get: () => activeElement });
   const location = new URL(`https://example.test/zh/avocado-ai/index.html${initialHash}`);
@@ -167,6 +168,10 @@ function setup({ reducedMotion = false, finePointer = true, saveData = false, in
   };
 }
 
+function visibleRecommendations(s) {
+  return s.storyLinks.filter(link => !link.hidden).map(link => link.href);
+}
+
 test('creative-note links scroll to and focus the corresponding panel', () => {
   const s = setup();
   s.noteLinks[1].focus();
@@ -187,6 +192,8 @@ test('end-of-note links create a history entry for the other film and preserve e
   const savedState = { reader: { from: 'portfolio' } };
   const s = setup({ initialHash: '#roadster-01', initialState: savedState });
   assert.deepEqual(s.storyLinks.map(link => link.href), ['#roadster-02', '#roadster-01']);
+  assert.deepEqual(s.storyLinks.map(link => link.dataset.relatedNote), ['roadster-01', 'roadster-02']);
+  assert.deepEqual(visibleRecommendations(s), ['#roadster-02']);
   const link = s.storyLinks[0];
   assert.equal(link.dataset.noteHistory, 'push');
   link.focus();
@@ -196,6 +203,7 @@ test('end-of-note links create a history entry for the other film and preserve e
   assert.equal(s.activeElement, s.notePanels[1]);
   assert.equal(s.notePanels[1].hidden, false);
   assert.equal(s.notePanels[1].scrollCount, 1);
+  assert.deepEqual(visibleRecommendations(s), ['#roadster-01']);
 });
 
 for (const initialHash of ['', '#selected-films']) {
@@ -227,6 +235,7 @@ for (const initialHash of ['', '#selected-films']) {
     assert.equal(second.hidden, true);
     assert.equal(s.tabs[0].getAttribute('aria-selected'), 'true');
     assert.equal(s.activeElement, first);
+    assert.deepEqual(visibleRecommendations(s), ['#roadster-02']);
     assert.equal(first.focusOptions.preventScroll, true);
     assert.deepEqual([s.notes, first, second].map(node => node.scrollCount), scrolls);
     assert.deepEqual(s.historyWrites, entries, 'Back must not write another entry');
@@ -251,6 +260,7 @@ test('a direct second-note URL immediately scrolls to and focuses the selected p
   assert.equal(second.scrollCount, 1, 'initial location synchronization must not scroll twice');
   assert.equal(second.lastScroll.behavior, 'instant');
   assert.equal(second.lastScroll.block, 'start');
+  assert.deepEqual(visibleRecommendations(s), ['#roadster-01']);
   assert.equal(first.scrollCount, 0);
   assert.equal(s.notes.scrollCount, 0);
   assert.equal(s.historyWrites.length, 0);
@@ -268,6 +278,7 @@ test('changing the fragment by hand reveals, scrolls to and focuses the new film
   assert.equal(s.notePanels[1].hidden, false);
   assert.equal(s.tabs[1].getAttribute('aria-selected'), 'true');
   assert.equal(s.notePanels[1].scrollCount, previousScrolls + 1);
+  assert.deepEqual(visibleRecommendations(s), ['#roadster-01']);
   assert.equal(s.activeElement, s.notePanels[1]);
   assert.equal(s.historyWrites.length, 0);
 });
@@ -306,6 +317,7 @@ test('film-note tabs leave modified and already-handled keyboard events alone', 
   assert.equal(s.tabs[0].fire('keydown', { key: 'ArrowRight' }).defaultPrevented, true);
   assert.equal(s.activeElement, s.tabs[1]);
   assert.equal(s.notePanels[1].hidden, false);
+  assert.deepEqual(visibleRecommendations(s), ['#roadster-01']);
   assert.deepEqual(s.historyWrites.map(write => write.mode), ['replace']);
 });
 
