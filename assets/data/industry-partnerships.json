@@ -3,7 +3,7 @@
     "id": "dreamina",
     "name": {
       "en": "Dreamina AI",
-      "zh": "即梦"
+      "zh": "即梦AI"
     },
     "secondaryName": {
       "en": "Seedance",
@@ -41,11 +41,11 @@
     "id": "shotlab",
     "name": {
       "en": "Shotlab",
-      "zh": "Shotlab"
+      "zh": "新片场"
     },
     "secondaryName": {
       "en": "新片场",
-      "zh": "新片场"
+      "zh": "Shotlab"
     },
     "role": {
       "en": "Contracted Creator",
