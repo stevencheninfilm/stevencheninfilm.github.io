@@ -10,10 +10,10 @@
     return p < .5 ? 4 * p ** 3 : 1 - (-2 * p + 2) ** 3 / 2;
   };
   const mix = (a, b, p) => a + (b - a) * p;
-  function geometry(width, height, target) {
-    const narrow = width <= 600;
+  function geometry(width, height, target, compact = width <= 600) {
+    const narrow = compact;
     const tileWidth = width * (narrow ? .44 : .235);
-    const tileHeight = height * (narrow ? .22 : .235);
+    const tileHeight = narrow ? tileWidth * 9 / 16 : height * .235;
     return { width, height, tileWidth, tileHeight,
       stepX: tileWidth + width * (narrow ? .025 : .018),
       stepY: tileHeight + height * .05,

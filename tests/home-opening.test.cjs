@@ -2,6 +2,24 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const motion = require('../assets/home-opening-motion.js');
 
+test('compact opening keeps landscape proportions throughout the wall and lead zoom', () => {
+  for (const [width, height] of [[390, 844], [463, 930], [700, 1000], [844, 390]]) {
+    const targetWidth = width - 16;
+    const target = { left: 8, top: 100, width: targetWidth, height: targetWidth * 9 / 16 };
+    const layout = motion.geometry(width, height, target, true);
+    assert.ok(Math.abs(layout.tileWidth / layout.tileHeight - 16 / 9) < .000001);
+    for (let time = motion.timing.wallStart; time <= motion.timing.end; time += 16) {
+      const tile = motion.sample(time, layout, 1, 0);
+      const lead = motion.sample(time, layout, 0, 0, true);
+      assert.ok(Math.abs(tile.width / tile.height - 16 / 9) < .000001, `${width}px wall`);
+      assert.ok(Math.abs(lead.width / lead.height - 16 / 9) < .000001, `${width}px zoom`);
+    }
+  }
+  const desktop = motion.geometry(1440, 900, undefined, false);
+  assert.equal(desktop.tileWidth, 1440 * .235);
+  assert.equal(desktop.tileHeight, 900 * .235, 'desktop composition remains unchanged');
+});
+
 test('opening begins below the screen and ends registered to the real hero on desktop and mobile', () => {
   for(const [width,height,target] of [
     [1440,900,{left:15,top:15,width:1410,height:870}],
