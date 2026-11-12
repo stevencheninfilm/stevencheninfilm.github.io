@@ -61,6 +61,7 @@
     const compact = compactScreen.matches || touchScreen.matches;
     if (preference.matches || !motion || !lead || !tiles.length ||
         (!compact && performance.now() > 1800) || connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || '')) return finish();
+    loader.dataset.compact = String(compact);
     // Phones reuse small dock/poster images in three columns rather than fetching the full
     // desktop wall. The remaining tiles stay dormant even on the first visit.
     const activeTiles = tiles.filter(element => {
@@ -77,7 +78,7 @@
     percent.hidden = true;
     percent.style.opacity = '1';
     openingViewport = { width: window.innerWidth, height: window.innerHeight };
-    const layout = motion.geometry(openingViewport.width, openingViewport.height, prepareLead());
+    const layout = motion.geometry(openingViewport.width, openingViewport.height, prepareLead(), compact);
     const entries = activeTiles.map(element => ({ element, image: element.querySelector('img'), column: Number(element.dataset.column), row: Number(element.dataset.row), lead: element === lead }));
     entries.forEach(({ element }) => {
       element.style.width = `${layout.tileWidth}px`;
