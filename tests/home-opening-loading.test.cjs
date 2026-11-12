@@ -10,10 +10,10 @@ function opening(cached = false, options = {}) {
   const frames = new Map(), listeners = {}, clickHandlers = {};
   const classes = new Set(['home-v3']);
   const body = { classList: { contains: c => classes.has(c), add: c => classes.add(c), remove: (...names) => names.forEach(c => classes.delete(c)) } };
-  const images = Array.from({ length: 2 }, () => {
+  const images = Array.from({ length: options.outer ? 3 : 2 }, (_, index) => {
     let resolve, reject;
     const promise = new Promise((yes, no) => { resolve = yes; reject = no; });
-    return { complete: cached, naturalWidth: cached ? 100 : 0, src: cached ? '/poster.webp' : undefined, dataset: { src: '/poster.webp' },
+    return { complete: cached, naturalWidth: cached ? 100 : 0, src: cached ? '/poster.webp' : undefined, dataset: { src: '/poster.webp', ...(options.mobileSources ? { srcMobile: `/mobile-${index}.webp` } : {}) },
       getAttribute(name) { return this[name]; }, removeAttribute(name) { delete this[name]; }, decode: () => promise,
       resolve() { this.complete = true; this.naturalWidth = 100; resolve(); }, reject };
   });
@@ -25,16 +25,18 @@ function opening(cached = false, options = {}) {
     querySelectorAll: selector => selector === 'img' ? images : tiles };
   const interfaces = [{ inert: false }];
   const work = { href: options.workHref || 'http://localhost/index.html', addEventListener: (name, fn) => { clickHandlers.work = fn; } };
-  const window = { innerWidth: 1440, innerHeight: 900, StevenHomeOpening: motion,
+  const wordmark = { href: options.workHref || 'http://localhost/index.html', addEventListener: (name, fn) => { clickHandlers.wordmark = fn; } };
+  const active = options.picture ? { querySelector: selector => ({ '.comparison-visual': { getBoundingClientRect: () => options.picture }, '.comparison-frame': { getBoundingClientRect: () => ({ left: 8, top: 100, width: 374, height: 600 }) } })[selector] } : null;
+  const window = { innerWidth: options.mobile ? 390 : 1440, innerHeight: options.mobile ? 844 : 900, StevenHomeOpening: motion,
     location: { href: options.href || 'http://localhost/index.html#featured-work', pathname: options.pathname || '/index.html', search: options.search || '', reload: () => { reloads++; }, assign: href => { assigned = href; } },
     matchMedia: query => ({ matches: query.includes('reduced-motion') ? !!options.reduced : !!options.mobile, addEventListener() {} }),
     addEventListener: (name, fn) => { listeners[name] = fn; }, setTimeout: () => 1 };
   vm.runInNewContext(source, { window, URL, sessionStorage: { getItem: () => options.warm ? 'ready' : null, setItem() {} }, navigator: {connection:options.connection}, document: { body, activeElement: null,
-    querySelector: selector => ({ '.v3-loader': loader, '[data-home-replay]': work })[selector],
-    querySelectorAll: () => interfaces }, performance: { now: () => now },
+    querySelector: selector => ({ '.v3-loader': loader, '.deck-card.is-active': active })[selector],
+    querySelectorAll: selector => selector === '[data-home-replay]' ? [work, wordmark] : interfaces }, performance: { now: () => now },
     requestAnimationFrame: fn => { frames.set(++frameId, fn); return frameId; },
     cancelAnimationFrame: id => frames.delete(id), clearTimeout() {} });
-  return { loader, percent, images, interfaces, clickHandlers, work, reloads: () => reloads, assigned: () => assigned,
+  return { loader, percent, images, tiles, interfaces, clickHandlers, work, wordmark, reloads: () => reloads, assigned: () => assigned,
     interact() { listeners.pointerdown({ target: { closest() {} } }); },
     resize(width, height) { window.innerWidth = width; window.innerHeight = height; listeners.resize(); },
     tick(time) { now = time; const pending = [...frames.values()]; frames.clear(); pending.forEach(fn => fn(time)); } };
@@ -118,8 +120,8 @@ test('same-size viewport notifications do not cancel the opening', () => {
 });
 
 
-test('cold mobile and reduced-motion visits never request the hidden opening wall', () => {
-  for (const options of [{ mobile: true }, { reduced: true }, { mobile: true, connection: { effectiveType: '4g' } }]) {
+test('reduced-motion and data-saver visits never request decorative opening artwork', () => {
+  for (const options of [{ reduced: true }, { mobile: true, reduced: true }, { mobile: true, connection: { saveData: true } }, { mobile: true, connection: { effectiveType: '2g' } }]) {
     const app = opening(false, options);
     assert.ok(app.images.every(image => !image.src));
     assert.equal(app.loader.hidden, true);
@@ -129,7 +131,36 @@ test('cold mobile and reduced-motion visits never request the hidden opening wal
   }
 });
 
-test('a previously ready mobile wall may replay without removing the desktop animation', async () => {
+test('a cold mobile visit starts the wall once its main poster is ready without waiting for other art', async () => {
+  const app = opening(false, { mobile: true, connection: { effectiveType: '4g' } });
+  assert.ok(app.images.every(image => image.src === '/poster.webp'));
+  app.tick(800);
+  assert.equal(app.loader.dataset.phase, 'loading', 'the phone gets a bounded chance to decode its small main poster');
+  assert.equal(app.interfaces[0].inert, false);
+  app.images[0].resolve();
+  await Promise.resolve();
+  app.tick(810);
+  assert.equal(app.loader.dataset.phase, 'wall');
+  assert.equal(app.loader.hidden, false);
+  assert.equal(app.interfaces[0].inert, true);
+  assert.equal(app.tiles[1].style.opacity, 0, 'unready decorative thumbnails do not show blank cards');
+  app.images[1].reject(new Error('optional thumbnail unavailable'));
+  await Promise.resolve();
+  app.tick(1000);
+  assert.equal(app.loader.hidden, false, 'an optional thumbnail failure cannot cancel the whole phone opening');
+});
+
+test('mobile requests only small middle-column sources, including on a late first script', () => {
+  const app = opening(true, { mobile: true, outer: true, mobileSources: true, start: 2400 });
+  assert.equal(app.images[0].src, '/mobile-0.webp');
+  assert.equal(app.images[1].src, '/mobile-1.webp');
+  assert.equal(app.images[2].src, '/poster.webp', 'screen-edge desktop tiles receive no new request');
+  assert.equal(app.tiles[2].hidden, true);
+  app.tick(2400);
+  assert.equal(app.loader.dataset.phase, 'wall');
+});
+
+test('a ready mobile wall may replay without removing the desktop animation', async () => {
   const app = opening(false, { mobile: true, warm: true });
   assert.ok(app.images.every(image => image.src === '/poster.webp'));
   assert.equal(app.loader.hidden, true, 'the page remains usable while cache decoding completes');
@@ -138,6 +169,27 @@ test('a previously ready mobile wall may replay without removing the desktop ani
   app.tick(100);
   assert.equal(app.loader.dataset.phase, 'wall');
   assert.equal(app.loader.hidden, false);
+});
+
+test('mobile lead lands on the picture rather than the larger title and controls frame', () => {
+  const picture = { left: 8, top: 190, width: 374, height: 210.375 };
+  const app = opening(true, { mobile: true, picture });
+  app.tick(motion.timing.end - motion.timing.wallStart - 1);
+  const lead = app.tiles[0];
+  assert.ok(Math.abs(parseFloat(lead.style.width) - picture.width) < .01);
+  assert.ok(Math.abs(parseFloat(lead.style.height) - picture.height) < .01);
+  assert.match(lead.style.transform, /translate3d\(8\.00px, 190\.00px/);
+});
+
+test('mobile browser toolbar height changes keep the opening alive, while rotation safely exits', () => {
+  const app = opening(true, { mobile: true });
+  app.tick(0);
+  app.resize(390, 780);
+  app.tick(300);
+  assert.equal(app.loader.hidden, false);
+  app.resize(844, 390);
+  assert.equal(app.loader.hidden, true);
+  assert.equal(app.interfaces[0].inert, false);
 });
 
 test('using the visible homepage cancels a pending optional intro without blocking the action', async () => {
@@ -158,5 +210,17 @@ test('Work clears a restored project query before replaying the first project in
   app.clickHandlers.work({ button: 0, currentTarget: app.work, preventDefault() { prevented = true; } });
   assert.equal(prevented, true);
   assert.equal(app.reloads(), 0, 'reload would retain the project selection');
+  assert.equal(app.assigned(), 'http://localhost/zh/index.html');
+});
+
+test('mobile wordmark replays in the same language after a long visit and keeps modified clicks native', () => {
+  const app = opening(true, { mobile: true, href: 'http://localhost/zh/index.html?project=4#featured-work', pathname: '/zh/index.html', search: '?project=4', workHref: 'http://localhost/zh/index.html' });
+  app.tick(20000);
+  const event = { button: 0, currentTarget: app.wordmark, preventDefault() {} };
+  for (const modifier of ['ctrlKey', 'metaKey', 'shiftKey', 'altKey']) {
+    app.clickHandlers.wordmark({ ...event, [modifier]: true });
+    assert.equal(app.assigned(), null);
+  }
+  app.clickHandlers.wordmark(event);
   assert.equal(app.assigned(), 'http://localhost/zh/index.html');
 });

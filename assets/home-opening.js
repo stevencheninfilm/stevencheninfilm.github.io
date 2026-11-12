@@ -12,7 +12,6 @@
   const compactScreen = window.matchMedia('(max-width: 700px)');
   const touchScreen = window.matchMedia('(pointer: coarse)');
   const images = [...loader.querySelectorAll('img')];
-  const cacheKey = 'steven-home-intro-ready-20261103';
   let frame = 0, watchdog = 0, run = 0;
   let pageWasHidden = false, isRevealed = false;
   let openingViewport = null;
@@ -43,8 +42,9 @@
     const video = active?.querySelector('.comparison-video--after') || active?.querySelector('video');
     const leadImage = lead?.querySelector('img');
     if (leadImage) leadImage.src = image?.currentSrc || image?.src || video?.poster || leadImage.src;
+    const pictureRect = active?.querySelector('.comparison-visual')?.getBoundingClientRect();
     const target = active?.querySelector('.comparison-frame') || active;
-    const rect = target?.getBoundingClientRect();
+    const rect = pictureRect?.width > 0 ? pictureRect : target?.getBoundingClientRect();
     return rect && rect.width > 0 ? { left: rect.left, top: rect.top, width: rect.width, height: rect.height } : undefined;
   }
   function play() {
@@ -56,17 +56,21 @@
     body.classList.remove('is-v3-loading', 'is-loading');
     interfaces.forEach(element => { element.inert = false; });
     // Navigation is available even if this optional script arrives late. Avoid
-    // covering an already-visible page on a slow connection or data saver.
+    // blocking data saver or reduced-motion visits with decorative downloads.
     const connection = navigator.connection;
-    let knownWarm = images.every(image => image.complete && image.naturalWidth > 0);
-    try { knownWarm ||= sessionStorage.getItem(cacheKey) === 'ready'; } catch {}
-    const mobileCold = (compactScreen.matches || touchScreen.matches) && !knownWarm;
+    const compact = compactScreen.matches || touchScreen.matches;
     if (preference.matches || !motion || !lead || !tiles.length ||
-        mobileCold || performance.now() > 1800 || connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || '')) return finish();
-    // Only an eligible opening may request the wall. Hidden data-src images do
-    // not compete with the first poster or navigation on a cold mobile visit.
-    images.forEach(image => {
-      if (image.dataset.src && !image.getAttribute('src')) image.src = image.dataset.src;
+        (!compact && performance.now() > 1800) || connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType || '')) return finish();
+    // Phones reuse small dock/poster images in three columns rather than fetching the full
+    // desktop wall. The remaining tiles stay dormant even on the first visit.
+    const activeTiles = tiles.filter(element => {
+      element.hidden = compact && Math.abs(Number(element.dataset.column)) > 1;
+      return !element.hidden;
+    });
+    const activeImages = activeTiles.map(element => element.querySelector('img'));
+    activeImages.forEach(image => {
+      const source = compact && image.dataset.srcMobile ? image.dataset.srcMobile : image.dataset.src;
+      if (source && image.getAttribute('src') !== source) image.src = source;
     });
     loader.style.opacity = '1';
     percent.textContent = '0%';
@@ -74,7 +78,7 @@
     percent.style.opacity = '1';
     openingViewport = { width: window.innerWidth, height: window.innerHeight };
     const layout = motion.geometry(openingViewport.width, openingViewport.height, prepareLead());
-    const entries = tiles.map(element => ({ element, column: Number(element.dataset.column), row: Number(element.dataset.row), lead: element === lead }));
+    const entries = activeTiles.map(element => ({ element, image: element.querySelector('img'), column: Number(element.dataset.column), row: Number(element.dataset.row), lead: element === lead }));
     entries.forEach(({ element }) => {
       element.style.width = `${layout.tileWidth}px`;
       element.style.height = `${layout.tileHeight}px`;
@@ -82,19 +86,22 @@
     });
     // Count actual ready images on a cold load. A failure skips the optional
     // animation so an unavailable asset cannot block the homepage.
-    let failed = images.some(image => image.complete && image.naturalWidth === 0);
-    const settled = new Set(images.filter(image => image.complete));
-    images.filter(image => !settled.has(image)).forEach(image => {
+    const requiredImages = compact ? [lead.querySelector('img')] : activeImages;
+    let failed = requiredImages.some(image => image.complete && image.naturalWidth === 0);
+    const settled = new Set(activeImages.filter(image => image.complete));
+    activeImages.filter(image => !settled.has(image)).forEach(image => {
       const markReady = () => { settled.add(image); };
-      const markFailed = () => { failed = true; markReady(); };
+      const markFailed = () => { if (requiredImages.includes(image)) failed = true; markReady(); };
       if (image.decode) image.decode().then(markReady, markFailed);
       else {
         image.addEventListener('load', markReady, { once: true });
         image.addEventListener('error', markFailed, { once: true });
       }
     });
+    const wallReady = () => requiredImages.every(image => settled.has(image) && image.naturalWidth > 0);
     const started = performance.now();
-    let wallStarted = settled.size === images.length ? started : null;
+    const readinessBudget = compact ? 1800 : 700;
+    let wallStarted = wallReady() ? started : null;
     let wallVisible = false;
     let lastPercent = -1;
     loader.dataset.phase = wallStarted === null ? 'loading' : 'wall';
@@ -104,10 +111,10 @@
       if (currentRun !== run) return;
       if (failed) return finish();
       if (wallStarted === null) {
-        if (settled.size === images.length) wallStarted = now;
-        else if (now - started >= 700) return finish();
+        if (wallReady()) wallStarted = now;
+        else if (now - started >= readinessBudget) return finish();
         else {
-          const value = Math.floor(settled.size / images.length * 100);
+          const value = Math.floor(requiredImages.filter(image => settled.has(image)).length / requiredImages.length * 100);
           if (value !== lastPercent) { percent.textContent = `${value}%`; lastPercent = value; }
           // Keep the already-rendered homepage usable while optional wall art
           // decodes. Never replace a slow first visit with a loading screen.
@@ -121,15 +128,14 @@
         loader.hidden = false;
         body.classList.add('is-v3-loading');
         interfaces.forEach(element => { element.inert = true; });
-        try { sessionStorage.setItem(cacheKey, 'ready'); } catch {}
       }
       percent.hidden = true;
       const time = motion.timing.wallStart + now - wallStarted;
       loader.dataset.phase = time < motion.timing.zoomStart ? 'wall' : 'zoom';
-      entries.forEach(({ element, column, row, lead: isLead }) => {
+      entries.forEach(({ element, image, column, row, lead: isLead }) => {
         const state = motion.sample(time, layout, column, row, isLead);
         element.style.transform = `translate3d(${state.x.toFixed(2)}px, ${state.y.toFixed(2)}px, 0) scale(${state.scale.toFixed(5)})`;
-        element.style.opacity = state.opacity;
+        element.style.opacity = image.complete && image.naturalWidth > 0 ? state.opacity : 0;
         if (isLead) {
           element.style.width = `${state.width.toFixed(2)}px`;
           element.style.height = `${state.height.toFixed(2)}px`;
@@ -166,7 +172,7 @@
   window.addEventListener('pointerdown', blockDuringOpening, true);
   window.addEventListener('touchstart', blockDuringOpening, { capture: true, passive: false });
   skip?.addEventListener('click', finish);
-  document.querySelector('[data-home-replay]')?.addEventListener('click', event => {
+  document.querySelectorAll('[data-home-replay]').forEach(link => link.addEventListener('click', event => {
     if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     const destination = new URL(event.currentTarget.href, window.location.href);
@@ -174,10 +180,11 @@
     // mode or a hash link. Modified clicks retain normal new-tab behavior.
     if (destination.pathname === window.location.pathname && destination.search === window.location.search) window.location.reload();
     else window.location.assign(destination.href);
-  });
+  }));
   window.addEventListener('resize', () => {
     if (loader.dataset.phase !== 'complete' && openingViewport &&
-        (window.innerWidth !== openingViewport.width || window.innerHeight !== openingViewport.height)) finish();
+        (window.innerWidth !== openingViewport.width ||
+          (!(compactScreen.matches || touchScreen.matches) && window.innerHeight !== openingViewport.height))) finish();
   });
   window.addEventListener('pagehide', () => { pageWasHidden = true; run++; cancelAnimationFrame(frame); clearTimeout(watchdog); });
   window.addEventListener('pageshow', event => { if (pageWasHidden || event.persisted) { pageWasHidden = false; play(); } });
