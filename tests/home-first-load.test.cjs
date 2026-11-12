@@ -35,6 +35,19 @@ test('homepage renders its first poster and navigation without startup scripts o
   assert.equal([...dock.matchAll(/<img src=/g)].length, 1, 'offscreen thumbnails wait for viewport observation');
 });
 
+test('mobile opening reuses a small three-column wall and every wordmark replays its own language', () => {
+  for (const file of ['index.html', 'index-v3.html', 'en/index.html', 'zh/index.html']) {
+    const html = read(file);
+    const wall = html.slice(html.indexOf('<div class="v3-loader-gallery"'), html.indexOf('<button class="v3-loader-skip"'));
+    const sources = [...wall.matchAll(/data-src-mobile="([^"]+)"/g)].map(match => match[1]);
+    assert.equal(sources.length, 15, file);
+    const unique = [...new Set(sources)].map(url => path.resolve(__dirname, '..', path.dirname(file), url));
+    assert.ok(unique.reduce((size, target) => size + fs.statSync(target).size, 0) < 70000, 'mobile wall artwork stays below 70 kB');
+    assert.match(html, /class="home-mobile-wordmark" data-home-replay href="\/(?:zh|en)\/index.html"/);
+    assert.doesNotMatch(wall, /(?<!data-)\bsrc="/);
+  }
+});
+
 const mediaLoader = cards => {
   const code = read('assets/site.js').match(/const ensureCardMedia = \(index, preview = false\) => \{[\s\S]*?\n  \};/)[0];
   return vm.runInNewContext(`${code};ensureCardMedia`, { cards });
