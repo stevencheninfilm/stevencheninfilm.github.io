@@ -1,6 +1,11 @@
 (() => {
-  const cards = document.querySelectorAll('.feedback-art');
+  const cards = Array.from(document.querySelectorAll('.feedback-art'));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const visibleCards = new Set();
+  const stepDelay = 1150;
+  const loopDelay = 1800;
+  let lastCard = null;
+  let timer = null;
 
   function prepareFish(art) {
     const flight = art.querySelector('.fx-flight');
@@ -27,26 +32,51 @@
     art.classList.add('demonstrating');
   }
 
-  const observer = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
-    for (const entry of entries) {
-      if (entry.intersectionRatio < .6) continue;
-      observer.unobserve(entry.target);
-      replay(entry.target);
-    }
-  }, { threshold:.6 }) : null;
-
-  function updateMotion() {
-    cards.forEach(art => {
-      art.querySelector('.fx-replay').hidden = reduceMotion.matches;
-      if (reduceMotion.matches) {
-        observer?.unobserve(art);
-        art.classList.remove('demonstrating');
-      } else {
-        observer?.observe(art);
-      }
-    });
+  function playStep(art) {
+    clearTimeout(timer);
+    replay(art);
+    lastCard = art;
+    const moreSteps = cards.slice(cards.indexOf(art) + 1).some(card => visibleCards.has(card));
+    timer = setTimeout(() => {
+      timer = null;
+      updatePlayback();
+    }, moreSteps ? stepDelay : loopDelay);
   }
-  cards.forEach(art => art.querySelector('.fx-replay').addEventListener('click', () => replay(art)));
-  reduceMotion.addEventListener('change', updateMotion);
-  updateMotion();
+
+  function updatePlayback() {
+    if (document.hidden || reduceMotion.matches || !visibleCards.size) {
+      clearTimeout(timer);
+      timer = null;
+      lastCard = null;
+      cards.forEach(card => card.classList.remove('demonstrating'));
+      return;
+    }
+    if (timer !== null) return;
+    const next = cards.slice(cards.indexOf(lastCard) + 1).find(card => visibleCards.has(card));
+    playStep(next || cards.find(card => visibleCards.has(card)));
+  }
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      for (const { target, intersectionRatio } of entries) {
+        if (intersectionRatio >= .5) {
+          visibleCards.add(target);
+        } else {
+          visibleCards.delete(target);
+          target.classList.remove('demonstrating');
+        }
+      }
+      updatePlayback();
+    }, { threshold: .5 });
+    cards.forEach(card => observer.observe(card));
+  }
+
+  function updateMotionPreference() {
+    cards.forEach(card => { card.querySelector('.fx-replay').hidden = reduceMotion.matches; });
+    updatePlayback();
+  }
+  cards.forEach(card => card.querySelector('.fx-replay').addEventListener('click', () => playStep(card)));
+  document.addEventListener('visibilitychange', updatePlayback);
+  reduceMotion.addEventListener('change', updateMotionPreference);
+  updateMotionPreference();
 })();
