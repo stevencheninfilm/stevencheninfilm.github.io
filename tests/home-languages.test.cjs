@@ -29,8 +29,10 @@ test('both home languages keep the same ten projects and responsive media', () =
     assert.match(html, /data-site-language="zh"/);
     assert.match(html, /data-site-language="en"/);
     const nav = html.match(/<nav class="primary-nav"[^>]*>([^]*?)<\/nav>/)[1];
-    assert.match(nav, /href="\.\.\/projects\/cat-nest.html"[^>]*>Vibe Coding<\/a>/);
     const locale = html.includes('<html lang="zh-Hans">') ? 'zh' : 'en';
+    const gameLink = nav.match(/<a class="home-game-jump"[^>]*>([^]*?)<\/a>/);
+    assert.match(gameLink[0], /href="\.\.\/projects\/cat-nest.html"/);
+    assert.equal(gameLink[1].replace(/<[^>]+>/g, ''), locale === 'zh' ? 'Vibe Code游戏广告' : 'Vibe Coding');
     assert.ok(nav.includes(`href="/${locale}/ai/index.html"`));
     const avocadoEntry = `href="/${locale}/avocado-ai/index.html">${locale === 'zh' ? '抖音AI创作' : 'YueVisuals'}</a>`;
     assert.ok(nav.includes(avocadoEntry), 'localized Avocado AI entry is present');
