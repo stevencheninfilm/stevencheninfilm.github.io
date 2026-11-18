@@ -2,21 +2,12 @@
   'use strict';
 
   const video = document.getElementById('screening');
-  const watch = document.querySelector('.watch');
-  const watchLabel = watch.querySelector('.watch-label');
   const posterButton = document.querySelector('.poster-play');
   const error = document.querySelector('.film-error');
   let pendingTime = null;
 
   if (navigator.connection?.saveData) {
     video.src = video.querySelector('source').src;
-  }
-
-  function updateControls() {
-    const playing = !video.paused && !video.ended;
-    watch.classList.toggle('playing', playing);
-    watchLabel.textContent = playing ? '暂停播放' :
-      video.ended ? '重播成片' : video.currentTime > 0 ? '继续播放' : '播放成片';
   }
 
   function seekWhenReady() {
@@ -35,23 +26,21 @@
     // Keep play() in the click handler so the film can start with sound on mobile.
     pendingTime = time;
     seekWhenReady();
-    video.play().catch(updateControls);
+    video.play().catch(() => {
+      // Native controls remain available if the browser blocks playback.
+    });
   }
 
   function showScreen() {
     video.scrollIntoView({ block: 'center', inline: 'nearest' });
   }
 
-  document.querySelectorAll('.watch, a[aria-controls="screening"][data-time]').forEach(link => {
+  document.querySelectorAll('a[aria-controls="screening"][data-time]').forEach(link => {
     link.addEventListener('click', event => {
       if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       event.preventDefault();
-      if (link === watch && !video.paused && !video.ended) {
-        video.pause();
-        return;
-      }
       showScreen();
-      playFilm(link === watch ? null : Number(link.dataset.time));
+      playFilm(Number(link.dataset.time));
     });
   });
 
@@ -60,13 +49,11 @@
   posterButton.hidden = false;
   posterButton.addEventListener('click', () => playFilm(null));
   video.addEventListener('loadedmetadata', seekWhenReady);
-  ['play', 'pause', 'ended'].forEach(name => video.addEventListener(name, updateControls));
   function showError() {
     posterButton.hidden = true;
     video.controls = true;
     video.tabIndex = 0;
     error.hidden = false;
-    updateControls();
   }
   video.addEventListener('error', showError);
   // With nested sources, browsers may report an unsupported film on the last source.
