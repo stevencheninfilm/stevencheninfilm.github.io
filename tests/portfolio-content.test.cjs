@@ -15,8 +15,8 @@ test('homepage has the requested ten entries, synchronized with v3', () => {
   const html = read('index.html');
   assert.equal(html, read('index-v3.html'));
   const cards = [...html.matchAll(/<article class="deck-card[^>]*data-title="([^"]+)" data-page="(-?\d+)"/g)];
-  assert.deepEqual(cards.map(match => match[1]), ['Redefine Detail / DLSS + RTX', 'Grand Theft Art', 'Real Cinema to AI Video', 'Chase the Sunrise', 'Kitchen Rush / Cat Restaurant', '玄天诀 / XUANTIAN JUE', 'Cybertruck: Mars', 'Feel Every Stories', 'Alone', 'TVC']);
-  assert.deepEqual(cards.map(match => match[2]), ['-1','0','1','2','3','4','5','6','7','8']);
+  assert.deepEqual(cards.map(match => match[1]), ['Redefine Detail / DLSS + RTX', 'Grand Theft Art', 'Kitchen Rush / Cat Restaurant', 'Real Cinema to AI Video', 'Chase the Sunrise', '玄天诀 / XUANTIAN JUE', 'Cybertruck: Mars', 'Feel Every Stories', 'Alone', 'TVC']);
+  assert.deepEqual(cards.map(match => match[2]), ['-1','0','3','1','2','4','5','6','7','8']);
   assert.equal((html.match(/data-slide="/g) || []).length, 10);
   assert.match(html, /Cinematic AI series/);
   assert.match(html, /alone-poster-20260925.webp/);

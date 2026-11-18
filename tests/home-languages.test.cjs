@@ -11,7 +11,7 @@ test('both home languages keep the same ten projects and responsive media', () =
   const chinese = read('zh/index.html');
   const media = html => [...html.matchAll(/(?:data-src|data-src-mobile|data-src-hd|poster|data-poster)="([^"]+)"/g)].map(match => match[1]);
   const pages = html => [...html.matchAll(/data-page="(-?\d+)"/g)].map(match => match[1]);
-  assert.deepEqual(pages(english), ['-1','0','1','2','3','4','5','6','7','8']);
+  assert.deepEqual(pages(english), ['-1','0','3','1','2','4','5','6','7','8']);
   assert.deepEqual(pages(chinese), pages(english));
   assert.deepEqual(media(chinese), media(english));
   assert.match(chinese, /<html lang="zh-Hans">/);
