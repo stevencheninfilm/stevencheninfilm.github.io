@@ -8,6 +8,31 @@
 @media(max-width:540px){.mast nav{gap:12px}.hero-in{display:block;min-height:0;padding:27px 0 0}.hero-copy{z-index:1}.eyebrow{font-size:11px}.hero h1{font-size:clamp(59px,14.5vw,77px);margin:15px 0 4px}.hero h1 span,.hero h1 strong{display:inline}.english{font-size:16px;margin:9px 0 12px}.intro{font-size:14px;line-height:1.6}.restaurant-entry{width:144px;margin-top:15px}.hero-art{bottom:42px}.rays{background:repeating-conic-gradient(at 56% 84%,#e9aa533f 0deg 8deg,transparent 9deg 23deg);mask-image:linear-gradient(0deg,#000 9%,transparent 90%)}.sec-head{align-items:flex-start;flex-direction:column;gap:9px;margin-bottom:20px}.sec-head>p,.detail-link{font-size:13px}.frames{gap:17px 10px}.st{aspect-ratio:1.12}.time{font-size:10px;bottom:6px;left:6px}.frame h3{font-size:13px}.series-list,.game-grid{grid-template-columns:1fr}.game-card{padding:13px;gap:13px}.game-card img{width:51px;height:65px}.foot>div{gap:10px;flex-wrap:wrap}.foot a:last-child{font-size:10px}.pad{padding-block:40px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{transition:none!important;animation:none!important}}
 
+/* The dishes share the crew's bounce and travel in the opposite direction. */
+.food-lane {
+  --food-size:clamp(34px,3.7vw,42px);
+  position:relative;overflow:hidden;pointer-events:none;
+  height:calc(var(--food-size) + 8px);
+  background:#fff4d98c;border-bottom:1px solid #cda16c50;
+}
+.food-lane img {
+  position:absolute;left:0;top:5px;
+  width:var(--food-size);height:var(--food-size);object-fit:contain;transform-origin:center 95%;
+  animation:food-cross 30s linear infinite,crew-stride .54s ease-in-out infinite alternate;
+  animation-delay:calc(-1s - var(--slot) * 2.5s);
+}
+@keyframes food-cross {
+  from {translate:-100% 0}
+  to {translate:max(100vw,780px) 0}
+}
+@media (prefers-reduced-motion:reduce) {
+  .food-lane {
+    display:grid;grid-template-columns:repeat(12,minmax(0,1fr));place-items:center;
+    padding-inline:1%;
+  }
+  .food-lane img {position:static;width:min(94%,var(--food-size));height:auto;animation:none}
+}
+
 /* Screening stage */
 .hero-in{padding-block:26px}
 .film-stage{position:relative;display:grid;justify-items:center;align-content:center}
