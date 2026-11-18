@@ -1,0 +1,126 @@
+.feedback {background:#fff6e4;color:#42261a}
+.feedback-steps,.feedback-specs dl {
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(12px,1.6vw,24px);
+  list-style:none;margin:0;padding:0;
+}
+.feedback-art {
+  position:relative;isolation:isolate;overflow:hidden;aspect-ratio:1.14;
+  border:2px solid #503222;border-radius:13px;
+  background:#fff0d6 url("cat-ads/kitchen-rush/feedback-pattern.png") 0 0 / 76% auto;
+}
+.feedback-art>div {position:absolute;inset:0;pointer-events:none}
+.feedback-art img {display:block;height:auto}
+.feedback-copy h3 {margin:12px 0 5px;font-size:clamp(16px,1.5vw,22px);line-height:1.35;letter-spacing:-.03em}
+.feedback-copy h3 span {color:#ab4b11;margin-right:.45em;font:800 .84em/1 var(--mono)}
+.feedback-copy p {font-size:14px;line-height:1.65;color:#674635}
+.fx-replay {
+  position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-start;
+  width:100%;height:100%;padding:6px;border:0;border-radius:inherit;background:transparent;color:#6a4028;
+}
+.fx-replay span {
+  display:grid;place-items:center;border:1px solid #ab865d8c;border-radius:50%;
+  width:24px;height:24px;background:#fffaf0ed;font:700 17px/1 system-ui,sans-serif;
+}
+.fx-replay:hover span,.fx-replay:focus-visible span {background:#543325;color:white}
+.fx-replay:focus-visible {outline:3px solid #127ba0;outline-offset:-4px}
+.fx-replay[hidden] {display:none}
+
+.fx-order-card,.fx-landing,.fx-ripple,.fx-paw,.fx-check,.fx-balance,.fx-trail img,.fx-pickup,.fx-star {position:absolute}
+.fx-order-card {width:88%;left:6%;top:18%;transform:rotate(-5deg);transform-origin:center bottom}
+.fx-landing {left:9%;bottom:12%;width:82%;height:10%;border:3px solid #fffdf1;border-radius:50%}
+.fx-ripple {left:43%;top:47%;border:3px solid #fffdf3;border-radius:50%;aspect-ratio:1;transform:translate(-50%,-50%)}
+.fx-ripple.outer {width:65%;opacity:.62}
+.fx-ripple.inner {width:44%}
+.fx-paw {width:43%;left:40%;top:35%;transform-origin:25% 18%}
+.fx-confirm .fx-order-card {left:4%;top:27%;width:82%;transform:rotate(0)}
+.fx-check {right:2%;top:4%;width:34%}
+.fx-balance {
+  z-index:2;left:6%;top:8%;display:flex;align-items:center;gap:.25em;padding:.15em .5em .15em .2em;
+  border:2px solid #865638;border-radius:99px;background:#fffcf0;
+  font:800 clamp(12px,1.15vw,19px)/1.3 var(--mono);
+}
+.fx-balance img {width:1.45em}
+.fx-total {display:grid}
+.fx-total span {grid-area:1/1}
+.fx-total span:first-child {opacity:0}
+.fx-trail img:nth-child(1) {left:73%;top:69%;width:18%;transform:rotate(8deg)}
+.fx-trail img:nth-child(2) {left:69%;top:43%;width:16%;transform:rotate(52deg)}
+.fx-trail img:nth-child(3) {left:53%;top:28%;width:14%;transform:rotate(106deg)}
+.fx-trail img:nth-child(4) {left:36%;top:22%;width:12%;transform:rotate(165deg)}
+.fx-pickup {left:69%;top:64%;width:26%;aspect-ratio:1;border:3px solid #ffcc54;border-radius:50%}
+.fx-flight {position:absolute;inset:0}
+.fx-flight img {position:absolute;left:0;top:0;width:17%;opacity:0;offset-rotate:0deg;offset-path:var(--fish-path)}
+.fx-count>div {display:grid;place-items:center}
+.fx-gain {font:950 clamp(45px,4.4vw,76px)/1 Arial,sans-serif;letter-spacing:-.08em;color:#ffd65a;paint-order:stroke fill;-webkit-text-stroke:.12em #42261a;transform:rotate(-4deg)}
+.fx-count .fx-star {width:16%;left:9%;top:13%}
+.fx-count .fx-star:nth-of-type(2) {width:12%;left:auto;right:7%;top:15%}
+.fx-count .fx-star:nth-of-type(3) {width:15%;left:auto;right:7%;top:auto;bottom:10%}
+
+.feedback-specs {margin-top:26px;border-block:1px solid #d7bfa2}
+.feedback-specs summary {display:flex;align-items:center;gap:12px;list-style:none;cursor:pointer;padding:14px 2px;font-size:15px;font-weight:750}
+.feedback-specs summary::-webkit-details-marker {display:none}
+.feedback-specs summary::after {content:"＋";margin-left:auto;font-size:20px}
+.feedback-specs[open] summary::after {content:"－"}
+.feedback-specs summary:focus-visible {outline:3px solid #127ba0;outline-offset:3px}
+.feedback-specs small {font:600 11px/1.5 var(--mono);color:#795a45}
+.feedback-specs dl {padding:3px 0 20px}
+.feedback-specs dt {font-weight:750;font-size:14px}
+.feedback-specs dd {margin:5px 0 0;color:#674635;font-size:13px;line-height:1.65}
+
+@media (min-width:601px) and (max-width:939px) {
+  .feedback-steps,.feedback-specs dl {grid-template-columns:repeat(3,minmax(0,1fr));row-gap:22px}
+}
+@media (max-width:600px) {
+  .feedback-steps {grid-template-columns:1fr;gap:16px}
+  .feedback-step {display:grid;grid-template-columns:minmax(0,.87fr) minmax(0,1.13fr);align-items:center;gap:16px}
+  .feedback-copy h3 {font-size:17px;margin:0 0 5px}
+  .feedback-copy p {font-size:13px;line-height:1.55}
+  .feedback-art {border-radius:10px}
+  .fx-gain {font-size:clamp(41px,11vw,62px)}
+  .feedback-specs dl {grid-template-columns:1fr;gap:13px}
+}
+
+@media (prefers-reduced-motion:no-preference) {
+  .fx-order.demonstrating .fx-order-card {animation:feedback-drop .533s both}
+  @keyframes feedback-drop {
+    0% {transform:translateY(-160%) rotate(-5deg);animation-timing-function:ease-in}
+    37.5% {transform:rotate(-5deg) scale(1.2,.8)}
+    60% {transform:rotate(-5deg) scale(.9,1.1)}
+    83% {transform:rotate(-5deg) scale(1.04,.96)}
+    100% {transform:rotate(-5deg)}
+  }
+  .fx-tap.demonstrating .fx-paw {animation:feedback-press .4s}
+  @keyframes feedback-press {
+    0% {transform:translate(10%,-16%)}
+    35%,60% {transform:scale(.82)}
+    100% {transform:none}
+  }
+  .fx-tap.demonstrating .fx-ripple {animation:feedback-ripple .233s .14s backwards}
+  @keyframes feedback-ripple {
+    from {transform:translate(-50%,-50%) scale(.154);opacity:1}
+    to {transform:translate(-50%,-50%) scale(1);opacity:0}
+  }
+  .fx-confirm.demonstrating .fx-check {animation:feedback-check .32s .067s backwards}
+  @keyframes feedback-check {
+    0% {transform:scale(0)}
+    65% {transform:scale(1.23)}
+    100% {transform:scale(1)}
+  }
+  .fx-wallet.demonstrating .fx-total span:first-child {animation:feedback-old-total .767s step-end}
+  .fx-wallet.demonstrating .fx-total span:last-child {animation:feedback-reveal .767s step-end}
+  @keyframes feedback-old-total {from {opacity:1}to {opacity:0}}
+  .fx-wallet.demonstrating .fx-trail {animation:feedback-reveal .8s step-end}
+  @keyframes feedback-reveal {from {opacity:0}to {opacity:1}}
+  .fx-wallet.demonstrating .fx-flight img {animation:feedback-fly .467s var(--delay) ease-out both}
+  @keyframes feedback-fly {
+    0% {opacity:0;offset-distance:0%;transform:rotate(0) scale(1)}
+    2%,87% {opacity:1}
+    100% {opacity:0;offset-distance:100%;transform:rotate(200deg) scale(.65)}
+  }
+  .fx-count.demonstrating .fx-gain {animation:feedback-gain 1s}
+  @keyframes feedback-gain {
+    0% {opacity:0;transform:translateY(7px) rotate(-4deg) scale(.7)}
+    18%,50% {opacity:1;transform:rotate(-4deg) scale(1)}
+    100% {opacity:0;transform:translateY(-40px) rotate(-4deg)}
+  }
+}
