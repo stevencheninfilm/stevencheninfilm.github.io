@@ -2,6 +2,7 @@
   'use strict';
 
   const video = document.getElementById('screening');
+  const posterActions = document.querySelector('.poster-actions');
   const posterButton = document.querySelector('.poster-play');
   const error = document.querySelector('.film-error');
   let pendingTime = null;
@@ -21,7 +22,7 @@
     error.hidden = true;
     video.controls = true;
     video.tabIndex = 0;
-    posterButton.hidden = true;
+    posterActions.hidden = true;
     video.focus({ preventScroll: true });
     // Keep play() in the click handler so the film can start with sound on mobile.
     pendingTime = time;
@@ -44,13 +45,23 @@
     });
   });
 
-  video.controls = false;
-  video.tabIndex = -1;
-  posterButton.hidden = false;
+  function showPoster() {
+    video.controls = false;
+    video.tabIndex = -1;
+    posterActions.hidden = false;
+  }
+
+  showPoster();
+  video.addEventListener('ended', () => {
+    const focusWasOnVideo = document.activeElement === video;
+    video.load();
+    showPoster();
+    if (focusWasOnVideo) posterButton.focus({ preventScroll: true });
+  });
   posterButton.addEventListener('click', () => playFilm(null));
   video.addEventListener('loadedmetadata', seekWhenReady);
   function showError() {
-    posterButton.hidden = true;
+    posterActions.hidden = true;
     video.controls = true;
     video.tabIndex = 0;
     error.hidden = false;
