@@ -11,7 +11,7 @@
 .cn-campaign {
   position: absolute; inset: var(--home-header-height) 10% max(92px, 13%);
   max-width: 1340px; margin-inline: auto; display: grid; align-items: center;
-  grid-template: ". art" minmax(0,1fr) "film art" auto "games art" auto ". art" minmax(0,1fr) / minmax(0,.98fr) minmax(0,1.02fr);
+  grid-template: ". art" minmax(0,1fr) "film art" auto "entry art" auto ". art" minmax(0,1fr) / minmax(0,.98fr) minmax(0,1.02fr);
   gap: 0 3%;
   font-family: Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
@@ -50,12 +50,15 @@ html:lang(en) .cn-title em { font-size: .56em; }
 .cn-frame--nest { background: radial-gradient(ellipse at 53% 35%, #eff4da, #a6c4af); }
 .cn-frame--restaurant { background: radial-gradient(ellipse at 53% 35%, #fff3c9, #efb46f); }
 .cn-frame img { position: static; width: 100%; height: 100%; min-height: 0; object-fit: contain; }
-.cn-games { grid-area: games; margin-top: clamp(8px, 1.6dvh, 20px); display: grid; justify-items: start; }
-.cn-entry { display: grid; align-items: center; width: min(100%, 360px); min-height: 44px; border-radius: 6% / 30%; }
-.cn-entry img { display: block; width: 100%; height: auto; }
-.cn-nest { display: inline-flex; align-items: center; gap: .45em; min-height: 44px; font-size: 14px; }
+.cn-campaign .cn-project-entry {
+  grid-area: entry; justify-self: start; display: inline-flex; align-items: center; gap: 1em;
+  box-sizing: border-box; min-height: 48px; padding: .7em 1.35em; margin-top: clamp(8px, 1.6dvh, 20px);
+  background: #382219; color: #fff8e9; border-radius: 999px; box-shadow: 0 3px 0 #c78951;
+  font-size: clamp(17px, 1.5vw, 23px); font-weight: 750; line-height: 1.25;
+}
+.cn-project-entry span { color: #ffc48a; }
+.cn-campaign .cn-project-entry:hover { background: #613721; }
 .cn-campaign a:focus-visible { outline: 3px solid #126d86; outline-offset: 4px; }
-.cn-nest:hover { text-decoration: underline; }
 .home-page .home-stage:has(.deck-card--cat-nest.is-active) > .stage-step { color: #513325; mix-blend-mode: normal; }
 .home-page .home-stage:has(.deck-card--cat-nest.is-active) > .stage-step--prev { left: 0; }
 .home-page .home-stage:has(.deck-card--cat-nest.is-active) > .stage-step--next { right: 0; }
@@ -65,21 +68,20 @@ html:lang(en) .cn-title em { font-size: .56em; }
 }
 @media (max-aspect-ratio: 1/1) {
   .cn-campaign {
-    inset-inline: 8%; grid-template: "film" auto "art" minmax(0,1fr) "games" auto / minmax(0,1fr);
+    inset-inline: 8%; grid-template: "film" auto "art" minmax(0,1fr) "entry" auto / minmax(0,1fr);
     justify-items: center; padding-top: min(2dvh, 18px);
   }
   .cn-film { text-align: center; }
   .cn-title { font-size: clamp(36px, min(15cqw, 7.8dvh), 84px); }
   .cn-watch { justify-content: center; margin-top: 3px; }
-  .cn-games { width: min(100%, 360px); margin: 0; justify-items: center; }
+  .cn-campaign .cn-project-entry { margin: 0; justify-self: center; }
   .cn-keyart { justify-self: stretch; }
   .cn-filmstrip { width: min(94cqw, 126cqh); }
 }
 @media (max-height: 460px) and (min-aspect-ratio: 1/1) {
   .cn-campaign { top: 58px; bottom: 65px; inset-inline: 12%; }
   .cn-title { font-size: clamp(30px, 10vh, 46px); }
-  .cn-games, .cn-watch { margin-top: 0; }
-  .cn-entry { width: min(100%, 265px); }
+  .cn-campaign .cn-project-entry, .cn-watch { margin-top: 0; }
 }
 .project-deck.is-strip .cn-campaign {
   inset: 10% 7%; pointer-events: none; padding: 0;
@@ -88,4 +90,4 @@ html:lang(en) .cn-title em { font-size: .56em; }
 .project-deck.is-strip .cn-keyart { justify-self: stretch; }
 .project-deck.is-strip .cn-film { text-align: center; }
 .project-deck.is-strip .cn-title { font-size: clamp(28px, 14cqw, 51px); }
-.project-deck.is-strip :is(.cn-games, .cn-watch) { display: none; }
+.project-deck.is-strip :is(.cn-project-entry, .cn-watch) { display: none; }
