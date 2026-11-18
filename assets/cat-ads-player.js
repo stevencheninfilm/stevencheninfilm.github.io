@@ -42,7 +42,7 @@
     video.scrollIntoView({ block: 'center', inline: 'nearest' });
   }
 
-  document.querySelectorAll('.watch, .frame[data-time]').forEach(link => {
+  document.querySelectorAll('.watch, a[aria-controls="screening"][data-time]').forEach(link => {
     link.addEventListener('click', event => {
       if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       event.preventDefault();
@@ -73,22 +73,12 @@
   video.querySelector('source:last-of-type').addEventListener('error', showError);
 
   document.addEventListener('play', event => {
-    if (event.target.tagName !== 'VIDEO') return;
-    document.querySelectorAll('video').forEach(other => {
+    if (!event.target.matches('video:not(.beat-loop)')) return;
+    document.querySelectorAll('video:not(.beat-loop)').forEach(other => {
       if (other !== event.target && !other.paused) other.pause();
     });
   }, true);
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) document.querySelectorAll('video').forEach(item => item.pause());
-  });
-
-  const crew = document.querySelector('.crew-row');
-  const crewControl = crew.querySelector('.crew-control');
-  crewControl.hidden = false;
-  crewControl.addEventListener('click', () => {
-    const paused = crew.classList.toggle('paused');
-    const label = paused ? '继续猫咪跑动' : '暂停猫咪跑动';
-    crewControl.setAttribute('aria-label', label);
-    crewControl.title = label;
   });
 })();

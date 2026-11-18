@@ -27,27 +27,21 @@
 .poster-play::before{content:"";width:52px;height:52px;background:#2c1d16ed;border:2px solid #fff3db;border-radius:50%;box-shadow:0 3px 10px #3422174d;transition:transform .18s}
 .poster-play:hover::before{transform:scale(1.08)}
 .poster-play .triangle{position:relative;margin-left:4px;border-width:8px 0 8px 13px}
-.watch.playing .triangle,.crew-control span{width:10px;height:12px;border:0;border-inline:3px solid currentColor}
+.watch.playing .triangle{width:10px;height:12px;border:0;border-inline:3px solid currentColor}
 .film-error{position:relative;margin-top:12px;font-size:13px}.film-error a{text-decoration:underline}
-.poster-play[hidden],.crew-control[hidden]{display:none}
+.poster-play[hidden]{display:none}
 
-/* Restaurant staff cross the strip above the film credits. */
+/* The staff walk below the film credits across the full viewport. */
 .hero-foot{position:relative;background:#30231c;color:#fff2d9}
-.specs{padding:5px 0 13px;color:#efd6b3;letter-spacing:.04em}
-.crew-row{display:flex;align-items:center;gap:10px}
-.crew-lane{--cat-width:51px;position:relative;flex:1;min-width:0;height:54px;overflow:hidden}
+.specs{padding:13px 0 10px;color:#efd6b3;letter-spacing:.04em}
+.crew-lane{--cat-width:51px;position:relative;width:100%;height:54px;overflow:hidden;border-top:1px solid #735b454f}
 .runner{position:absolute;left:100%;bottom:2px;width:calc(100% + var(--cat-width));animation:crew-cross 28s linear infinite;animation-delay:var(--phase)}
 .runner img{width:var(--cat-width);height:auto;animation:crew-stride .44s ease-in-out infinite alternate;animation-delay:var(--phase);transform-origin:50% 95%}
 .runner:nth-child(1){--phase:-26s}.runner:nth-child(2){--phase:-21.33s}.runner:nth-child(3){--phase:-16.67s}
 .runner:nth-child(4){--phase:-12s}.runner:nth-child(5){--phase:-7.33s}.runner:nth-child(6){--phase:-2.67s}
 @keyframes crew-cross{to{transform:translateX(-100%)}}
 @keyframes crew-stride{from{transform:translateY(0) rotate(-2deg)}to{transform:translateY(-3px) rotate(2deg)}}
-.crew-row.paused .runner,.crew-row.paused img{animation-play-state:paused}
-.crew-control{display:grid;place-items:center;width:32px;height:32px;padding:0;border:1px solid #8c7461;border-radius:50%;color:#f0d8b6;background:none}
-.crew-control:hover{background:#594134}
-.crew-control span{display:block;width:8px;height:10px;border-inline-width:2px}
-.paused .crew-control span{width:0;height:0;border:5px solid transparent;border-right:0;border-left:8px solid currentColor;margin-left:2px}
-.spec-values{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:8px;border-top:1px solid #735b454f}
+.spec-values{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .spec-values span{display:flex;align-items:center;gap:8px}
 .spec-values b{color:#fff6e7}.spec-values span:first-child b{color:#fcb56c}
 @media(max-width:760px){
@@ -60,15 +54,13 @@
   .film-stage{margin-top:23px}
   .film-screen{width:min(65%,calc(53vh * .5625),245px);width:min(65%,calc(53svh * .5625),245px)}
   .coffee{left:0;top:24%}.donut{right:0;bottom:18%}
-  .specs{padding:2px 0 9px}
+  .specs{padding:9px 0}
   .crew-lane{--cat-width:40px;height:44px}
   .runner{animation-duration:28s}
   .spec-values{flex-wrap:wrap;row-gap:3px;font-size:9px}
   .spec-values span:last-child{margin-left:auto}
-  .crew-control{width:28px;height:28px}
 }
 @media(prefers-reduced-motion:reduce){
   .crew-lane{display:flex;align-items:flex-end;justify-content:space-around;padding-bottom:2px}
   .runner{position:static;width:min(var(--cat-width),15%)}
-  .crew-control{display:none}
 }
