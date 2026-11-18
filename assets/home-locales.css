@@ -158,6 +158,11 @@ html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process 
   html[lang="zh-Hans"] .home-page.home-v3 .home-header .primary-nav a { flex-shrink: 0; }
 }
 
+@media (max-width: 360px) {
+  html[lang="en"] .home-page.home-v3 .home-header .primary-nav { gap: 2px; font-size: 12px; }
+  html[lang="en"] .home-page.home-v3 .home-header .primary-nav a { padding-inline: 0; flex-shrink: 0; }
+}
+
 /* End thumbnails can reach the carousel center as well as middle thumbnails. */
 @media (max-width: 1024px) {
   .home-page .thumbnail-dock { box-sizing: border-box; padding-inline: var(--home-dock-center-gutter, 0px); }
