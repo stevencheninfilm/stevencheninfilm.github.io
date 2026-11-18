@@ -1593,6 +1593,7 @@ html:lang(en) .cn-title em { font-size: .56em; }
   .cn-watch { justify-content: center; margin-top: 3px; }
   .cn-games { width: min(100%, 360px); margin: 0; justify-items: center; }
   .cn-keyart { justify-self: stretch; }
+  .cn-filmstrip { width: min(94cqw, 126cqh); }
 }
 @media (max-height: 460px) and (min-aspect-ratio: 1/1) {
   .cn-campaign { top: 58px; bottom: 65px; inset-inline: 12%; }
