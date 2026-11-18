@@ -140,6 +140,24 @@ html:lang(zh) .home-page .deck-card--previs .detail-copy p.detail-copy__process 
   .home-page.home-v3 .workflow-player__controls input[type="range"]::-moz-range-thumb { width: 3px; height: 16px; }
 }
 
+/* The Chinese game label keeps its full wording within the existing nav row. */
+@media (max-width: 700px), (orientation: portrait) and (max-width: 900px) {
+  html[lang="zh-Hans"] .home-page.home-v3 .home-header .primary-nav .home-game-jump {
+    display: block;
+    flex-shrink: 0;
+    width: 5.2em;
+    padding-block: 4px;
+    line-height: 18px;
+    text-align: center;
+    white-space: normal;
+    word-break: keep-all;
+  }
+}
+@media (max-width: 380px) {
+  html[lang="zh-Hans"] .home-page.home-v3 .home-header .primary-nav { gap: 0; }
+  html[lang="zh-Hans"] .home-page.home-v3 .home-header .primary-nav a { flex-shrink: 0; }
+}
+
 @media (max-width: 360px) {
   html[lang="en"] .home-page.home-v3 .home-header .primary-nav { gap: 2px; font-size: 12px; }
   html[lang="en"] .home-page.home-v3 .home-header .primary-nav a { padding-inline: 0; flex-shrink: 0; }
