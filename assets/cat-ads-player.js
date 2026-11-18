@@ -1,121 +1,94 @@
 (() => {
   'use strict';
 
-  const dialog = document.getElementById('viewer');
-  if (!dialog || typeof dialog.showModal !== 'function') return;
+  const video = document.getElementById('screening');
+  const watch = document.querySelector('.watch');
+  const watchLabel = watch.querySelector('.watch-label');
+  const posterButton = document.querySelector('.poster-play');
+  const error = document.querySelector('.film-error');
+  let pendingTime = null;
 
-  const stage = document.getElementById('viewer-stage');
-  const title = document.getElementById('viewer-title');
-  const closeButton = document.getElementById('viewer-close');
-  const original = document.getElementById('viewer-original');
-  if (!stage || !title || !closeButton || !original) return;
-
-  let trigger;
-  let currentMedia;
-
-  function showError() {
-    if (this !== currentMedia) return;
-    const message = document.createElement('p');
-    message.setAttribute('role', 'status');
-    message.textContent = '媒体加载失败，可以使用下方链接打开原文件。';
-    stage.replaceChildren(message);
+  if (navigator.connection?.saveData) {
+    video.src = video.querySelector('source').src;
   }
 
-  function openFilm(link) {
-    const video = document.createElement('video');
+  function updateControls() {
+    const playing = !video.paused && !video.ended;
+    watch.classList.toggle('playing', playing);
+    watchLabel.textContent = playing ? '暂停播放' :
+      video.ended ? '重播成片' : video.currentTime > 0 ? '继续播放' : '播放成片';
+  }
+
+  function seekWhenReady() {
+    if (pendingTime === null || video.readyState < HTMLMediaElement.HAVE_METADATA) return;
+    video.currentTime = Math.min(pendingTime, video.duration);
+    pendingTime = null;
+  }
+
+  function playFilm(time) {
+    if (video.error) video.load();
+    error.hidden = true;
     video.controls = true;
-    video.playsInline = true;
-    video.preload = 'metadata';
-    video.setAttribute('aria-label', title.textContent);
-    if (link.dataset.poster) video.poster = link.dataset.poster;
-    const start = Number(link.dataset.time);
-    if (Number.isFinite(start) && start > 0) {
-      video.addEventListener('loadedmetadata', () => {
-        if (currentMedia === video && Number.isFinite(video.duration)) {
-          video.currentTime = Math.min(start, video.duration);
-        }
-      }, { once: true });
-    }
-    currentMedia = video;
-    video.addEventListener('error', showError, { once: true });
-    stage.replaceChildren(video);
-    const useMobile = window.matchMedia('(max-width: 767px)').matches || navigator.connection?.saveData;
-    video.src = useMobile && link.dataset.mobile ? link.dataset.mobile : link.href;
-    // Request playback while the user's click still grants audio activation.
-    // If autoplay is disabled, native controls remain available.
-    video.play()?.catch(() => {});
+    video.tabIndex = 0;
+    posterButton.hidden = true;
+    video.focus({ preventScroll: true });
+    // Keep play() in the click handler so the film can start with sound on mobile.
+    pendingTime = time;
+    seekWhenReady();
+    video.play().catch(updateControls);
   }
 
-  function openArt(link) {
-    const image = document.createElement('img');
-    const alt = link.querySelector('img')?.alt;
-    image.alt = alt || title.textContent;
-    currentMedia = image;
-    image.addEventListener('error', showError, { once: true });
-    stage.replaceChildren(image);
-    image.src = link.href;
+  function showScreen() {
+    video.scrollIntoView({ block: 'center', inline: 'nearest' });
   }
 
-  document.addEventListener('click', (event) => {
-    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey ||
-        event.shiftKey || event.altKey || dialog.open) return;
-    const link = event.target.closest?.('a[href][data-film], a[href][data-art]');
-    if (!link) return;
-
-    dialog.showModal();
-    event.preventDefault();
-    trigger = link;
-    const film = link.hasAttribute('data-film');
-    title.textContent = link.dataset.title || (film ? '广告成片' : '平面作品');
-    original.href = link.href;
-    dialog.dataset.mode = film ? 'film' : 'art';
-    closeButton.focus({ preventScroll: true });
-    if (film) openFilm(link);
-    else openArt(link);
-  });
-
-  closeButton.addEventListener('click', () => dialog.close());
-  dialog.addEventListener('close', () => {
-    const media = currentMedia;
-    currentMedia = null;
-    if (media) {
-      media.removeEventListener('error', showError);
-      if (media.tagName === 'VIDEO') {
-        media.pause();
-        media.removeAttribute('src');
-        media.load();
-      } else {
-        media.removeAttribute('src');
+  document.querySelectorAll('.watch, .frame[data-time]').forEach(link => {
+    link.addEventListener('click', event => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      if (link === watch && !video.paused && !video.ended) {
+        video.pause();
+        return;
       }
-    }
-    stage.replaceChildren();
-    original.removeAttribute('href');
-    delete dialog.dataset.mode;
-    if (trigger?.isConnected) trigger.focus({ preventScroll: true });
-    trigger = null;
+      showScreen();
+      playFilm(link === watch ? null : Number(link.dataset.time));
+    });
   });
 
-  function isBackdrop(event) {
-    if (event.target !== dialog) return false;
-    const bounds = dialog.getBoundingClientRect();
-    return event.clientX < bounds.left || event.clientX > bounds.right ||
-           event.clientY < bounds.top || event.clientY > bounds.bottom;
+  video.controls = false;
+  video.tabIndex = -1;
+  posterButton.hidden = false;
+  posterButton.addEventListener('click', () => playFilm(null));
+  video.addEventListener('loadedmetadata', seekWhenReady);
+  ['play', 'pause', 'ended'].forEach(name => video.addEventListener(name, updateControls));
+  function showError() {
+    posterButton.hidden = true;
+    video.controls = true;
+    video.tabIndex = 0;
+    error.hidden = false;
+    updateControls();
   }
+  video.addEventListener('error', showError);
+  // With nested sources, browsers may report an unsupported film on the last source.
+  video.querySelector('source:last-of-type').addEventListener('error', showError);
 
-  let pressedBackdrop = false;
-  dialog.addEventListener('pointerdown', (event) => {
-    pressedBackdrop = isBackdrop(event);
-  });
-  dialog.addEventListener('click', (event) => {
-    if (pressedBackdrop && isBackdrop(event)) dialog.close();
-    pressedBackdrop = false;
-  });
-
-  function pauseVideo() {
-    if (currentMedia?.tagName === 'VIDEO') currentMedia.pause();
-  }
+  document.addEventListener('play', event => {
+    if (event.target.tagName !== 'VIDEO') return;
+    document.querySelectorAll('video').forEach(other => {
+      if (other !== event.target && !other.paused) other.pause();
+    });
+  }, true);
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) pauseVideo();
+    if (document.hidden) document.querySelectorAll('video').forEach(item => item.pause());
   });
-  window.addEventListener('pagehide', pauseVideo);
+
+  const crew = document.querySelector('.crew-row');
+  const crewControl = crew.querySelector('.crew-control');
+  crewControl.hidden = false;
+  crewControl.addEventListener('click', () => {
+    const paused = crew.classList.toggle('paused');
+    const label = paused ? '继续猫咪跑动' : '暂停猫咪跑动';
+    crewControl.setAttribute('aria-label', label);
+    crewControl.title = label;
+  });
 })();
