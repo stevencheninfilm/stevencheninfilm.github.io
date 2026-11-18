@@ -5,6 +5,8 @@
   const cards = [...document.querySelectorAll('.deck-card')];
   const thumbnails = [...document.querySelectorAll('[data-slide]')];
   const current = document.querySelector('#current-slide');
+  // Project IDs stay stable for shared links. The counter follows the visual order.
+  const firstPageNumber = Number(current.textContent || 1);
   const pagination = document.querySelector('.home-pagination');
   const stageSteps = [...document.querySelectorAll('.stage-step')];
   const thumbnailDock = document.querySelector('.thumbnail-dock');
@@ -197,7 +199,7 @@
     });
     if (mode === 'strip') thumbnailDock.setAttribute('aria-hidden', 'true');
     else thumbnailDock.removeAttribute('aria-hidden');
-    current.textContent = cards[active]?.dataset.page ?? String(active + 1);
+    current.textContent = String(firstPageNumber + active);
     pagination.setAttribute('aria-label', mode === 'strip'
       ? (chinese ? `打开 ${cards[active].dataset.title}` : `Open ${cards[active].dataset.title}`)
       : (chinese ? `浏览全部 ${total} 个项目` : `Browse all ${total} projects`));

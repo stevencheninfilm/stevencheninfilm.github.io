@@ -186,8 +186,9 @@ test('mobile dock loads only intersecting thumbnails and still supports browsers
 test('language links restore exact project IDs while missing or invalid IDs keep the first project', () => {
   const source = read('assets/site.js');
   const initialization = source.slice(0, source.indexOf("  let mode = 'expanded';")) + '\nreturn active;\n})();';
-  const cards = Array.from({ length: 10 }, (_, index) => ({ dataset: { page: String(index - 1) } }));
-  for (const [search, expected] of [['', 0], ['?project=-1', 0], ['?project=0', 1], ['?project=1', 2], ['?campaign=home&project=8', 9], ['?project=9', 0], ['?project=10', 0], ['?project=-2', 0], ['?project=1.5', 0], ['?project=', 0], ['?project=unknown', 0]]) {
+  const cards = [...read('index.html').matchAll(/<article class="deck-card[^>]* data-page="(-?\d+)"/g)]
+    .map(([, page]) => ({ dataset: { page } }));
+  for (const [search, expected] of [['', 0], ['?project=-1', 0], ['?project=0', 1], ['?project=3', 2], ['?project=1', 3], ['?project=2', 4], ['?campaign=home&project=8', 9], ['?project=9', 0], ['?project=10', 0], ['?project=-2', 0], ['?project=1.5', 0], ['?project=', 0], ['?project=unknown', 0]]) {
     const active = vm.runInNewContext(initialization, {
       URLSearchParams,
       window: { location: { search }, matchMedia: () => ({ matches: false }) },
